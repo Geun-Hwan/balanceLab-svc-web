@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import { Cookies } from "react-cookie";
-import { ACCEES_TOKEN } from "./serivceConstants";
+import { ACCEES_TOKEN } from "./serviceConstants";
 
 const cookies = new Cookies();
 

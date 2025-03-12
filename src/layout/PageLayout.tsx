@@ -1,14 +1,14 @@
-import { ComponentType } from "react";
+import { isMobile } from "react-device-detect";
 import { Outlet } from "react-router-dom";
+import Header from "./Header";
+import { Container } from "@mantine/core";
 
-const PageLayout = ({ Header }: { Header?: ComponentType }) => {
+const PageLayout = () => {
   return (
-    <div>
-      {Header && <Header />}
-      <div>
-        <Outlet />
-      </div>
-    </div>
+    <Container p={isMobile ? "xs" : "md"} m={"auto"} maw={"95%"}>
+      <Header />
+      <Outlet />
+    </Container>
   );
 };
 

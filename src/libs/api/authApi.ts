@@ -15,6 +15,13 @@ export interface ILoginResult {
   accessToken: string;
 }
 
+export type JoinRequest = {
+  loginId: string;
+  email: string;
+  nickName: string;
+  password: string;
+};
+
 export const login = async (param: LoginRequestType): Promise<ILoginResult> => {
   return instance
     .post<ILoginResult>(PRE_FIX + `/login`, param, { withCredentials: true })
@@ -30,5 +37,17 @@ export const logout = async (): Promise<boolean> => {
 export const republish = async (): Promise<string> => {
   return instance
     .post<string>(PRE_FIX + `/republish`, {}, { withCredentials: true })
+    .then((res) => res.data.data);
+};
+
+export const join = async (param: JoinRequest): Promise<ILoginResult> => {
+  return instance
+    .post<ILoginResult>(PRE_FIX + `/join`, param, { withCredentials: true })
+    .then((res) => res.data.data);
+};
+
+export const idDuplicationCheck = async (loginId: string): Promise<boolean> => {
+  return instance
+    .post<boolean>(PRE_FIX + `/idcheck/${loginId}`, {})
     .then((res) => res.data.data);
 };

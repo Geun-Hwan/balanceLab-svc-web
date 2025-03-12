@@ -1,15 +1,12 @@
-import axios, { AxiosRequestConfig } from "axios";
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { logout, republish } from "./api/authApi";
-import {
-  getAccessToken,
-  removeCookie,
-  setAccessToken,
-} from "./utils/cookieUtil";
-import { ACCEES_TOKEN, CustomError } from "./utils/serivceConstants";
+import { getAccessToken, setAccessToken } from "./utils/cookieUtil";
+import { handleLogoutCallback } from "./utils/loginUtil";
+import { CustomError } from "./utils/serviceConstants";
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
-export const axiosInstance = axios.create({
+const axiosInstance = axios.create({
   baseURL: apiUrl,
   headers: {
     "Content-Type": "application/json",
@@ -46,29 +43,31 @@ axiosInstance.interceptors.response.use(
 
         // 예: 토큰 만료 시 로그아웃 처리
       } catch (refreshError) {
+        //  CustomError.SESSION_EXPIRED
         console.error("토큰 재발급 실패, 로그아웃 처리");
         await logout();
-        removeCookie(ACCEES_TOKEN);
-        window.location.href = "/";
 
+        handleLogoutCallback();
         return Promise.reject(refreshError);
       }
     }
 
     if (errorCode === CustomError.SESSION_EXPIRED) {
       await logout();
-      removeCookie(ACCEES_TOKEN);
-      window.location.href = "/";
-      return Promise.reject(error);
+      handleLogoutCallback();
+      return Promise.reject(
+        error.response as AxiosResponse<IAPI_RESPONSE<any>>
+      );
     }
 
-    return Promise.reject(error);
+    return Promise.reject(error.response as AxiosResponse<IAPI_RESPONSE<any>>);
   }
 );
 
 interface IAPI_RESPONSE<T> {
   data: T;
   status: number;
+  code: string;
   message: string;
 }
 

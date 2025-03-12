@@ -10,7 +10,6 @@ module.exports = {
       "@store": path.resolve(__dirname, "src/store"),
       "@tmp": path.resolve(__dirname, "src/elements/templates/index.ts"), // index.ts로 매핑
       "@cmp": path.resolve(__dirname, "src/elements/components"),
-      "@atm": path.resolve(__dirname, "src/elements/atoms"),
     },
   },
 };

@@ -22,8 +22,7 @@
       "@hooks/*": ["./src/hooks/*"],
       "@store/*": ["./src/store/*"],
       "@tmp": ["./src/elements/templates/index.ts"],
-      "@cmp/*": ["./src/elements/components/*"],
-      "@atm": ["./src/elements/atoms/index.ts"]
+      "@cmp/*": ["./src/elements/components/*"]
     }
   },
   "include": ["src/**/*"],

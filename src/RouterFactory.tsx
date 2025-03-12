@@ -9,39 +9,47 @@ import PageLayout from "./layout/PageLayout";
 const routes: RouteObject[] = [
   {
     path: "/",
-    element: <PageLayout Header={() => <>메인페이지</>} />,
+    element: <PageLayout />,
     children: [
       {
         path: "",
-        Component: MainHomeTemplate,
+        element: <MainHomeTemplate />,
       },
     ],
   },
   {
     path: "login",
-    element: <PageLayout Header={() => <>로그인페이지</>} />,
-
+    element: <PageLayout />,
     children: [
       {
         path: "",
-        Component: LoginTemplate,
+        element: <LoginTemplate />,
       },
     ],
   },
   {
     path: "join",
-    element: <PageLayout Header={() => <>가입페이지</>} />,
+    element: <PageLayout />,
     children: [
       {
         path: "",
-        Component: JointTemplate,
+        element: <JointTemplate />,
       },
     ],
   },
 ];
-const RouterFactory = () => {
-  const router = createBrowserRouter(routes);
 
+export const router = createBrowserRouter(routes);
+
+export const navigateTo = (path: string | number, replace: boolean = false) => {
+  if (typeof path === "string") {
+    router.navigate(path, { replace });
+  } else if (path === -1) {
+    router.navigate(-1); // -1일 경우 뒤로 가기
+  }
+};
+
+const RouterFactory = () => {
   return <RouterProvider router={router} />;
 };
 

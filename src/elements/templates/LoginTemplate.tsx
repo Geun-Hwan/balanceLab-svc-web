@@ -1,71 +1,109 @@
-import { login, LoginRequestType, logout } from "@/libs/api/authApi";
-import { verifyMailSend } from "@/libs/api/mailApi";
-import { removeCookie, setAccessToken } from "@/libs/utils/cookieUtil";
+import { login, LoginRequestType } from "@/libs/api/authApi";
+import { useAlertStore, useUserStore } from "@/libs/store/store";
+import { handleLoginSuccess } from "@/libs/utils/loginUtil";
+import {
+  Anchor,
+  Button,
+  Flex,
+  Paper,
+  PasswordInput,
+  Text,
+  TextInput,
+  Title,
+} from "@mantine/core";
 import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Button } from "../atoms";
-import { ACCEES_TOKEN } from "@/libs/utils/serivceConstants";
+import { AxiosResponse } from "axios";
+import { ChangeEvent, useEffect, useState } from "react";
+import { Form, useNavigate } from "react-router-dom";
 
 const LoginTemplate = () => {
+  const { showAlert } = useAlertStore();
+  const { isLogin } = useUserStore();
   const navigate = useNavigate();
   const [loginState, setLoginState] = useState<LoginRequestType>({
     loginIdOrEmail: "",
     password: "",
   });
 
-  const { mutate: loginMutate } = useMutation({
+  const { mutate: loginMutate, isPending } = useMutation({
     mutationFn: (params: LoginRequestType) => login(params),
     onSuccess: (data, variables, context) => {
-      const { accessToken } = data;
-      setAccessToken(accessToken);
-      navigate("/");
+      handleLoginSuccess(data);
     },
-    onError: () => {},
+    onError: (res: AxiosResponse) => {
+      showAlert(res.data?.message, "error");
+    },
   });
 
-  const { mutate: logoutMutate } = useMutation({
-    mutationFn: () => logout(),
-    onSuccess: (data, variables, context) => {
-      removeCookie(ACCEES_TOKEN);
-      navigate("/");
-    },
-    onError: () => {},
-  });
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
 
-  const { mutate: verifyMailMutate } = useMutation({
-    mutationFn: (params: { email: string }) => verifyMailSend(params),
-    onSuccess: (data, variables, context) => {},
-    onError: () => {},
-  });
+    setLoginState((prev) => {
+      return { ...prev, [name]: value };
+    });
+  };
+
+  const handleLogin = (e: any) => {
+    e.preventDefault();
+    if (!isPending) {
+      if (loginState.loginIdOrEmail && loginState.password) {
+        loginMutate(loginState);
+      }
+    }
+  };
+  useEffect(() => {
+    if (isLogin) {
+      navigate("/", { replace: true });
+    }
+  }, [isLogin, navigate]);
+
   return (
-    <>
-      <Button
-        buttonNm={"로그인"}
-        onClick={() => {
-          loginMutate({ loginIdOrEmail: "admin", password: "rmsghks1026" });
-        }}
-      />
-      <Button
-        buttonNm={"로그아웃"}
-        onClick={() => {
-          logoutMutate();
-        }}
-      />
-      {/* <Button
-        buttonNm={"메일"}
-        onClick={() => {
-          verifyMailMutate({ email: "" });
-        }}
-      /> */}
+    <Flex justify="center" align="center" h="80vh">
+      <Paper p="lg" radius="md" shadow="md" w="100vh" maw={"400"} withBorder>
+        <Title ta={"center"} order={2} mb="md">
+          로그인
+        </Title>
+        <Form>
+          <TextInput
+            name="loginIdOrEmail"
+            label="아이디 또는 이메일"
+            placeholder="example@email.com"
+            value={loginState.loginIdOrEmail}
+            onChange={handleChange}
+            onKeyDown={(e) => e.key === " " && e.preventDefault()} // 스페이스바 입력 차단
+            required
+          />
+          <PasswordInput
+            name="password"
+            label="비밀번호"
+            placeholder="비밀번호를 입력하세요"
+            value={loginState.password}
+            onChange={handleChange}
+            onKeyDown={(e) => e.key === " " && e.preventDefault()} // 스페이스바 입력 차단
+            required
+          />
 
-      <Button
-        buttonNm={"가입고고"}
-        onClick={() => {
-          verifyMailMutate({ email: "rmsghks1026@gmail.com" });
-        }}
-      />
-    </>
+          <Flex justify="center" align="center" mt="sm">
+            <Text size="sm" c="dimmed">
+              계정이 없으신가요?
+            </Text>
+            <Anchor
+              size="sm"
+              fw={600}
+              ml="xs"
+              onClick={() => navigate("/join")}
+              style={{ cursor: "pointer" }}
+            >
+              회원가입
+            </Anchor>
+          </Flex>
+
+          <Button fullWidth mt="md" onClick={handleLogin}>
+            로그인
+          </Button>
+        </Form>
+      </Paper>
+    </Flex>
   );
 };
 

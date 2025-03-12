@@ -1,63 +1,43 @@
-import {
-  getQuestionKey,
-  getQuestionList,
-  IQuestionResult,
-} from "@/libs/api/questionApi";
-import { createSelection, SelectionCreateType } from "@/libs/api/selectionApi";
-import { getAccessToken } from "@/libs/utils/cookieUtil";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import BalanceCard from "../component/BalanceCard";
+import { BrowserView, MobileView } from "react-device-detect";
+import PCBalanceGameList from "../components/pc/PcBalanceGameList";
+import BalanceCard from "../components/BalanceCard";
+import MobileBalanceGameList from "../components/mobile/MobileBalanceGameList";
 
 const MainHomeTemplate = () => {
-  const qc = useQueryClient();
+  // const { setThemeColor, themeColor } = useUserStore();
+  // const { toggleColorScheme } = useMantineColorScheme();
 
-  const { data } = useQuery({
-    queryKey: getQuestionKey(),
-    queryFn: () => getQuestionList(),
-    enabled: !!getAccessToken(),
-  });
-
-  const { mutate, isPending } = useMutation({
-    mutationFn: (params: SelectionCreateType) => createSelection(params),
-    onSuccess: (data, variables, context) => {
-      qc.setQueryData(getQuestionKey(), (oldData: Array<IQuestionResult>) => {
-        if (oldData) {
-          return oldData.map((item) => {
-            return item.questionId === variables.questionId
-              ? changeData(item, variables)
-              : item;
-          });
-        }
-        return oldData;
-      });
-    },
-    onError: () => {},
-  });
-
-  const changeData = (oldData: IQuestionResult, param: SelectionCreateType) => {
-    return {
-      ...oldData,
-
-      choiceType: param.choiceType,
-      selectA: oldData.selectA + (param.choiceType === "A" ? 1 : 0),
-      selectB: oldData.selectB + (param.choiceType === "B" ? 1 : 0),
-    };
-  };
-
-  const callback = (data: SelectionCreateType) => {
-    if (isPending) {
-      return;
-    }
-
-    mutate(data);
-  };
-
+  // const toggleTheme = () => {
+  //   toggleColorScheme();
+  //   setThemeColor(themeColor === "dark" ? "light" : "dark");
+  // };
   return (
-    <div className="card-container">
-      {data?.map((item) => (
-        <BalanceCard data={item} key={item.questionId} callback={callback} />
-      ))}
-    </div>
+    <>
+      <BrowserView>
+        <PCBalanceGameList />
+      </BrowserView>
+
+      <MobileView>
+        <MobileBalanceGameList />
+      </MobileView>
+    </>
+  );
+};
+
+export const DummyData = () => {
+  return (
+    <>
+      <BalanceCard key={1} data={{ title: "로그인 후 이용 하세요!" }} isBlur />
+      <BalanceCard key={2} data={{ title: "가입 후 이용 하세요!" }} isBlur />
+
+      <BalanceCard key={3} data={{ title: "로그인 후 이용 하세요!2" }} isBlur />
+
+      <BalanceCard key={4} data={{ title: "가입 후 이용 하세요!3" }} isBlur />
+
+      <BalanceCard key={5} data={{ title: "로그인 후 이용 하세요!" }} isBlur />
+
+      <BalanceCard key={6} data={{ title: "로그인 후 이용 하세요!" }} isBlur />
+    </>
   );
 };
 

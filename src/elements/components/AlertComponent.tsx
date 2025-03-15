@@ -1,6 +1,6 @@
 import { useAlertStore } from "@/libs/store/store";
 
-import { Alert, Flex, Text } from "@mantine/core";
+import { Alert, Button, Flex, Text } from "@mantine/core";
 import {
   IconAlertCircle,
   IconCheck,
@@ -30,8 +30,8 @@ const AlertComponent = () => {
       pos="fixed"
       top={0}
       left={0}
-      w="100vw"
-      h="100vh"
+      w="100dvw"
+      h="100dvh"
       bg={"rgb(0,0,0,0.7)"}
       style={{
         zIndex: 100,
@@ -44,19 +44,26 @@ const AlertComponent = () => {
         maw={400} // 최대 너비 설정
         style={{
           zIndex: 999, // 알림을 배경 위로 올리기
+          justifyContent: "center",
         }}
         pos="absolute"
         top={"40%"}
         bg={"#fff"}
-        w="80%"
+        variant="light"
+        w="90%"
         icon={icon}
         title="알림"
-        color={color}
+        c={color}
         withCloseButton
         onClose={hideAlert}
         radius="md"
       >
-        <Text style={{ color: "#000" }}>{alertMessage}</Text>
+        <Text variant="text" c={"dark"} style={{ whiteSpace: "pre-line" }}>
+          {alertMessage}
+        </Text>
+        {/* <Flex justify={"center"} mt={20}>
+          <Button onClick={hideAlert}>확인</Button>
+        </Flex> */}
       </Alert>
     </Flex>
   ) : null;

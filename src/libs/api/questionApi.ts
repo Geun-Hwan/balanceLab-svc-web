@@ -1,6 +1,16 @@
 import { instance } from "../api";
+import { QuestionStatusCd } from "../utils/serviceConstants";
 
-type QuestionRequestType = {};
+type QuestionRequestType = {
+  page?: number | string;
+  pageSize?: number | string;
+  questionId?: string;
+  search?: string;
+  categories?: string;
+  startDate?: string;
+  endDate?: string;
+  showEnded?: boolean;
+};
 
 export interface IQuestionResult {
   questionId: string;
@@ -12,21 +22,40 @@ export interface IQuestionResult {
 
   strDate: any; //시작시간
   endDate: any; //종료시간
-  questionStatusCd: string; // 선택지상태
-
+  questionStatusCd: QuestionStatusCd; // 선택지상태
+  participation: boolean;
   choiceType: "A" | "B" | null; // 내 선택
 
   selectA: number; // A 총 선택인원
   selectB: number; // B 총 선택인원
 }
 
+interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+  last: boolean;
+}
+
 export const getQuestionKey = (params: QuestionRequestType = {}) => {
-  return Object.keys(params).length > 0 ? ["question", params] : ["question"];
+  return Object.keys(params).length > 0
+    ? ["question", JSON.stringify(Object.entries(params).sort())]
+    : ["question"];
 };
 export const getQuestionList = async (
-  param: QuestionRequestType = {}
-): Promise<Array<IQuestionResult>> => {
+  param: QuestionRequestType
+): Promise<PageResponse<IQuestionResult>> => {
   return instance
-    .get<Array<IQuestionResult>>(`/question`, param)
+    .get<PageResponse<IQuestionResult>>(`/question`, param)
+    .then((res) => res.data.data);
+};
+
+export const getQuestionDetail = async (
+  questionId: string
+): Promise<IQuestionResult> => {
+  return instance
+    .get<IQuestionResult>(`/question/${questionId}`)
     .then((res) => res.data.data);
 };

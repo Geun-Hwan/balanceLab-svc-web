@@ -8,6 +8,7 @@ const apiUrl = process.env.REACT_APP_API_URL;
 
 const axiosInstance = axios.create({
   baseURL: apiUrl,
+  withCredentials: false,
   headers: {
     "Content-Type": "application/json",
   },

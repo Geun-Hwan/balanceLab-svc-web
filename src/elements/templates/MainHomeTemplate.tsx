@@ -2,14 +2,9 @@ import { BrowserView, MobileView } from "react-device-detect";
 import PCBalanceGameList from "../components/pc/PcBalanceGameList";
 import BalanceCard from "../components/BalanceCard";
 import MobileBalanceGameList from "../components/mobile/MobileBalanceGameList";
+import { SimpleGrid, Stack } from "@mantine/core";
 
 const MainHomeTemplate = () => {
-  // const { setThemeColor, themeColor } = useUserStore();
-  // const { toggleColorScheme } = useMantineColorScheme();
-
-  // const toggleTheme = () => {
-  //   toggleColorScheme();
-  //   setThemeColor(themeColor === "dark" ? "light" : "dark");
   // };
   return (
     <>
@@ -24,20 +19,21 @@ const MainHomeTemplate = () => {
   );
 };
 
-export const DummyData = () => {
+export const DummyData = ({
+  repeat = 12,
+  cols = 3,
+  spacing = 50,
+}: {
+  repeat?: number;
+  cols?: number;
+  spacing?: number;
+}) => {
   return (
-    <>
-      <BalanceCard key={1} data={{ title: "로그인 후 이용 하세요!" }} isBlur />
-      <BalanceCard key={2} data={{ title: "가입 후 이용 하세요!" }} isBlur />
-
-      <BalanceCard key={3} data={{ title: "로그인 후 이용 하세요!2" }} isBlur />
-
-      <BalanceCard key={4} data={{ title: "가입 후 이용 하세요!3" }} isBlur />
-
-      <BalanceCard key={5} data={{ title: "로그인 후 이용 하세요!" }} isBlur />
-
-      <BalanceCard key={6} data={{ title: "로그인 후 이용 하세요!" }} isBlur />
-    </>
+    <SimpleGrid cols={cols} spacing={spacing}>
+      {Array.from({ length: repeat }).map((_, index) => (
+        <BalanceCard key={index} isBlur />
+      ))}{" "}
+    </SimpleGrid>
   );
 };
 

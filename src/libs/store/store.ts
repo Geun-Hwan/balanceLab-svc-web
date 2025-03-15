@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { ILoginResult } from "../api/authApi";
 import { persist } from "zustand/middleware";
 import { useMantineColorScheme } from "@mantine/core";
+import { MotionGlobalConfig } from "framer-motion";
 
 export type AlertType = "error" | "success" | "info" | "warning"; // 알림 타입
 
@@ -31,6 +32,8 @@ interface UserState {
   setIsLogin: (isLogin: boolean) => void;
   themeColor: "light" | "dark"; // 추가된 themeColor 필드
   setThemeColor: (themeColor: "light" | "dark") => void; // themeColor를 설정하는 메서드
+  animationEnable: boolean;
+  toggleAnimation: () => void;
 }
 export const useUserStore = create<UserState>()(
   persist(
@@ -40,11 +43,15 @@ export const useUserStore = create<UserState>()(
       themeColor: window.matchMedia("(prefers-color-scheme: dark)").matches
         ? "dark"
         : "light",
+      animationEnable: true,
 
       setIsLogin: (isLogin: boolean) => set({ isLogin }),
 
       setUserData: (data: any) => set({ userData: data, isLogin: true }),
       setThemeColor: (themeColor: "light" | "dark") => set({ themeColor }),
+      toggleAnimation: () => {
+        set((state) => ({ animationEnable: !state.animationEnable }));
+      },
 
       resetStore: () => set({ userData: null, isLogin: false }),
     }),

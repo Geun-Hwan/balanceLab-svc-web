@@ -58,8 +58,16 @@ const LoginTemplate = () => {
   }, [isLogin, navigate]);
 
   return (
-    <Flex justify="center" align="center" h="80vh">
-      <Paper p="lg" radius="md" shadow="md" w="100vh" maw={"400"} withBorder>
+    <Flex justify="center" h="70dvh">
+      <Paper
+        p="lg"
+        radius="md"
+        shadow="md"
+        flex={1}
+        maw={"400"}
+        withBorder
+        m="auto"
+      >
         <Title ta={"center"} order={2} mb="md">
           로그인
         </Title>
@@ -79,7 +87,11 @@ const LoginTemplate = () => {
             placeholder="비밀번호를 입력하세요"
             value={loginState.password}
             onChange={handleChange}
-            onKeyDown={(e) => e.key === " " && e.preventDefault()} // 스페이스바 입력 차단
+            onKeyDown={(e) => {
+              e.key === " " && e.preventDefault();
+
+              e.key === "Enter" && handleLogin(e);
+            }}
             required
           />
 

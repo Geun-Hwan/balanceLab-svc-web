@@ -343,8 +343,16 @@ const JointTemplate = () => {
   }, [emailSent, emailTimer, fieldChecked.emailCode]);
 
   return (
-    <Flex justify="center" align="center" h="85vh">
-      <Paper p="lg" radius="md" shadow="md" w="100vh" maw={"400"} withBorder>
+    <Flex justify={"center"} h={"90dvh"}>
+      <Paper
+        p="lg"
+        radius="md"
+        shadow="md"
+        flex={1}
+        maw={"400"}
+        m="auto"
+        withBorder
+      >
         <Title order={2} ta="center" mb="md">
           회원가입
         </Title>

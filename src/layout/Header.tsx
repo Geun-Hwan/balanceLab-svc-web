@@ -1,24 +1,20 @@
 import { logout } from "@/libs/api/authApi";
 import { useUserStore } from "@/libs/store/store";
 import { handleLogoutCallback } from "@/libs/utils/loginUtil";
-import {
-  Box,
-  Button,
-  Divider,
-  Drawer,
-  Flex,
-  Text,
-  useMantineColorScheme,
-} from "@mantine/core";
+import { Box, Button, Divider, Drawer, Flex, Title } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import {
+  IconArrowLeft,
   IconBriefcase,
+  IconCat,
   IconChevronRight,
   IconHome,
+  IconList,
   IconLogin,
   IconLogout,
   IconMenu2,
   IconPhone,
+  IconSettings,
 } from "@tabler/icons-react";
 import { useMutation } from "@tanstack/react-query";
 import { isMobile } from "react-device-detect";
@@ -33,15 +29,13 @@ const Header = () => {
       py="sm"
     >
       {/* 로고 */}
-      <Text bd="none" size="lg" fw={700}>
-        My App
-      </Text>
-      <Menu />
+
+      <HeaderMenu />
     </Flex>
   );
 };
 
-const Menu = () => {
+const HeaderMenu = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isLogin } = useUserStore();
@@ -51,94 +45,111 @@ const Menu = () => {
     onSuccess: (data, variables, context) => {
       close();
       handleLogoutCallback();
-
-      navigate("/login");
     },
     onError: () => {
       close();
 
       handleLogoutCallback();
-      navigate("/login");
     },
   });
+
+  const handleNavigation = (path: string) => {
+    if (location.pathname === path) {
+      close();
+    } else {
+      close();
+      navigate(path);
+    }
+  };
 
   const MenuItem = {
     Home: (
       <Button
+        fullWidth
+        display={"flex"}
         bd="none"
         variant="default"
         size="md"
         fw={500}
         style={{ outline: "none" }}
-        onClick={() => {
-          if (location.pathname === "/") {
-            close();
-          } else {
-            close();
-            navigate("/");
-          }
-        }}
+        onClick={() => handleNavigation("/")}
         leftSection={<IconHome size={20} />}
       >
         Home
       </Button>
     ),
-    Service: (
+    MyGames: (
       <Button
+        fullWidth
+        display={"flex"}
         bd="none"
         variant="default"
         size="md"
         fw={500}
         style={{ outline: "none" }}
         leftSection={<IconBriefcase size={20} />}
-        onClick={() => {
-          if (location.pathname === "/service") {
-            close();
-          } else {
-            close();
-            navigate("/service");
-          }
-        }}
+        onClick={() => handleNavigation("/my-games")}
       >
-        Services
+        게임관리
       </Button>
     ),
+    Participations: (
+      <Button
+        fullWidth
+        display={"flex"}
+        bd="none"
+        variant="default"
+        size="md"
+        fw={500}
+        style={{ outline: "none" }}
+        leftSection={<IconList size={20} />}
+        onClick={() => handleNavigation("/my-participations")}
+      >
+        참여목록
+      </Button>
+    ),
+
     Contact: (
       <Button
+        fullWidth
+        display={"flex"}
         bd="none"
         variant="default"
         size="md"
         style={{ outline: "none" }}
         fw={500}
         leftSection={<IconPhone size={20} />}
-        onClick={() => {
-          if (location.pathname === "/contact") {
-            close();
-          } else {
-            close();
-            navigate("/contact");
-          }
-        }}
+        onClick={() => handleNavigation("/contact")}
       >
-        Contact
+        문의하기
+      </Button>
+    ),
+    Setting: (
+      <Button
+        fullWidth
+        display={"flex"}
+        bd="none"
+        variant="default"
+        size="md"
+        style={{ outline: "none" }}
+        fw={500}
+        leftSection={<IconSettings size={20} />}
+        onClick={() => handleNavigation("/setting")}
+      >
+        설정
       </Button>
     ),
     Login: (
       <Button
+        fullWidth
+        display={"flex"}
         bd="none"
         variant="default"
         size="md"
         style={{ outline: "none" }}
         fw={500}
         leftSection={<IconLogin size={20} />}
-        onClick={() => {
-          if (location.pathname === "/login") {
-            close();
-          } else {
-            close();
-            navigate("/login");
-          }
-        }}
+        onClick={() => handleNavigation("/login")}
       >
         Login
       </Button>
@@ -146,10 +157,13 @@ const Menu = () => {
 
     Logout: (
       <Button
+        fullWidth
+        display={"flex"}
         bd="none"
         variant="default"
         size="md"
         fw={500}
+        style={{ outline: "none" }}
         onClick={() => {
           if (!isPending) {
             logoutMutate();
@@ -161,11 +175,16 @@ const Menu = () => {
       </Button>
     ),
   };
+  const showAppIcon = ["/", "/login"].includes(location.pathname);
 
   return isMobile ? (
-    // ✅ 모바일: 햄버거 메뉴
-
     <>
+      {showAppIcon ? (
+        <IconCat size={24} onClick={() => navigate("/")} />
+      ) : (
+        <IconArrowLeft size={24} onClick={() => navigate(-1)} />
+      )}
+
       <IconMenu2
         size={28}
         stroke={1.5}
@@ -180,7 +199,11 @@ const Menu = () => {
         size="xs"
         withCloseButton={false}
         styles={{
-          body: { display: "flex", flexDirection: "column", height: "100vh" },
+          body: {
+            display: "flex",
+            flexDirection: "column",
+            height: "100dvh",
+          },
         }} // Drawer 높이 지정
       >
         <Flex justify="flex-end" mb={"md"}>
@@ -188,9 +211,15 @@ const Menu = () => {
         </Flex>
 
         <Flex direction="column" gap="xl" flex={1}>
-          <Box>{MenuItem.Home}</Box>
-          <Box>{MenuItem.Service}</Box>
-          <Box>{MenuItem.Contact}</Box>
+          {MenuItem.Home}
+          {isLogin && (
+            <>
+              {MenuItem.MyGames}
+              {MenuItem.Participations}
+            </>
+          )}
+          {MenuItem.Contact}
+          {MenuItem.Setting}
         </Flex>
         {/* 구분선 & 로그인 (최하단) */}
         <Box>
@@ -200,13 +229,28 @@ const Menu = () => {
       </Drawer>
     </>
   ) : (
-    // ✅ 웹: 네비게이션 메뉴
-    <Flex gap="md">
-      {MenuItem.Home}
-      {MenuItem.Service}
-      {MenuItem.Contact}
-      {isLogin ? MenuItem.Logout : MenuItem.Login}
-    </Flex>
+    <>
+      <Title
+        onClick={() => {
+          navigate("/");
+        }}
+      >
+        HOME
+      </Title>
+
+      <Flex gap={"md"}>
+        {isLogin && (
+          <>
+            {MenuItem.MyGames}
+            {MenuItem.Participations}
+          </>
+        )}
+        {MenuItem.Contact}
+        {MenuItem.Setting}
+
+        {isLogin ? MenuItem.Logout : MenuItem.Login}
+      </Flex>
+    </>
   );
 };
 export default Header;

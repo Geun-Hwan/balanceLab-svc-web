@@ -7,7 +7,7 @@ import { useUserStore } from "@/store/store";
 import { SimpleGrid } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import BalanceCard from "./BalanceCard";
 
 const Dummy = ({
@@ -29,7 +29,6 @@ const Dummy = ({
     queryFn: () => getPublicQuestion(),
     enabled: !isLogin,
   });
-
   const generateRandomHangulWithSpaces = (
     minLength: number,
     maxLength: number
@@ -50,12 +49,19 @@ const Dummy = ({
     }
     return result;
   };
+  const [dummyData, setDummyData] = useState({ title: "로딩~~~~~~~~~~" });
+
+  useEffect(() => {
+    if (!isLoading && data) {
+      setDummyData(data);
+    }
+  }, [isLoading, data]);
   return (
-    <SimpleGrid cols={cols} spacing={spacing}>
+    <SimpleGrid cols={cols} spacing={spacing} w={"100%"}>
       {/* 비로그인 사용자도 볼수있음 */}
-      {!!data && <BalanceCard data={data as IQuestionResult} />}
+      {<BalanceCard data={dummyData as IQuestionResult} isBlur={isLoading} />}
       {Array.from({ length: repeat }).map((_, index) => {
-        const randomTitle = generateRandomHangulWithSpaces(10, 20);
+        const randomTitle = generateRandomHangulWithSpaces(10, 35);
         return (
           <BalanceCard
             key={index}

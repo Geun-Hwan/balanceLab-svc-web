@@ -29,7 +29,7 @@ const BalanceCard = React.memo(
       }
       const { value } = e.currentTarget;
       if (value) {
-        navigate(`/question/${value}`);
+        navigate(`/balance/${value}`);
       }
     };
 

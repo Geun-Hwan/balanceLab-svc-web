@@ -4,12 +4,17 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { MotionGlobalConfig } from "framer-motion";
 import { useEffect } from "react";
 import { queryClient } from "./api/queryClent";
-import "./App.css";
+import { useUserStore } from "./store/store";
 
+import DesktopViewProvider from "./context/DesktopViewContext";
 import AlertComponent from "./elements/components/AlertComponent";
 import RouterFactory from "./routes/RouterFactory";
-import { useUserStore } from "./store/store";
-import DesktopViewProvider from "./context/DesktopViewContext";
+import dayjs from "dayjs";
+
+import "./App.css";
+import "dayjs/locale/ko"; // 한국어 로케일 가져오기
+
+dayjs.locale("ko");
 
 function App() {
   const { themeColor, animationEnable } = useUserStore();

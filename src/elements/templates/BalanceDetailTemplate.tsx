@@ -28,9 +28,8 @@ import { useParams } from "react-router-dom";
 import SelectAnimation from "../components/SelectAnimation";
 
 import { getUserKey } from "@/api/userApi";
-import { debounce } from "lodash";
-import { BrowserView, MobileView } from "react-device-detect";
 import { useDesktopView } from "@/context";
+import { debounce } from "lodash";
 
 const BalanceDetailTemplate = () => {
   const qc = useQueryClient();
@@ -245,8 +244,7 @@ const BalanceDetailTemplate = () => {
       >
         {data?.title}
       </Text>
-
-      <BrowserView>
+      {isDesktopView ? (
         <Group justify="center">
           <Box>
             <Title ta={"center"} mb={"sm"}>
@@ -261,42 +259,22 @@ const BalanceDetailTemplate = () => {
             <Image w={200} h={200} src={"/"}></Image>
           </Box>
         </Group>
-      </BrowserView>
-
-      <MobileView>
-        {isDesktopView ? (
-          <Group justify="center">
-            <Box>
-              <Title ta={"center"} mb={"sm"}>
-                A
-              </Title>
-              <Image w={200} h={200} src={"/"}></Image>
-            </Box>
-            <Box>
-              <Title ta={"center"} mb={"sm"}>
-                B
-              </Title>
-              <Image w={200} h={200} src={"/"}></Image>
-            </Box>
-          </Group>
-        ) : (
-          <Group justify="center">
-            <Box>
-              <Title ta={"center"} mb={"sm"}>
-                A
-              </Title>
-              <Image w={120} h={120} src={"/"}></Image>
-            </Box>
-            <Box>
-              <Title ta={"center"} mb={"sm"}>
-                B
-              </Title>
-              <Image w={120} h={120} src={"/"}></Image>
-            </Box>
-          </Group>
-        )}
-      </MobileView>
-
+      ) : (
+        <Group justify="center">
+          <Box>
+            <Title ta={"center"} mb={"sm"}>
+              A
+            </Title>
+            <Image w={120} h={120} src={"/"}></Image>
+          </Box>
+          <Box>
+            <Title ta={"center"} mb={"sm"}>
+              B
+            </Title>
+            <Image w={120} h={120} src={"/"}></Image>
+          </Box>
+        </Group>
+      )}
       <Stack p="md" mt={"lg"} align="center">
         <Card
           h={100}

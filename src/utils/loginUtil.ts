@@ -9,17 +9,15 @@ export const handleLoginSuccess = (data: ILoginResult) => {
 
   const { accessToken, ...rest } = data;
   setAccessToken(accessToken);
-  setIsLogin(true);
   setUserData(rest);
+  setIsLogin(true);
   navigateTo("/");
 };
 
 export const handleLogoutCallback = () => {
-  // 쿠키 제거
   const { resetStore } = useUserStore.getState();
-
-  removeCookie(ACCEES_TOKEN);
   resetStore();
+  removeCookie(ACCEES_TOKEN);
 
   navigateTo("/login");
 };

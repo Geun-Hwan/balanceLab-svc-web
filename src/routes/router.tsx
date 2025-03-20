@@ -3,11 +3,13 @@ import { RouteObject, createBrowserRouter } from "react-router-dom";
 import AuthRoute from "./AuthRoute";
 import {
   BalanceDetailTemplate,
+  BalanceTemplate,
   ContactTemplate,
   JointTemplate,
   LoginTemplate,
   MainHomeTemplate,
   MyGamesTemplate,
+  NotFoundTemplate,
   ParticipationsTemplate,
   SettingTemplate,
 } from "@tmp";
@@ -39,44 +41,36 @@ const routes: RouteObject[] = [
         path: "setting",
         element: <SettingTemplate />, // 로그인한 사용자만 접근
       },
-
       {
-        path: "my-games",
-        element: <AuthRoute />,
-        children: [
-          {
-            path: "",
-            element: <MyGamesTemplate />, // 로그인한 사용자만 접근
-          },
-        ],
+        path: "balance",
+        element: <BalanceTemplate />, // 로그인한 사용자만 접근
+      },
+    ],
+  },
+  {
+    element: <AuthRoute />,
+    children: [
+      {
+        path: "balance/:questionId",
+        element: <BalanceDetailTemplate />,
+        children: [],
       },
       {
         path: "my-participations",
-        element: <AuthRoute />,
-        children: [
-          {
-            path: "",
-            element: <ParticipationsTemplate />, // 로그인한 사용자만 접근
-          },
-        ],
+        element: <ParticipationsTemplate />,
+        children: [],
       },
 
       {
-        path: "question",
-        element: <AuthRoute />,
-        children: [
-          {
-            path: ":questionId",
-            element: <BalanceDetailTemplate />,
-          },
-
-          {
-            path: "rgstr",
-            element: <></>,
-          },
-        ],
+        path: "my-games",
+        element: <MyGamesTemplate />,
+        children: [],
       },
     ],
+  },
+  {
+    path: "*",
+    element: <NotFoundTemplate />,
   },
 ];
 

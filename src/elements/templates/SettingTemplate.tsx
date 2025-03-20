@@ -1,3 +1,4 @@
+import Content from "@/layout/Content";
 import { useUserStore } from "@/store/store";
 import {
   Box,
@@ -10,7 +11,7 @@ import {
   useMantineColorScheme,
 } from "@mantine/core";
 
-export const SettingTemplate = () => {
+const SettingTemplate = () => {
   const { isLogin, animationEnable, toggleAnimation } = useUserStore();
   const { setThemeColor, themeColor } = useUserStore();
   const { toggleColorScheme } = useMantineColorScheme();
@@ -20,22 +21,22 @@ export const SettingTemplate = () => {
     setThemeColor(themeColor === "dark" ? "light" : "dark");
   };
   return (
-    <Flex justify={"center"} h={"90dvh"} p={"sm"}>
+    <Content>
       <Paper
         p="lg"
         radius="md"
         shadow="md"
-        flex={1}
-        maw={"400"}
+        maw={400}
         withBorder
+        mih={600}
+        w={"100%"}
         display={"flex"}
-        h={"100%"}
-        style={{ flexDirection: "column" }}
+        m={"auto"}
       >
-        <Title order={2} ta={"center"} mb={"xl"}>
-          설정색
-        </Title>
-        <Flex direction={"column"} flex={1} gap={"lg"}>
+        <Flex direction={"column"} gap={"lg"} flex={1}>
+          <Title order={2} ta={"center"} mb={"xl"}>
+            설정색
+          </Title>
           <Group justify="space-between">
             <Text>애니메이션 효과</Text>
             <Switch
@@ -46,16 +47,6 @@ export const SettingTemplate = () => {
             />
           </Group>
           <Group justify="space-between" align="center">
-            <Text>마케팅 알림 수신</Text>
-            <Switch
-              size="md"
-              checked={false}
-              styles={{ track: { cursor: "pointer" } }}
-            />
-          </Group>
-        </Flex>
-        <Box>
-          <Group justify="space-between" align="center">
             <Text>다크모드</Text>
             <Switch
               styles={{ track: { cursor: "pointer" } }}
@@ -64,9 +55,9 @@ export const SettingTemplate = () => {
               onChange={handleToggleTheme}
             />
           </Group>
-        </Box>
+        </Flex>
       </Paper>
-    </Flex>
+    </Content>
   );
 };
 export default SettingTemplate;

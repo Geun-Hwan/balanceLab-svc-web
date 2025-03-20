@@ -4,6 +4,7 @@ import { Flex, Text } from "@mantine/core";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import QuestionsList from "../components/QuestionList";
+import Content from "@/layout/Content";
 
 const ParticipationsTemplate = () => {
   const { isLogin } = useUserStore();
@@ -25,13 +26,13 @@ const ParticipationsTemplate = () => {
   });
 
   return (
-    <Flex h={"100%"} w={"100%"} direction={"column"}>
+    <Content>
       <Text size="sm" c="dimmed" mt={"lg"} p={"xs"}>
         최신 참여한 목록이 최상단에 나타납니다.
       </Text>
 
       <QuestionsList result={result} type="participation" />
-    </Flex>
+    </Content>
   );
 };
 

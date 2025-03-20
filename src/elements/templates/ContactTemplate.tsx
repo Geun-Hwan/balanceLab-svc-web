@@ -1,20 +1,32 @@
-import { Button, Flex, Paper, Text, Title } from "@mantine/core";
+import Content from "@/layout/Content";
+import { Button, Flex, Paper, Stack, Text, Title } from "@mantine/core";
 
 const ContactTemplate = () => {
   return (
-    <Flex justify={"center"} mih={"60dvh"}>
-      <Paper p="xl" shadow="md" maw={600} m="auto" bd={10}>
-        <Title order={3} ta="center">
-          비즈니스 협업 및 기타 문의
-        </Title>
+    <Content>
+      <Paper
+        p="xl"
+        shadow="md"
+        maw={600}
+        m="auto"
+        mih={300}
+        withBorder
+        radius="md"
+        display={"flex"}
+        style={{ flexDirection: "column" }}
+      >
+        <Stack>
+          <Title order={3} ta="center">
+            비즈니스 협업 및 기타 문의
+          </Title>
 
-        <Text ta="center" mt="sm">
-          서비스 관련 질문이나 제휴 제안은 언제든지 이메일로 보내주시면 신속하게
-          답변드리겠습니다. 보다 원활한 소통을 위해 구체적인 내용을 함께 제공해
-          주시면 더 도움이 됩니다.
-        </Text>
-
-        <Flex justify="center" mt="xl">
+          <Text ta="center" mt="lg">
+            서비스 관련 질문이나 제휴 제안은 언제든지 이메일로 보내주시면
+            신속하게 답변드리겠습니다. 보다 원활한 소통을 위해 구체적인 내용을
+            함께 제공해 주시면 더 도움이 됩니다.
+          </Text>
+        </Stack>
+        <Stack align="center" justify="flex-end" flex={1}>
           <Button
             component="a"
             href="mailto:help.gugunan@gmail.com"
@@ -26,9 +38,9 @@ const ContactTemplate = () => {
           >
             이메일 보내기
           </Button>
-        </Flex>
+        </Stack>
       </Paper>
-    </Flex>
+    </Content>
   );
 };
 

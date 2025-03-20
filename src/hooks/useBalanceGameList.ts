@@ -4,7 +4,7 @@ import {
   IQuestionResult,
   PageResponse,
 } from "@/api/questionApi";
-import { useAlertStore } from "@/store/store";
+import { useAlertStore, useUserStore } from "@/store/store";
 import { InfiniteData, useInfiniteQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { useEffect, useMemo, useState } from "react";
@@ -18,7 +18,8 @@ const searchParamsToObject = (searchParams: URLSearchParams) => {
   return params;
 };
 
-export const useBalanceGameList = (isLogin: boolean, pageSize: number = 30) => {
+export const useBalanceGameList = (pageSize: number = 30) => {
+  const { isLogin } = useUserStore();
   const [searchParams, setSearchParams] = useSearchParams();
   const [InfiniteData, setInfiniteData] = useState<
     InfiniteData<PageResponse<IQuestionResult>, unknown> | undefined

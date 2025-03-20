@@ -12,7 +12,7 @@ import { Button, Modal, Select, Text, TextInput } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import { modals } from "@mantine/modals";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import React, { useMemo, useState } from "react";
 
 const BalanceCreateModal = ({
@@ -45,20 +45,35 @@ const BalanceCreateModal = ({
     title: title ?? "",
     choiceA: choiceA ?? "",
     choiceB: choiceB ?? "",
-    strDate: strDate ? dayjs(strDate) : dayjs().add(1, "day"),
-    endDate: endDate ? dayjs(endDate) : dayjs().add(3, "day"),
+
     categoryCd: categoryCd ?? "",
     questionStatusCd: questionStatusCd ?? "20000003",
+  });
+
+  const [date, setDate] = useState<{ strDate: Dayjs; endDate: Dayjs }>({
+    strDate: strDate
+      ? dayjs(strDate).startOf("day")
+      : dayjs().add(1, "day").startOf("day"),
+    endDate: endDate
+      ? dayjs(endDate).endOf("day")
+      : dayjs().add(3, "day").endOf("day"),
   });
   const resetForm = () => {
     setFormData({
       title: title ?? "",
       choiceA: choiceA ?? "",
       choiceB: choiceB ?? "",
-      strDate: strDate ? dayjs(strDate) : dayjs().add(1, "day"),
-      endDate: endDate ? dayjs(endDate) : dayjs().add(3, "day"),
+
       categoryCd: categoryCd ?? "",
       questionStatusCd: questionStatusCd ?? "20000003",
+    });
+    setDate({
+      strDate: strDate
+        ? dayjs(strDate).startOf("day")
+        : dayjs().add(1, "day").startOf("day"),
+      endDate: endDate
+        ? dayjs(endDate).endOf("day")
+        : dayjs().add(3, "day").endOf("day"),
     });
   };
   const { mutate: createMutate } = useMutation({
@@ -112,6 +127,7 @@ const BalanceCreateModal = ({
   };
   const handleCreate = () => {
     // close();
+
     if ((userData?.totalPoint as number) < calculatePoints) {
       showAlert("포인트가 부족합니다.");
       return;
@@ -136,8 +152,9 @@ const BalanceCreateModal = ({
       return;
     }
 
-    const isToday = today.isSame(formData.strDate, "day");
+    const isToday = today.isSame(date.strDate, "day");
 
+    console.log(date.strDate);
     modals.openConfirmModal({
       modalId: "create_confirm",
       centered: true,
@@ -150,16 +167,16 @@ const BalanceCreateModal = ({
         </Text>
       ),
       onConfirm: () => {
-        const reqeustData = {
-          ...formData,
-          point: calculatePoints,
-          questionStatusCd: isToday ? "20000001" : "20000003",
-        };
+        formData.usedPoint = calculatePoints;
+        formData.questionStatusCd = isToday ? "20000001" : "20000003";
+        formData.strDate = date.strDate.format("YYYY-MM-DD");
+        formData.endDate = date.endDate.format("YYYY-MM-DD");
+
         if (isModify) {
-          reqeustData.questionId = questionId;
-          modifyMutate(reqeustData);
+          formData.questionId = questionId;
+          modifyMutate(formData);
         } else {
-          createMutate(reqeustData);
+          createMutate(formData);
         }
       },
 
@@ -193,7 +210,7 @@ const BalanceCreateModal = ({
     // strDate ,endDate
 
     // 날짜 차이에 따라 포인트 계산 (2일 초과 시 30p 추가)
-    const daysDifference = formData.endDate.diff(formData.strDate, "day");
+    const daysDifference = date.endDate.diff(date.strDate, "day");
 
     const additionalPoints = getBasePoint(daysDifference);
     let alreadyUse = 0;
@@ -207,7 +224,7 @@ const BalanceCreateModal = ({
     }
 
     return additionalPoints - alreadyUse;
-  }, [formData.strDate, formData.endDate, strDate, endDate, isModify]);
+  }, [date.strDate, date.endDate, strDate, endDate, isModify]);
 
   return (
     <Modal
@@ -255,7 +272,7 @@ const BalanceCreateModal = ({
         label="시작일"
         locale="ko"
         valueFormat="YYYY-MM-DD"
-        value={formData.strDate.toDate()}
+        value={date.strDate.toDate()}
         onChange={(value) => {
           const strDate = dayjs(value).startOf("day");
           if (strDate.isBefore(today, "day")) {
@@ -263,16 +280,16 @@ const BalanceCreateModal = ({
             return;
           }
 
-          if (strDate.isAfter(formData.endDate, "day")) {
+          if (strDate.isAfter(date.endDate, "day")) {
             showAlert("시작일은 종료일보다 이전이어야 합니다.", "warning");
             return;
           }
-          if (formData.endDate.diff(strDate, "day") > 13) {
+          if (date.endDate.diff(strDate, "day") > 13) {
             showAlert("기간은 최대 14일까지 선택할 수 있습니다.", "warning");
             return;
           }
 
-          setFormData((prev) => ({
+          setDate((prev) => ({
             ...prev,
             strDate,
           }));
@@ -286,20 +303,20 @@ const BalanceCreateModal = ({
         label="종료일"
         locale="ko"
         valueFormat="YYYY-MM-DD"
-        value={formData.endDate.toDate()}
+        value={date.endDate.toDate()}
         onChange={(value) => {
           const endDate = dayjs(value).endOf("day");
-          if (dayjs(formData.strDate).isAfter(endDate, "day")) {
+          if (dayjs(date.strDate).isAfter(endDate, "day")) {
             showAlert("종료일은 시작일 이후로 선택해야 합니다.", "warning");
             return;
           }
 
-          if (endDate.diff(formData.strDate, "day") > 13) {
+          if (endDate.diff(date.strDate, "day") > 13) {
             showAlert("기간은 최대 14일까지 선택할 수 있습니다.", "warning");
             return;
           }
 
-          setFormData((prev) => ({
+          setDate((prev) => ({
             ...prev,
             endDate,
           }));

@@ -38,14 +38,14 @@ const PCBalanceGameList = () => {
     hasNextPage,
     isLoading,
     isFetching,
-  } = useBalanceGameList(isLogin, 30);
+  } = useBalanceGameList(30);
 
   const observerRef = useRef<HTMLDivElement | null>(null);
 
   // ✅ IntersectionObserver를 사용한 자동 로딩
   useEffect(() => {
     if (!observerRef.current) return;
-    if (isFetching || isFetchingNextPage) return;
+    if (isFetchingNextPage) return;
     const currentRef = observerRef.current; // ref 값을 변수에 저장
     const observer = new IntersectionObserver(
       (entries) => {
@@ -60,7 +60,7 @@ const PCBalanceGameList = () => {
     return () => {
       if (currentRef) observer.unobserve(currentRef);
     };
-  }, [hasNextPage, isFetchingNextPage, isFetching]);
+  }, [isFetchingNextPage, hasNextPage]);
 
   const handleSearch = () => {
     if (!isLogin) {

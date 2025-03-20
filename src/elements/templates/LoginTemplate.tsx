@@ -1,12 +1,15 @@
 import { login, LoginRequestType } from "@/api/authApi";
+import Content from "@/layout/Content";
 import { useAlertStore, useUserStore } from "@/store/store";
 import { handleLoginSuccess } from "@/utils/loginUtil";
 import {
   Anchor,
+  Box,
   Button,
   Flex,
   Paper,
   PasswordInput,
+  Stack,
   Text,
   TextInput,
   Title,
@@ -17,7 +20,7 @@ import { ChangeEvent, useEffect, useState } from "react";
 import { Form, useNavigate } from "react-router-dom";
 
 const LoginTemplate = () => {
-  const { showAlert } = useAlertStore();
+  const { showAlert, alertVisible } = useAlertStore();
   const { isLogin } = useUserStore();
   const navigate = useNavigate();
   const [loginState, setLoginState] = useState<LoginRequestType>({
@@ -47,6 +50,9 @@ const LoginTemplate = () => {
 
   const handleLogin = (e: any) => {
     e.preventDefault();
+    if (alertVisible) {
+      return;
+    }
     if (!isPending) {
       if (loginState.loginIdOrEmail && loginState.password) {
         loginMutate(loginState);
@@ -57,20 +63,23 @@ const LoginTemplate = () => {
     if (isLogin) {
       navigate("/", { replace: true });
     }
-  }, [isLogin, navigate]);
+  }, [isLogin]);
 
   return (
-    <Flex justify="center" h="70dvh">
+    <Content headerProps={{ name: "Login" }}>
       <Paper
         p="lg"
         radius="md"
         shadow="md"
-        flex={1}
-        maw={"400"}
+        w={"100%"}
+        maw={"600"}
         withBorder
         m="auto"
+        mih={400}
+        display={"flex"}
+        style={{ flexDirection: "column" }}
       >
-        <Title ta={"center"} order={2} mb="md">
+        <Title ta={"center"} order={2}>
           로그인
         </Title>
         <Form>
@@ -80,7 +89,11 @@ const LoginTemplate = () => {
             placeholder="example@email.com"
             value={loginState.loginIdOrEmail}
             onChange={handleChange}
-            onKeyDown={(e) => e.key === " " && e.preventDefault()} // 스페이스바 입력 차단
+            onKeyDown={(e) => {
+              if (e.key === " ") e.preventDefault();
+
+              if (e.key === "Enter") handleLogin(e);
+            }} // 스페이스바 입력 차단
             required
           />
           <PasswordInput
@@ -96,28 +109,31 @@ const LoginTemplate = () => {
             }}
             required
           />
+        </Form>
 
+        <Stack justify="flex-end" flex={1}>
+          <Button fullWidth onClick={handleLogin}>
+            로그인
+          </Button>
           <Flex justify="center" align="center" mt="sm">
-            <Text size="sm" c="dimmed">
-              계정이 없으신가요?
-            </Text>
             <Anchor
               size="sm"
               fw={600}
               ml="xs"
               onClick={() => navigate("/join")}
-              style={{ cursor: "pointer" }}
             >
               회원가입
             </Anchor>
+            <Text size="sm" c="dimmed" mx="xs">
+              │
+            </Text>
+            <Anchor size="sm" fw={600} onClick={undefined}>
+              비밀번호 찾기
+            </Anchor>
           </Flex>
-
-          <Button fullWidth mt="md" onClick={handleLogin}>
-            로그인
-          </Button>
-        </Form>
+        </Stack>
       </Paper>
-    </Flex>
+    </Content>
   );
 };
 

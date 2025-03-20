@@ -144,7 +144,7 @@ const QuestionsList = ({
 
   const handleView = (questionId: string) => {
     // 상세보기
-    navigate(`/question/${questionId}`);
+    navigate(`/balance/${questionId}`);
   };
 
   const renderActionIcons = (question: IQuestionResult) => {

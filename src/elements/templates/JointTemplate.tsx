@@ -1,5 +1,6 @@
 import { idDuplicationCheck, join, JoinRequest } from "@/api/authApi";
 import { verifyCheck, verifyMailSend } from "@/api/mailApi";
+import Content from "@/layout/Content";
 import { useAlertStore } from "@/store/store";
 import { handleLoginSuccess } from "@/utils/loginUtil";
 import {
@@ -276,6 +277,7 @@ const JointTemplate = () => {
         setErrorMessage((prev) => ({
           ...prev,
           email: "",
+          emailCode: "",
         }));
 
         verifyMailSendMutate({ email: form.email });
@@ -330,14 +332,28 @@ const JointTemplate = () => {
 
   // 이메일 인증번호 확인
   useEffect(() => {
-    if (!emailSent || emailTimer <= 0 || fieldChecked.emailCode) {
-      if (emailTimer <= 0) {
-        setEmailSent(false);
+    if (emailTimer <= 0 || fieldChecked.emailCode) {
+      if (emailSent) {
+        if (emailTimer <= 0) {
+          setErrorMessage((prev) => ({
+            ...prev,
+            emailCode: "만료되었습니다.",
+          }));
+          setSuccessMessage((prev) => ({
+            ...prev,
+            email: "",
+          }));
+          setFieldChecked((prev) => ({
+            ...prev,
+            email: false,
+          }));
+          setEmailSent(false);
+        }
+
+        setEmailTimer(0);
+
+        return;
       }
-
-      setEmailTimer(0);
-
-      return;
     }
 
     const interval = setInterval(() => {
@@ -347,17 +363,29 @@ const JointTemplate = () => {
     return () => clearInterval(interval);
   }, [emailSent, emailTimer, fieldChecked.emailCode]);
 
+  useEffect(() => {
+    // visibilitychange 이벤트 리스너 등록
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        // 페이지가 백그라운드로 가면 타이머 멈추지 않음
+      } else {
+        // 페이지가 활성화되면 그때부터 상태 갱신
+        setEmailTimer((prev) => prev); // 상태 갱신 없이 진행 상태 유지
+      }
+    };
+
+    // visibilitychange 이벤트 리스너
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // cleanup
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
+
   return (
-    <Flex justify={"center"} h={"90dvh"}>
-      <Paper
-        p="lg"
-        radius="md"
-        shadow="md"
-        flex={1}
-        maw={"400"}
-        m="auto"
-        withBorder
-      >
+    <Content headerProps={{ name: "Join" }}>
+      <Paper p="lg" radius="md" shadow="md" maw={"600"} m="auto" withBorder>
         <Title order={2} ta="center" mb="md">
           회원가입
         </Title>
@@ -365,7 +393,9 @@ const JointTemplate = () => {
         <Form>
           <TextInput
             descriptionProps={{
-              style: { color: successMessage.loginId ? "#12B886" : undefined }, // ✅ 스타일 적용
+              style: {
+                color: successMessage.loginId ? "#12B886" : undefined,
+              }, // ✅ 스타일 적용
             }}
             description={
               successMessage.loginId
@@ -575,7 +605,7 @@ const JointTemplate = () => {
           가입하기
         </Button>
       </Paper>
-    </Flex>
+    </Content>
   );
 };
 

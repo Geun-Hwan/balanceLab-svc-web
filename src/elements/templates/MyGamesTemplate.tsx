@@ -6,6 +6,7 @@ import { IconPlus } from "@tabler/icons-react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import BalanceCreateModal from "../components/BalanceCreateModal";
 import QuestionsList from "../components/QuestionList";
+import Content from "@/layout/Content";
 
 /** @TODO 1일1회 출석체크 포인트 */
 
@@ -28,20 +29,20 @@ const MyGamesTemplate = () => {
   });
 
   return (
-    <Flex h={"100%"} w={"100%"} direction={"column"}>
-      <Group justify="space-between" mb="lg" mt={"lg"} wrap="wrap" p={"xs"}>
+    <Content>
+      <Group justify="space-between" mb="lg" wrap="wrap" p={"xs"}>
         <Text size="sm" c="dimmed">
           대기 중인 질문만 수정·삭제할 수 있으며, 매일 자정에 시작 상태로
           변경됩니다.
         </Text>
         <Button leftSection={<IconPlus size={16} />} onClick={open}>
-          질문 만들기
+          게임 생성
         </Button>
       </Group>
 
       <QuestionsList result={result} type="manageMent" />
       <BalanceCreateModal opened={opened} close={close} />
-    </Flex>
+    </Content>
   );
 };
 

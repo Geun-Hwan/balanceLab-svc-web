@@ -1,6 +1,7 @@
 import React, { ReactNode, useEffect, useState } from "react";
+import { isDesktop, isMobile } from "react-device-detect";
 import { DesktopViewContext } from ".";
-
+import { useMediaQuery } from "@mantine/hooks";
 // isDesktopView 상태를 저장할 컨텍스트를 생성
 
 // useDesktopView 훅
@@ -13,36 +14,23 @@ interface DesktopViewProviderProps {
 const DesktopViewProvider: React.FC<DesktopViewProviderProps> = ({
   children,
 }) => {
-  const [isDesktopView, setIsDesktopView] = useState(false);
+  const [isDesktopView, setIsDesktopView] = useState(isMobile);
+  const isMobileSize = useMediaQuery("(max-width: 768px)"); // 모바일 화면에서 true가 됩니다.
 
   useEffect(() => {
-    const checkDeviceView = () => {
-      const isDesktop = window.innerWidth >= 1024; // 화면 너비가 1024px 이상이면 데스크탑
-      const userAgent = navigator.userAgent;
+    const userAgent = navigator.userAgent;
 
-      // 데스크탑 웹사이트 보기 감지: 화면 크기와 userAgent를 함께 체크
-      if (
-        isDesktop ||
+    if (isMobile)
+      setIsDesktopView(
         userAgent.includes("Macintosh") ||
-        userAgent.includes("Windows")
-      ) {
-        setIsDesktopView(true); // 데스크탑 뷰로 설정
-      } else {
-        setIsDesktopView(false); // 모바일 뷰로 설정
-      }
-    };
+          userAgent.includes("Windows") ||
+          !isMobileSize
+      );
 
-    // 페이지 로드 시 한 번 체크
-    checkDeviceView();
-
-    // 윈도우 크기 변경 시 체크
-    window.addEventListener("resize", checkDeviceView);
-
-    // 컴포넌트 언마운트 시 이벤트 리스너 정리
-    return () => {
-      window.removeEventListener("resize", checkDeviceView);
-    };
-  }, []);
+    if (isDesktop) {
+      setIsDesktopView(!isMobileSize);
+    }
+  }, [isMobileSize]);
 
   return (
     <DesktopViewContext.Provider value={isDesktopView}>

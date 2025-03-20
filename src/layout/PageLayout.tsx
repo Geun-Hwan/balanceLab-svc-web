@@ -1,13 +1,19 @@
 import { Container } from "@mantine/core";
-import { isMobile } from "react-device-detect";
+
+import { useDesktopView } from "@/context";
 import { Outlet } from "react-router-dom";
-import Header from "./Header";
 
 const PageLayout = () => {
+  const isDesktopView = useDesktopView();
   return (
-    <Container p={isMobile ? "md" : "xl"} m={"auto"} fluid size="responsive">
-      <Header />
-
+    <Container
+      pt={0}
+      fluid
+      px={isDesktopView ? "xl" : "md"}
+      miw={isDesktopView ? 1024 : undefined}
+      mih={"95dvh"}
+      display={"flex"}
+    >
       <Outlet />
     </Container>
   );

@@ -24,6 +24,7 @@ import { modals } from "@mantine/modals";
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import BalanceCard from "../BalanceCard";
+import FloatingButton from "@cmp/FloatingButton";
 
 const MobileBalanceGameList = () => {
   const { isLogin } = useUserStore();
@@ -38,7 +39,7 @@ const MobileBalanceGameList = () => {
     isFetchingNextPage,
     fetchNextPage,
     hasNextPage,
-  } = useBalanceGameList(isLogin, 10);
+  } = useBalanceGameList(10);
   const [opened, { open, close }] = useDisclosure(false);
   const navigate = useNavigate();
   const observerRef = useRef<HTMLDivElement | null>(null);
@@ -86,7 +87,7 @@ const MobileBalanceGameList = () => {
         variant="light"
         opacity={1}
         style={{ zIndex: 10, outline: "none" }}
-        mt={"md"}
+        mb={"md"}
       >
         🔍 검색
       </Button>

@@ -20,11 +20,13 @@ export type QuestionCreateType = {
   title: string;
   choiceA: string;
   choiceB: string;
-  strDate: Dayjs;
-  endDate: Dayjs;
+  strDate?: string;
+  endDate?: string;
   categoryCd: string | null;
   questionStatusCd: string;
   point?: number;
+  usedPoint?: number;
+
   questionId?: string;
 };
 

@@ -41,6 +41,9 @@ export interface IQuestionResult {
   strDate: any; //시작시간
   endDate: any; //종료시간
   categoryCd: string;
+  imgUrlA: string | null;
+  imgUrlB: string | null;
+
   delYn: boolean; //삭제여부
   questionStatusCd: QuestionStatusCd; // 선택지상태
   participation: boolean;

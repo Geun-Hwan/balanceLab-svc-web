@@ -1,7 +1,7 @@
 import Content from "@/layout/Content";
 import { Button, Flex, Paper, Stack, Text, Title } from "@mantine/core";
 
-const ContactTemplate = () => {
+const ContractTemplate = () => {
   return (
     <Content>
       <Paper
@@ -9,11 +9,11 @@ const ContactTemplate = () => {
         shadow="md"
         maw={600}
         m="auto"
-        mih={300}
+        mih={350}
         withBorder
         radius="md"
         display={"flex"}
-        style={{ flexDirection: "column" }}
+        style={{ flexDirection: "column", top: -50, position: "relative" }}
       >
         <Stack>
           <Title order={3} ta="center">
@@ -44,4 +44,4 @@ const ContactTemplate = () => {
   );
 };
 
-export default ContactTemplate;
+export default ContractTemplate;

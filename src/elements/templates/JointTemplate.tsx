@@ -6,6 +6,7 @@ import { handleLoginSuccess } from "@/utils/loginUtil";
 import {
   Button,
   Flex,
+  Loader,
   Paper,
   PasswordInput,
   Text,
@@ -43,15 +44,18 @@ const JointTemplate = () => {
 
   const { mutate: verifyMailSendMutate, isPending: sendPending } = useMutation({
     mutationFn: (params: { email: string }) => verifyMailSend(params),
-    onSuccess: () => {
-      setEmailSent(true);
-      setEmailTimer(900);
+    onSuccess: (data) => {
+      if (data) {
+        setEmailSent(true);
 
-      setFieldChecked((prev) => ({ ...prev, email: true }));
-      setSuccessMessage((prev) => ({
-        ...prev,
-        email: "이메일로 인증번호를 발송했습니다.",
-      }));
+        setExpireTime(new Date(data));
+
+        setFieldChecked((prev) => ({ ...prev, email: true }));
+        setSuccessMessage((prev) => ({
+          ...prev,
+          email: "이메일로 인증번호를 발송했습니다.",
+        }));
+      }
     },
     onError: (res: AxiosResponse) => {
       if (res?.data) {
@@ -78,6 +82,9 @@ const JointTemplate = () => {
           ...prev,
           emailCode: true,
         }));
+
+        setExpireTime(null);
+        setEmailSent(false);
       }
     },
     onError: (res: AxiosResponse) => {
@@ -137,7 +144,8 @@ const JointTemplate = () => {
   });
 
   const [emailSent, setEmailSent] = useState(false);
-  const [emailTimer, setEmailTimer] = useState(0);
+  const [expireTime, setExpireTime] = useState<null | Date>(null);
+  const [timeLeft, setTimeLeft] = useState<number>(0);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -146,6 +154,7 @@ const JointTemplate = () => {
       ...prev,
       [name]: "",
       ...(name === "password" && { confirmPassword: "" }), // ✅ 에러 메시지도 초기화
+      ...(name === "email" && { emailCode: "" }),
     }));
     setSuccessMessage((prev) => ({
       ...prev,
@@ -307,7 +316,7 @@ const JointTemplate = () => {
         return;
       }
 
-      const nicknameRegex = /^[a-zA-Z0-9가-힣]{2,15}$/;
+      const nicknameRegex = /^[a-zA-Z0-9가-힣]{2,8}$/;
       if (!nicknameRegex.test(nickName)) {
         setErrorMessage((prev) => {
           return {
@@ -331,61 +340,56 @@ const JointTemplate = () => {
   };
 
   // 이메일 인증번호 확인
+
+  const resetEmailCode = () => {
+    setExpireTime(null);
+    setEmailSent(false);
+    setFieldChecked((prev) => ({ ...prev, email: false }));
+    setSuccessMessage((prev) => ({ ...prev, email: "" }));
+    setErrorMessage((prev) => ({
+      ...prev,
+      emailCode: "시간이 만료되었습니다.",
+    }));
+  };
+
   useEffect(() => {
-    if (emailTimer <= 0 || fieldChecked.emailCode) {
-      if (emailSent) {
-        if (emailTimer <= 0) {
-          setErrorMessage((prev) => ({
-            ...prev,
-            emailCode: "만료되었습니다.",
-          }));
-          setSuccessMessage((prev) => ({
-            ...prev,
-            email: "",
-          }));
-          setFieldChecked((prev) => ({
-            ...prev,
-            email: false,
-          }));
+    if (expireTime && !fieldChecked.emailCode && fieldChecked.email) {
+      const timer = setInterval(() => {
+        const currentTime = new Date();
+        const remainingTime = Math.max(
+          0,
+          Math.floor((expireTime.getTime() - currentTime.getTime()) / 1000)
+        );
+
+        setTimeLeft(remainingTime);
+        if (remainingTime <= 600) {
           setEmailSent(false);
         }
 
-        setEmailTimer(0);
+        if (remainingTime === 0) {
+          clearInterval(timer); // 타이머 종료
+          resetEmailCode();
+        }
+      }, 1000);
 
-        return;
-      }
+      // 컴포넌트가 unmount 될 때 타이머 정리
+      return () => clearInterval(timer);
     }
-
-    const interval = setInterval(() => {
-      setEmailTimer((prev) => prev - 1);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [emailSent, emailTimer, fieldChecked.emailCode]);
-
-  useEffect(() => {
-    // visibilitychange 이벤트 리스너 등록
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "hidden") {
-        // 페이지가 백그라운드로 가면 타이머 멈추지 않음
-      } else {
-        // 페이지가 활성화되면 그때부터 상태 갱신
-        setEmailTimer((prev) => prev); // 상태 갱신 없이 진행 상태 유지
-      }
-    };
-
-    // visibilitychange 이벤트 리스너
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    // cleanup
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-  }, []);
+  }, [expireTime, fieldChecked.email, fieldChecked.emailCode]);
 
   return (
     <Content headerProps={{ name: "Join" }}>
-      <Paper p="lg" radius="md" shadow="md" maw={"600"} m="auto" withBorder>
+      <Paper
+        p="lg"
+        radius="md"
+        shadow="md"
+        maw={"600"}
+        m="auto"
+        withBorder
+        w={"100%"}
+        display={"flex"}
+        style={{ flexDirection: "column" }}
+      >
         <Title order={2} ta="center" mb="md">
           회원가입
         </Title>
@@ -418,7 +422,7 @@ const JointTemplate = () => {
               <Button
                 size="xs"
                 onClick={check.loginId}
-                disabled={fieldChecked.loginId}
+                disabled={fieldChecked.loginId || !!errorMessage.loginId}
                 variant="default"
               >
                 중복 확인
@@ -495,7 +499,9 @@ const JointTemplate = () => {
             label="이메일"
             name="email"
             type="email"
-            disabled={fieldChecked.email || fieldChecked.emailCode}
+            disabled={
+              fieldChecked.email || fieldChecked.emailCode || sendPending
+            }
             value={form.email}
             onChange={handleChange}
             placeholder="이메일 입력"
@@ -507,8 +513,12 @@ const JointTemplate = () => {
               <Button
                 onClick={check.email}
                 disabled={
-                  emailSent || fieldChecked.emailCode || fieldChecked.email
+                  emailSent ||
+                  fieldChecked.emailCode ||
+                  sendPending ||
+                  !!errorMessage.email
                 }
+                miw={65}
                 variant="default"
                 style={{
                   fontSize: 10,
@@ -517,18 +527,31 @@ const JointTemplate = () => {
                   height: 20,
                 }}
               >
-                인증번호 전송
+                {sendPending ? (
+                  <Loader
+                    size="xs"
+                    style={{ alignSelf: "center", justifyContent: "center" }}
+                    flex={1}
+                    display={"flex"}
+                  />
+                ) : fieldChecked.emailCode ? (
+                  "인증완료"
+                ) : expireTime ? (
+                  "재전송"
+                ) : (
+                  "인증번호 전송"
+                )}
               </Button>
             }
           />
 
           {
-            <Flex align="flex-start" gap="xs" mt="xs">
+            <Flex align="flex-start" mt="xs">
               <TextInput
                 flex={1}
-                disabled={
-                  !fieldChecked.email || !emailSent || fieldChecked.emailCode
-                }
+                type="number"
+                maxLength={6}
+                disabled={!fieldChecked.email || fieldChecked.emailCode}
                 inputWrapperOrder={["label", "input", "description", "error"]}
                 descriptionProps={{
                   style: {
@@ -542,7 +565,6 @@ const JointTemplate = () => {
                     ? "\u00A0"
                     : ""
                 }
-                maxLength={6}
                 name="emailCode"
                 value={form.emailCode}
                 error={errorMessage.emailCode}
@@ -552,16 +574,14 @@ const JointTemplate = () => {
                 onKeyDown={(e) => e.key === " " && e.preventDefault()}
                 rightSectionWidth={60}
                 rightSection={
-                  emailTimer > 0 ? (
-                    <Text size="sm" c="gray">
-                      {`${Math.floor(emailTimer / 60)}:${String(
-                        emailTimer % 60
+                  timeLeft > 0 && !fieldChecked.emailCode ? (
+                    <Text size="sm">
+                      {`${Math.floor(timeLeft / 60)}:${String(
+                        timeLeft % 60
                       ).padStart(2, "0")}`}
                     </Text>
                   ) : (
-                    <Text size="sm" c="transparent">
-                      00:00
-                    </Text> // 공백 유지
+                    <Text size="sm">00:00</Text> // 공백 유지
                   )
                 }
               />
@@ -583,11 +603,12 @@ const JointTemplate = () => {
                 color: successMessage.nickName ? "#12B886" : undefined,
               },
             }}
+            maxLength={8}
             description={
               successMessage.nickName
                 ? successMessage.nickName
                 : !errorMessage.nickName
-                ? "닉네임은 2~15자, 한글, 영어, 숫자만 입력하세요."
+                ? "닉네임은 2~8자, 한글, 영어, 숫자만 입력하세요."
                 : ""
             }
             error={errorMessage.nickName}

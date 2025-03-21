@@ -1,7 +1,8 @@
-import { Box, Container, Flex } from "@mantine/core";
+import { Box, Flex } from "@mantine/core";
 import { ReactNode } from "react";
 import Footer from "./Footer";
-import Header, { MenuName } from "./Header";
+import Header from "./Header";
+import { MenuName } from "./menu";
 
 type HeaderProps = {
   name?: MenuName;
@@ -21,7 +22,7 @@ const Content = ({
   footerProps?: FooterProps;
 }) => {
   return (
-    <Flex flex={1} direction={"column"}>
+    <Flex direction={"column"} flex={1}>
       <Content.Header {...headerProps} />
       {children}
       <Content.Footer {...footerProps} />

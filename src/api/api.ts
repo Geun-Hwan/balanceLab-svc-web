@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import { logout, republish } from "./authApi";
 import { getAccessToken, setAccessToken } from "../utils/cookieUtil";
 import { handleLogoutCallback } from "../utils/loginUtil";
@@ -95,7 +95,7 @@ axiosInstance.interceptors.response.use(
   }
 );
 
-interface IAPI_RESPONSE<T> {
+export interface IAPI_RESPONSE<T> {
   data: T;
   status: number;
   code: string;

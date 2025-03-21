@@ -1,23 +1,38 @@
+import { navigateTo } from "@/routes/router";
 import { ILoginResult } from "../api/authApi";
+import { ACCEES_TOKEN } from "../constants/serviceConstants";
 import { useUserStore } from "../store/store";
 import { removeCookie, setAccessToken } from "./cookieUtil";
-import { ACCEES_TOKEN } from "../constants/serviceConstants";
-import { navigateTo } from "@/routes/router";
 
-export const handleLoginSuccess = (data: ILoginResult) => {
+export const handleLoginSuccess = (
+  data: ILoginResult,
+  callback?: () => void
+) => {
   const { setIsLogin, setUserData } = useUserStore.getState();
 
   const { accessToken, ...rest } = data;
   setAccessToken(accessToken);
   setUserData(rest);
   setIsLogin(true);
-  navigateTo("/");
+
+  if (callback) {
+    callback();
+  } else {
+    navigateTo("/");
+  }
 };
 
-export const handleLogoutCallback = () => {
+export const handleLogoutCallback = (callback?: () => void) => {
   const { resetStore } = useUserStore.getState();
   resetStore();
+
   removeCookie(ACCEES_TOKEN);
 
-  navigateTo("/login");
+  requestAnimationFrame(() => {
+    if (callback) {
+      callback();
+    } else {
+      navigateTo("/");
+    }
+  });
 };

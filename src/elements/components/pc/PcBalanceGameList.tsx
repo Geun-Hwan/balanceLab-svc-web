@@ -79,64 +79,81 @@ const PCBalanceGameList = () => {
   };
 
   return (
-    <Flex h={"100%"} w={"100%"} direction={"column"}>
+    <Flex
+      h={"100%"}
+      w={"90%"}
+      direction={"column"}
+      pt={"lg"}
+      mx="auto"
+      mt={"md"}
+    >
       {/* 필터 섹션 */}
 
-      <Box mb="xl" style={{ borderBottom: "1px solid #eee" }}>
-        <Group mb={"sm"}>
-          <TextInput
-            name="search"
-            placeholder="검색어를 입력하세요"
-            value={filters.search}
-            onChange={handleFilterChange}
-            miw={300}
-            w={"33%"}
-          />
-          <Button onClick={handleSearch} miw={150} ml={30}>
-            검색
-          </Button>
-        </Group>
+      <Box mb="xl" style={{ borderBottom: "1px solid gray" }}>
         {/* 종료 여부 */}
         {/* 검색 */}
-        <Title size="sm" w={500} mb={10}>
-          마감일
-        </Title>
-        <Group mb={30}>
-          <DatePickerInput
-            maxLevel="month"
-            dropdownType="modal"
-            name="startDate"
-            valueFormat="YYYY-MM-DD"
-            placeholder="날짜를 선택하세요."
-            value={filters.startDate}
-            onChange={(v: any) => handleDateChange(v, "startDate")}
-            locale="ko"
-          />
-          <Text>~</Text>
-          <DatePickerInput
-            name="endDate"
-            maxLevel="month"
-            dropdownType="modal"
-            valueFormat="YYYY-MM-DD"
-            placeholder="날짜를 선택하세요."
-            value={filters.endDate}
-            onChange={(v: any) => handleDateChange(v, "endDate")}
-            locale="ko"
-          />
-          <Checkbox
-            ml={20}
-            name="showEnded"
-            label="마감된 게임 포함"
-            checked={filters.showEnded}
-            onChange={handleFilterChange}
-          />
-        </Group>
+        <Flex my={"xl"}>
+          <Box>
+            <Title size="sm" w={500} mb={"md"}>
+              마감일
+            </Title>
+            <Group>
+              <DatePickerInput
+                maxLevel="month"
+                dropdownType="modal"
+                name="startDate"
+                valueFormat="YYYY-MM-DD"
+                placeholder="날짜를 선택하세요."
+                value={filters.startDate}
+                onChange={(v: any) => handleDateChange(v, "startDate")}
+                locale="ko"
+              />
+              <Text>~</Text>
+              <DatePickerInput
+                name="endDate"
+                maxLevel="month"
+                dropdownType="modal"
+                valueFormat="YYYY-MM-DD"
+                placeholder="날짜를 선택하세요."
+                value={filters.endDate}
+                onChange={(v: any) => handleDateChange(v, "endDate")}
+                locale="ko"
+              />
+              <Checkbox
+                ml={20}
+                name="showEnded"
+                label="마감된 게임 포함"
+                checked={filters.showEnded}
+                onChange={handleFilterChange}
+              />
+            </Group>
+          </Box>
+
+          <Box>
+            <Title size="sm" w={500} mb={"md"}>
+              키워드 검색
+            </Title>
+            <Group>
+              <TextInput
+                name="search"
+                placeholder="검색어를 입력하세요"
+                value={filters.search}
+                onChange={handleFilterChange}
+                miw={300}
+                w={"33%"}
+              />
+              <Button onClick={handleSearch} miw={150} flex={1}>
+                검색
+              </Button>
+            </Group>
+          </Box>
+        </Flex>
 
         {/* 카테고리 체크박스 */}
-        <Title size="sm" w={500} mb={10}>
+        <Title size="sm" w={500} mb={"md"}>
           카테고리
         </Title>
-        <Flex wrap="wrap" align={"center"} mt={"xl"} mb={"xl"}>
+        <Flex wrap="wrap" align={"center"} mb={"xl"}>
           {CATEGORIES.map((category) => (
             <Checkbox
               value={category.value}

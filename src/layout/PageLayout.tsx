@@ -10,8 +10,8 @@ const PageLayout = () => {
       pt={0}
       fluid
       px={isDesktopView ? "xl" : "md"}
-      miw={isDesktopView ? 1024 : undefined}
-      mih={"95dvh"}
+      miw={isDesktopView ? 1440 : undefined}
+      h={"99dvh"}
       display={"flex"}
     >
       <Outlet />

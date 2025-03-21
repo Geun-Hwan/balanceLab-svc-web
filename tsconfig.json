@@ -21,7 +21,9 @@
     "paths": {
       "@tmp": ["./src/elements/templates/index"],
       "@cmp/*": ["./src/elements/components/*"],
+      "@img": ["./src/assets/images/*"],
 
+      "@asset/*": ["./src/assets/*"],
       "@/*": ["./src/*"]
     }
   },

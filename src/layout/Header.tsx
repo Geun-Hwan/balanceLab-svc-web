@@ -1,85 +1,41 @@
-import { logout } from "@/api/authApi";
+import { ILoginResult, logout } from "@/api/authApi";
 import { useDesktopView } from "@/context";
-import { useUserStore } from "@/store/store";
+import { useAlertStore, useUserStore } from "@/store/store";
 import { handleLogoutCallback } from "@/utils/loginUtil";
 import {
-  Anchor,
-  Box,
   Button,
+  Divider,
   Drawer,
   Flex,
   Group,
+  Menu,
+  ScrollArea,
   Stack,
   Text,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { modals } from "@mantine/modals";
-import {
-  IconBriefcase,
-  IconCat,
-  IconCheck,
-  IconChevronRight,
-  IconHomeBolt,
-  IconList,
-  IconLogout,
-  IconPhone,
-  IconSelect,
-  IconSettings,
-  IconUser,
-} from "@tabler/icons-react";
+import { IconChevronLeft, IconMenu2, IconUser } from "@tabler/icons-react";
 import { useMutation } from "@tanstack/react-query";
-import React, { ReactNode } from "react";
+import React, { useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-
-type CommonMenuType =
-  | "Home"
-  | "Contact"
-  | "Setting"
-  | "Login"
-  | "Join"
-  | "Balance"
-  | "Prediction";
-
-type LoginMenuType = "MyPage" | "Logout" | "Point";
-
-type MypageMenuType = "MyGames" | "Participations";
-export type MenuName = CommonMenuType | LoginMenuType | MypageMenuType;
-
-type MenuItem = React.ReactNode;
-
-// MenuItems의 타입 정의
-type MenuItemsType = {
-  desktop: Record<MenuName, MenuItem>;
-
-  mobile: Record<MenuName, MenuItem>;
-};
+import { getMenuItems, MenuItem, MenuItemsType, MenuName } from "./menu";
 
 const Header = ({ name }: { name?: MenuName }) => {
   const location = useLocation();
   const isDesktopView = useDesktopView();
-
   const { isLogin, userData } = useUserStore();
-  const [opened, { open, close }] = useDisclosure(false);
+  const { showAlert } = useAlertStore();
+
   const { mutate: logoutMutate, isPending } = useMutation({
     mutationFn: () => logout(),
     onSuccess: (data, variables, context) => {
-      close();
-      handleLogoutCallback();
+      handleLogoutCallback(() => showAlert("로그아웃 완료!"));
     },
     onError: () => {
-      close();
       handleLogoutCallback();
     },
   });
-  const navigate = useNavigate();
-
-  const handleNavigation = (path: string) => {
-    if (location.pathname === path) {
-      return;
-    } else {
-      navigate(path);
-    }
-  };
 
   const handleLogout = () => {
     modals.openConfirmModal({
@@ -92,347 +48,254 @@ const Header = ({ name }: { name?: MenuName }) => {
       onConfirm: () => logoutMutate(),
     });
   };
-
-  const MenuItems: MenuItemsType = {
-    desktop: {
-      Home: (
-        <IconHomeBolt
-          size={50}
-          key="home"
-          onClick={() => {
-            handleNavigation("/");
-          }}
-        >
-          HOME
-        </IconHomeBolt>
-      ),
-      Contact: (
-        <Header.DeskTopMenuButton
-          key="contact"
-          isActive={"/contact" === location.pathname}
-          icon={<IconPhone size={20} />}
-          callback={() => handleNavigation("/contact")}
-          title="고객지원"
-        />
-      ),
-      Setting: (
-        <Header.DeskTopMenuButton
-          key="setting"
-          isActive={"/setting" === location.pathname}
-          icon={<IconSettings size={20} />}
-          callback={() => handleNavigation("/setting")}
-          title="설정"
-        />
-      ),
-      Login: name !== "Login" && !isLogin && (
-        <Anchor
-          key="login"
-          onClick={() => handleNavigation("/login")}
-          td={"underline"}
-        >
-          로그인
-        </Anchor>
-      ),
-      Join: name !== "Join" && !isLogin && (
-        <Anchor
-          key="join"
-          onClick={() => handleNavigation("/join")}
-          td={"underline"}
-        >
-          가입하기
-        </Anchor>
-      ),
-      MyGames: isLogin && (
-        <Button
-          miw={125}
-          maw={150}
-          key="my-games"
-          fullWidth
-          bd="none"
-          variant="default"
-          size="md"
-          fw={500}
-          style={{ outline: "none" }}
-          leftSection={<IconBriefcase size={20} />}
-          onClick={() => handleNavigation("/my-games")}
-        >
-          게임관리
-        </Button>
-      ),
-      Participations: isLogin && (
-        <Button
-          miw={125}
-          maw={150}
-          key="participations"
-          fullWidth
-          bd="none"
-          variant="default"
-          size="md"
-          fw={500}
-          style={{ outline: "none" }}
-          leftSection={<IconList size={20} />}
-          onClick={() => handleNavigation("/my-participations")}
-        >
-          참여목록
-        </Button>
-      ),
-      Point: isLogin && (
-        <Anchor key={"point"}>{userData?.totalPoint.toLocaleString()}P</Anchor>
-      ),
-
-      Logout: isLogin && (
-        <Anchor key="logout" onClick={handleLogout} td={"underline"}>
-          로그아웃
-        </Anchor>
-      ),
-      MyPage: isLogin && (
-        <Anchor key="mypage" onClick={undefined} td={"underline"}>
-          마이
-        </Anchor>
-      ),
-      Balance: (
-        <Header.DeskTopMenuButton
-          key="balance"
-          isActive={"/balance" === location.pathname}
-          icon={<IconSelect size={20} />}
-          title="밸런스게임"
-          callback={() => handleNavigation("/balance")}
-        />
-      ),
-
-      Prediction: (
-        <Header.DeskTopMenuButton
-          key="prediction"
-          isActive={"/prediction" === location.pathname}
-          icon={<IconCheck size={20} />}
-          title="준비중"
-          callback={() => {
-            handleNavigation("/prediction");
-          }}
-        />
-      ),
-    },
-
-    mobile: {
-      Home: (
-        <IconCat
-          size={24}
-          key="home-mobile"
-          onClick={() => handleNavigation("/")}
-        />
-      ),
-      Contact: (
-        <Button miw={125} onClick={() => handleNavigation("/contact")}>
-          문의
-        </Button>
-      ),
-      Point: (
-        <Anchor key={"mobile-point"}>
-          {userData?.totalPoint.toLocaleString()}P
-        </Anchor>
-      ),
-
-      Setting: (
-        <Button miw={125} onClick={() => handleNavigation("/setting")}>
-          설정
-        </Button>
-      ),
-      Login: name !== "Login" && !isLogin && (
-        <Button
-          maw={150}
-          key="login-mobile"
-          miw={80}
-          variant="outline"
-          onClick={() => handleNavigation("/login")}
-        >
-          Login
-        </Button>
-      ),
-      Join: name !== "Join" && name !== "Login" && !isLogin && (
-        <Button
-          maw={150}
-          key="join-mobile"
-          miw={80}
-          onClick={() => handleNavigation("/join")}
-        >
-          Join
-        </Button>
-      ),
-      MyGames: isLogin && (
-        <Button miw={125} onClick={() => handleNavigation("/mygames")}>
-          내 게임
-        </Button>
-      ),
-      Participations: isLogin && (
-        <Button miw={125} onClick={() => handleNavigation("/participations")}>
-          참여 목록
-        </Button>
-      ),
-      Logout: isLogin && (
-        <Button
-          maw={150}
-          key="logout-mobile"
-          miw={80}
-          onClick={handleLogout}
-          variant="subtle"
-          leftSection={<IconLogout size={15} />}
-        >
-          Logout
-        </Button>
-      ),
-
-      MyPage: isLogin && (
-        <IconUser
-          key={"mypage-mobile"}
-          size={28}
-          stroke={1.5}
-          style={{ outline: "none" }}
-          onClick={open}
-        />
-      ),
-      Balance: (
-        <Button
-          miw={125}
-          key={"balance-mobile"}
-          onClick={() => handleNavigation("/balance")}
-        >
-          밸런스게임
-        </Button>
-      ),
-      Prediction: (
-        <Button
-          miw={125}
-          key={"prediction-mobile"}
-          onClick={() => handleNavigation("/prediction")}
-        >
-          밸런스게임
-        </Button>
-      ),
-    },
-  };
+  const MenuItems: MenuItemsType = useMemo(() => {
+    return getMenuItems(handleLogout);
+  }, [handleLogout]);
 
   return (
-    <Box mb={"md"}>
-      <Stack gap={"xs"} flex={1}>
-        <Group
-          justify={isDesktopView ? "flex-end" : "space-between"}
-          pt={"xs"}
-          flex={1}
-          w={"100%"}
-          align="center"
-          mih={isDesktopView ? undefined : 60}
-        >
-          {isDesktopView ? (
-            [
-              MenuItems.desktop.Point,
-
-              MenuItems.desktop.Login,
-              MenuItems.desktop.Join,
-              MenuItems.desktop.MyPage,
-              MenuItems.desktop.Logout,
-            ]
-          ) : (
-            <React.Fragment>
-              {MenuItems.mobile.Home}
-              <Group justify="flex-end">
-                {[
-                  MenuItems.mobile.Login,
-                  MenuItems.mobile.Join,
-                  MenuItems.mobile.MyPage,
-                ]}
-              </Group>
-            </React.Fragment>
-          )}
-        </Group>
-        {isDesktopView ? (
-          <Group flex={1}>
-            {MenuItems.desktop.Home}
-
-            <Flex justify={"flex-start"} flex={1} gap={"md"}>
-              {[MenuItems.desktop.Balance, MenuItems.desktop.Prediction]}
-            </Flex>
-
-            <Flex justify={"flex-end"} flex={1} gap={"md"}>
-              {[MenuItems.desktop?.MyGames, MenuItems.desktop?.Participations]}
-
-              {[MenuItems.desktop.Contact, MenuItems.desktop.Setting]}
-            </Flex>
-          </Group>
-        ) : (
-          <Group>{MenuItems.mobile.Balance}</Group>
-        )}
-      </Stack>
-
-      <Drawer
-        opened={opened}
-        onClose={close}
-        position="right"
-        size="xs"
-        withCloseButton={false}
-        styles={{
-          body: {
-            display: "flex",
-            flexDirection: "column",
-            height: "100dvh",
-          },
-        }} // Drawer 높이 지정
-      >
-        <Flex mb={"md"} justify={"space-between"}>
-          {MenuItems.mobile.Point}
-          <Text></Text>
-
-          <IconChevronRight
-            size={30}
-            stroke={1.5}
-            onClick={close}
-            style={{
-              justifySelf: "flex-end",
-            }}
-          />
-        </Flex>
-
-        <Flex direction="column" gap="xl" flex={1}>
-          {/* {PublicMenu.Home} */}
-          {[MenuItems.mobile.Logout]}
-        </Flex>
-        {/* 구분선 & 로그인 (최하단) */}
-        {/* <Box>
-              <Divider my="md" />
-              <Box>{isLogin ? LoginMenu?.Logout : PublicMenu.Login}</Box>
-            </Box> */}
-      </Drawer>
-    </Box>
+    <>
+      {isDesktopView ? (
+        <Header.DeskTop
+          MenuItems={MenuItems["desktop"]}
+          userData={userData}
+          isLogin={isLogin}
+        />
+      ) : (
+        <Header.Mobile
+          MenuItems={MenuItems["mobile"]}
+          name={name}
+          userData={userData}
+          isLogin={isLogin}
+          // open={open}
+          // opened={opened}
+          // close={close}
+        />
+      )}
+    </>
   );
 };
 
-Header.DeskTopMenuButton = ({
-  icon,
-  title,
-  callback,
-  isActive,
-}: {
-  icon?: ReactNode;
+Header.DeskTop = ({
+  MenuItems,
 
-  title: string;
-  callback?: (data?: any) => void;
-  isActive: boolean;
+  isLogin,
+  userData,
+}: {
+  MenuItems: Partial<MenuItem>;
+
+  isLogin: boolean;
+  userData: ILoginResult | null;
 }) => {
+  const DeskTopUserMenu = () => {
+    return (
+      <Menu shadow="md" closeOnItemClick closeOnClickOutside={true}>
+        <Menu.Target>
+          <Button key="mypage" variant="subtle" leftSection={<IconUser />}>
+            내정보
+          </Button>
+        </Menu.Target>
+
+        <Menu.Dropdown flex={1}>
+          <Menu.Label fz={"lg"}>
+            <Flex gap={"md"} align={"center"} justify={"center"}>
+              <Text fw={900} ta={"left"} flex={1} lineClamp={1}>
+                {userData?.nickNm}
+              </Text>
+              <Text fw={700} c={"blue"} ta={"right"} lineClamp={1}>
+                {userData?.totalPoint.toLocaleString()}P
+              </Text>
+            </Flex>
+          </Menu.Label>
+
+          {MenuItems.MyPage}
+
+          {MenuItems.MyGames}
+
+          <Menu.Divider />
+
+          {MenuItems.Logout}
+        </Menu.Dropdown>
+      </Menu>
+    );
+  };
+
   return (
-    <Button
-      miw={125}
-      maw={150}
-      fullWidth
-      bd="none"
-      variant={isActive ? "filled" : "default"}
-      size="md"
-      fw={500}
-      style={{ outline: "none" }}
-      leftSection={icon}
-      onClick={callback}
-    >
-      {title}
-    </Button>
+    <>
+      <Group align={"flex-start"} w={"70%"} py={"md"} mih={80} mx={"auto"}>
+        {MenuItems.Home}
+
+        <Stack flex={1} gap={"xs"}>
+          <Flex justify={"flex-end"} gap={"xs"}>
+            {[
+              MenuItems.Setting,
+              MenuItems.Contact,
+              isLogin && <DeskTopUserMenu />,
+              !isLogin && MenuItems.Login,
+              !isLogin && MenuItems.Join,
+            ]
+              .filter(Boolean)
+              .map((item, index, array) => (
+                <React.Fragment key={index}>
+                  {item}
+                  {index < array.length - 1 && (
+                    <Divider orientation="vertical" />
+                  )}
+                </React.Fragment>
+              ))}
+          </Flex>
+
+          <Menu>
+            <Flex gap={"md"} mt={"md"} ml={50}>
+              {[MenuItems.Balance, MenuItems.Prediction]}
+            </Flex>
+          </Menu>
+        </Stack>
+      </Group>
+    </>
+  );
+};
+
+Header.Mobile = ({
+  MenuItems,
+  name,
+  isLogin,
+  userData,
+}: {
+  MenuItems: Partial<MenuItem>;
+  name?: MenuName;
+  isLogin: boolean;
+  userData: ILoginResult | null;
+}) => {
+  const MobileDrawerMenu = () => {
+    const [opened, { open, close }] = useDisclosure(false);
+
+    return (
+      <Menu>
+        <Menu.Target>
+          <IconMenu2 size={25} style={{ flexGrow: 0 }} onClick={open} />
+        </Menu.Target>
+
+        <Drawer
+          opened={opened}
+          onClose={close}
+          size="xs"
+          withCloseButton={false}
+          miw={320}
+          styles={{
+            body: {
+              height: "100%",
+              flexDirection: "column",
+              display: "flex",
+              minWidth: 320,
+            },
+          }}
+        >
+          <Flex mb={"md"}>
+            <IconChevronLeft size={30} stroke={1.5} onClick={close} />
+
+            {isLogin ? (
+              <Flex
+                direction={"column"}
+                justify={"flex-start"}
+                flex={1}
+                gap={"xs"}
+                pl={"xs"}
+              >
+                <Flex justify={"space-between"} align={"center"}>
+                  <Text
+                    ta={"left"}
+                    fw={900}
+                    lineClamp={1}
+                    flex={1}
+                    fz={"lg"}
+                    style={{
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {userData?.nickNm}
+                  </Text>
+                  <Text
+                    ta={"right"}
+                    size="sm"
+                    c="blue"
+                    fw={900}
+                    flex={1}
+                    lineClamp={1}
+                    style={{
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {userData?.totalPoint.toLocaleString()}P
+                  </Text>
+                </Flex>
+              </Flex>
+            ) : (
+              <Stack flex={1} gap={"md"}>
+                <Flex
+                  justify={"space-between"}
+                  flex={1}
+                  pl={"md"}
+                  className="blur"
+                >
+                  <Flex direction="column">
+                    <Text ta={"left"} fw={900}>
+                      닉네임인것
+                    </Text>
+                    <Text ta={"left"} size="sm" c="gray" fw={900}>
+                      12345P
+                    </Text>
+                  </Flex>
+                  <Text c={"blue"}>수정하는것</Text>
+                </Flex>
+              </Stack>
+            )}
+          </Flex>
+          <Stack gap={"xl"} flex={1} pt={"xl"}>
+            {isLogin ? [MenuItems.MyGames] : MenuItems.DrawerLogin}
+
+            {[MenuItems.Contact, MenuItems.Setting]}
+          </Stack>
+          <Stack pt={"md"}>
+            <Group
+              justify={"space-between"}
+              align={"center"}
+              grow
+              flex={1}
+              mih={35}
+              mah={50}
+            >
+              {isLogin && [MenuItems.MyPage, MenuItems.Logout]}
+            </Group>
+          </Stack>
+        </Drawer>
+      </Menu>
+    );
+  };
+  return (
+    <Group align={"center"} w={"100%"} pt={"xs"} mih={70} mx={"auto"}>
+      <Group grow miw={80} flex={1}>
+        {name !== "Login" && name !== "Join" && <MobileDrawerMenu />}
+      </Group>
+
+      <Group justify="center">{MenuItems.Home}</Group>
+
+      <Group grow miw={80} flex={1} justify="flex-end">
+        {name !== "Login" && !isLogin && MenuItems.Login}
+      </Group>
+    </Group>
   );
 };
 
 export default Header;
+
+Header.MobileSubHeader = () => {
+  const MainItems = getMenuItems(undefined, ["Balance", "Prediction"])[
+    "mobile"
+  ];
+
+  return (
+    <ScrollArea w="90dvw" type="never" mt={"md"}>
+      <Flex gap={"sm"}>{Object.values(MainItems)}</Flex>
+    </ScrollArea>
+  );
+};

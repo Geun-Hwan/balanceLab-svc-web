@@ -6,6 +6,7 @@ import {
   Anchor,
   Box,
   Button,
+  Checkbox,
   Flex,
   Paper,
   PasswordInput,
@@ -30,7 +31,7 @@ const LoginTemplate = () => {
 
   const { mutate: loginMutate, isPending } = useMutation({
     mutationFn: (params: LoginRequestType) => login(params),
-    onSuccess: (data, variables, context) => {
+    onSuccess: (data) => {
       handleLoginSuccess(data);
     },
     onError: (res: AxiosResponse) => {
@@ -75,9 +76,9 @@ const LoginTemplate = () => {
         maw={"600"}
         withBorder
         m="auto"
-        mih={400}
+        mih={350}
         display={"flex"}
-        style={{ flexDirection: "column" }}
+        style={{ flexDirection: "column", position: "relative", top: -50 }}
       >
         <Title ta={"center"} order={2}>
           로그인
@@ -112,7 +113,11 @@ const LoginTemplate = () => {
         </Form>
 
         <Stack justify="flex-end" flex={1}>
-          <Button fullWidth onClick={handleLogin}>
+          <Flex>
+            <Checkbox />
+            아이디 저장
+          </Flex>
+          <Button fullWidth onClick={handleLogin} loading={isPending}>
             로그인
           </Button>
           <Flex justify="center" align="center" mt="sm">

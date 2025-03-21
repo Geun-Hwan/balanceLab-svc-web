@@ -1,10 +1,15 @@
 import PageLayout from "@/layout/PageLayout";
-import { RouteObject, createBrowserRouter } from "react-router-dom";
+import {
+  RouteObject,
+  createBrowserRouter,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import AuthRoute from "./AuthRoute";
 import {
   BalanceDetailTemplate,
   BalanceTemplate,
-  ContactTemplate,
+  ContractTemplate,
   JointTemplate,
   LoginTemplate,
   MainHomeTemplate,
@@ -35,7 +40,7 @@ const routes: RouteObject[] = [
 
       {
         path: "contact",
-        element: <ContactTemplate />,
+        element: <ContractTemplate />,
       },
       {
         path: "setting",
@@ -76,10 +81,20 @@ const routes: RouteObject[] = [
 
 const router = createBrowserRouter(routes);
 
+export const currentPath = () => {
+  return router.state.location.pathname;
+};
+
 export const navigateTo = (path: string | number, replace: boolean = false) => {
+  const currentPath = router.state.location.pathname;
+
   if (typeof path === "string") {
-    router.navigate(path, { replace });
+    if (currentPath !== path) {
+      router.navigate(path, { replace });
+    }
   } else if (path === -1) {
+    console.log("path", path);
+
     router.navigate(-1); // -1일 경우 뒤로 가기
   }
 };

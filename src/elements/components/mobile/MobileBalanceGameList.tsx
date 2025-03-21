@@ -13,6 +13,7 @@ import {
   Group,
   Loader,
   Modal,
+  ScrollArea,
   Stack,
   Text,
   TextInput,
@@ -25,6 +26,8 @@ import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import BalanceCard from "../BalanceCard";
 import FloatingButton from "@cmp/FloatingButton";
+import { getMenuItems } from "@/layout/menu";
+import Header from "@/layout/Header";
 
 const MobileBalanceGameList = () => {
   const { isLogin } = useUserStore();
@@ -79,8 +82,9 @@ const MobileBalanceGameList = () => {
     }
     open();
   };
+
   return (
-    <Flex h={"100%"} w={"100%"} direction={"column"}>
+    <Flex direction={"column"} mt={"md"}>
       <Button
         onClick={handleOpen}
         fullWidth

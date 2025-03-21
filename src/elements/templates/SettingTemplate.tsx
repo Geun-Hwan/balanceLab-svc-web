@@ -35,7 +35,7 @@ const SettingTemplate = () => {
       >
         <Flex direction={"column"} gap={"lg"} flex={1}>
           <Title order={2} ta={"center"} mb={"xl"}>
-            설정색
+            설정
           </Title>
           <Group justify="space-between">
             <Text>애니메이션 효과</Text>

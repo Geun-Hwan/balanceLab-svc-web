@@ -8,7 +8,7 @@ import {
   modifySelection,
   SelectionCreateType,
 } from "@/api/selectionApi";
-import { QuestionStatusCd } from "@/constants/serviceConstants";
+import { CategoryValue, QuestionStatusCd } from "@/constants/serviceConstants";
 
 import { useAlertStore, useUserStore } from "@/store/store";
 import {
@@ -27,9 +27,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import SelectAnimation from "../components/SelectAnimation";
 
+import { IAPI_RESPONSE } from "@/api/api";
 import { getUserKey } from "@/api/userApi";
 import { useDesktopView } from "@/context";
+import { getDefaultImage } from "@cmp/imges";
+import { AxiosResponse } from "axios";
 import { debounce } from "lodash";
+import Content from "@/layout/Content";
 
 const BalanceDetailTemplate = () => {
   const qc = useQueryClient();
@@ -45,10 +49,13 @@ const BalanceDetailTemplate = () => {
   const [ended, setIsEnded] = useState(false);
   const [count, setCount] = useState<{ a: number; b: number }>({ a: 0, b: 0 });
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error } = useQuery<
+    IQuestionResult,
+    AxiosResponse<IAPI_RESPONSE<any>>
+  >({
     queryKey: getQuestionKey({ questionId }),
     queryFn: () => getQuestionDetail(questionId as string),
-    enabled: isLogin,
+    enabled: isLogin && !!questionId?.startsWith("QST"),
   });
 
   const debouncedModifySelect = useCallback(
@@ -200,11 +207,16 @@ const BalanceDetailTemplate = () => {
   }, [questionId]);
 
   if (data?.questionStatusCd === QuestionStatusCd.WAITING) {
-    return (
-      <Flex justify={"center"} align={"center"} h={"100%"}>
-        <Title>시작 대기중입니다.</Title>
-      </Flex>
-    );
+    return BalanceDetailTemplate.NoStart;
+  }
+
+  if (error) {
+    return <BalanceDetailTemplate.ErrorView error={error} />;
+  }
+  if (!questionId?.startsWith("QST")) {
+    // 잘못된 questionId를 알림으로 보여줌
+
+    return BalanceDetailTemplate.ParamInvalid;
   }
 
   const highlightColorA = selectedOption
@@ -228,140 +240,192 @@ const BalanceDetailTemplate = () => {
     : "gray";
 
   // 비율 계산
-
   return (
-    <Skeleton visible={isLoading} mt={"lg"}>
-      <Text
-        mt={"xl"}
-        h={100}
-        size="xl"
-        ta="center"
-        style={{
-          fontWeight: "900",
-          wordBreak: "break-word",
-        }}
-        lineClamp={3}
-      >
-        {data?.title}
-      </Text>
-      {isDesktopView ? (
-        <Group justify="center">
-          <Box>
-            <Title ta={"center"} mb={"sm"}>
+    <Content>
+      <Skeleton visible={isLoading} mt={"lg"}>
+        <Text
+          mt={"xl"}
+          h={100}
+          size="xl"
+          ta="center"
+          style={{
+            fontWeight: "900",
+            wordBreak: "break-word",
+          }}
+          lineClamp={3}
+        >
+          {data?.title}
+        </Text>
+        {isDesktopView ? (
+          <Group justify="center">
+            <BalanceDetailTemplate.BalanceImage
+              size={200}
+              categoryCd={data?.categoryCd as CategoryValue}
+              type={"A"}
+              imageUrl={data?.imgUrlA}
+            />
+            <BalanceDetailTemplate.BalanceImage
+              size={200}
+              categoryCd={data?.categoryCd as CategoryValue}
+              type={"B"}
+              imageUrl={data?.imgUrlB}
+            />
+          </Group>
+        ) : (
+          <Group justify="center">
+            <BalanceDetailTemplate.BalanceImage
+              size={120}
+              categoryCd={data?.categoryCd as CategoryValue}
+              type={"A"}
+              imageUrl={data?.imgUrlA}
+            />
+            <BalanceDetailTemplate.BalanceImage
+              size={120}
+              categoryCd={data?.categoryCd as CategoryValue}
+              type={"B"}
+              imageUrl={data?.imgUrlB}
+            />
+          </Group>
+        )}
+        <Stack p="md" mt={"lg"} align="center">
+          <Card
+            h={100}
+            style={{
+              cursor:
+                data?.questionStatusCd === QuestionStatusCd.END
+                  ? "not-allowed"
+                  : "pointer",
+            }}
+            withBorder
+            onClick={handleOptionClick}
+            role="button"
+            maw={600}
+            w={"100%"}
+            id={"A"}
+          >
+            <SelectAnimation
+              isSelect={!!selectedOption || ended}
+              percent={getPercent(count.a)}
+              color={highlightColorA}
+            />
+            <Title ta="center" order={4} style={{ zIndex: 3 }}>
               A
             </Title>
-            <Image w={200} h={200} src={"/"}></Image>
-          </Box>
-          <Box>
-            <Title ta={"center"} mb={"sm"}>
+
+            <Text
+              m={"auto"}
+              size="sm"
+              ta="center"
+              style={{
+                fontWeight: "600",
+                wordBreak: "break-word",
+                zIndex: 3,
+              }}
+              lineClamp={2}
+            >
+              {data?.choiceA}
+            </Text>
+          </Card>
+
+          <Card
+            id={"B"}
+            h={100}
+            style={{
+              cursor:
+                data?.questionStatusCd === QuestionStatusCd.END
+                  ? "not-allowed"
+                  : "pointer",
+            }}
+            withBorder
+            role="button"
+            onClick={handleOptionClick}
+            maw={600}
+            w={"100%"}
+          >
+            <SelectAnimation
+              isSelect={!!selectedOption || ended}
+              percent={getPercent(count.b)}
+              color={highlightColorB}
+            />
+            <Title ta="center" order={4} style={{ zIndex: 3 }}>
               B
             </Title>
-            <Image w={200} h={200} src={"/"}></Image>
-          </Box>
-        </Group>
-      ) : (
-        <Group justify="center">
-          <Box>
-            <Title ta={"center"} mb={"sm"}>
-              A
-            </Title>
-            <Image w={120} h={120} src={"/"}></Image>
-          </Box>
-          <Box>
-            <Title ta={"center"} mb={"sm"}>
-              B
-            </Title>
-            <Image w={120} h={120} src={"/"}></Image>
-          </Box>
-        </Group>
-      )}
-      <Stack p="md" mt={"lg"} align="center">
-        <Card
-          h={100}
-          style={{
-            cursor:
-              data?.questionStatusCd === QuestionStatusCd.END
-                ? "not-allowed"
-                : "pointer",
-          }}
-          withBorder
-          onClick={handleOptionClick}
-          role="button"
-          maw={600}
-          w={"100%"}
-          id={"A"}
-        >
-          <SelectAnimation
-            isSelect={!!selectedOption || ended}
-            percent={getPercent(count.a)}
-            color={highlightColorA}
-          />
-          <Title ta="center" order={4} style={{ zIndex: 3 }}>
-            A
+
+            <Text
+              m={"auto"}
+              size="sm"
+              ta="center"
+              style={{
+                wordBreak: "break-word",
+                fontWeight: "600",
+
+                zIndex: 3,
+              }}
+              lineClamp={2}
+            >
+              {data?.choiceB}
+            </Text>
+          </Card>
+        </Stack>
+        {ended && (
+          <Title ta="center" order={1}>
+            종료되었습니다.
           </Title>
-
-          <Text
-            m={"auto"}
-            size="sm"
-            ta="center"
-            style={{
-              fontWeight: "600",
-              wordBreak: "break-word",
-              zIndex: 3,
-            }}
-            lineClamp={2}
-          >
-            {data?.choiceA}
-          </Text>
-        </Card>
-
-        <Card
-          id={"B"}
-          h={100}
-          style={{
-            cursor:
-              data?.questionStatusCd === QuestionStatusCd.END
-                ? "not-allowed"
-                : "pointer",
-          }}
-          withBorder
-          role="button"
-          onClick={handleOptionClick}
-          maw={600}
-          w={"100%"}
-        >
-          <SelectAnimation
-            isSelect={!!selectedOption || ended}
-            percent={getPercent(count.b)}
-            color={highlightColorB}
-          />
-          <Title ta="center" order={4} style={{ zIndex: 3 }}>
-            B
-          </Title>
-
-          <Text
-            m={"auto"}
-            size="sm"
-            ta="center"
-            style={{
-              wordBreak: "break-word",
-              fontWeight: "600",
-
-              zIndex: 3,
-            }}
-            lineClamp={2}
-          >
-            {data?.choiceB}
-          </Text>
-        </Card>
-      </Stack>
-      {ended && (
-        <Title ta="center" order={1}>
-          종료되었습니다.
-        </Title>
-      )}
-    </Skeleton>
+        )}
+      </Skeleton>
+    </Content>
   );
 };
+
+BalanceDetailTemplate.BalanceImage = ({
+  imageUrl,
+  categoryCd,
+  size,
+  type,
+}: {
+  imageUrl?: string | null;
+  categoryCd: CategoryValue;
+  size: number;
+  type: "A" | "B";
+}) => {
+  return (
+    <Box>
+      <Title ta={"center"} mb={"sm"}>
+        {type}
+      </Title>
+      <Image
+        w={size}
+        h={size}
+        src={getDefaultImage(categoryCd, type, imageUrl)}
+      ></Image>
+    </Box>
+  );
+};
+
+BalanceDetailTemplate.ErrorView = ({ error }: any) => {
+  return (
+    <Content>
+      <Title ta="center" order={2} m={"auto"}>
+        {error.data?.message ?? "알 수 없는 오류가 발생했습니다."}
+      </Title>
+    </Content>
+  );
+};
+
+BalanceDetailTemplate.ParamInvalid = (
+  <Content>
+    <Title ta="center" order={2} m={"auto"}>
+      잘못된 경로입니다.
+    </Title>
+  </Content>
+);
+
+BalanceDetailTemplate.NoStart = (
+  <Content>
+    <Title ta="center" order={2} m={"auto"}>
+      시작 대기중입니다.
+    </Title>
+  </Content>
+);
 
 export default BalanceDetailTemplate;

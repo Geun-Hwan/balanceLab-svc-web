@@ -25,8 +25,12 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "./src"),
 
+      "@asset": path.resolve(__dirname, "./src/assets"),
+      "@img": path.resolve(__dirname, "./src/assets/images"),
+
       "@tmp": path.resolve(__dirname, "./src/elements/templates"),
       "@cmp": path.resolve(__dirname, "./src/elements/components"),
+
       "@tabler/icons-react": "@tabler/icons-react/dist/esm/icons/index.mjs",
     },
   },

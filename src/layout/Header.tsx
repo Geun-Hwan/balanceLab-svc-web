@@ -1,5 +1,5 @@
 import { ILoginResult, logout } from "@/api/authApi";
-import { useDesktopView } from "@/context";
+import { useDesktopHeader } from "@/context/headerContext";
 import { useAlertStore, useUserStore } from "@/store/store";
 import { handleLogoutCallback } from "@/utils/loginUtil";
 import {
@@ -23,7 +23,7 @@ import { getMenuItems, MenuItem, MenuItemsType, MenuName } from "./menu";
 
 const Header = ({ name }: { name?: MenuName }) => {
   const location = useLocation();
-  const isDesktopView = useDesktopView();
+  const isDesktopView = useDesktopHeader();
   const { isLogin, userData } = useUserStore();
   const { showAlert } = useAlertStore();
 

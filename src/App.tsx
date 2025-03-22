@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { queryClient } from "./api/queryClent";
 import { useUserStore } from "./store/store";
 
-import DesktopViewProvider from "./context/DesktopViewContext";
+import DesktopViewProvider from "./context/DesktopHeaderProvider";
 import AlertComponent from "./elements/components/AlertComponent";
 import RouterFactory from "./routes/RouterFactory";
 import dayjs from "dayjs";

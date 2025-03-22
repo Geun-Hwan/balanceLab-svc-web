@@ -2,19 +2,14 @@
 
 import { CATEGORIES } from "@/constants/serviceConstants";
 
-import { useBalanceGameList } from "@/hooks/useBalanceGameList";
+import { FilterType, IUseBalanceGame } from "@/hooks/useBalanceGameList";
 import { useUserStore } from "@/store/store";
-import Dummy from "@cmp/Dummy";
 import {
-  Box,
   Button,
   Checkbox,
   Flex,
   Group,
-  Loader,
   Modal,
-  ScrollArea,
-  Stack,
   Text,
   TextInput,
   Title,
@@ -22,51 +17,22 @@ import {
 import { DatePickerInput } from "@mantine/dates";
 import { useDisclosure } from "@mantine/hooks";
 import { modals } from "@mantine/modals";
-import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import BalanceCard from "../BalanceCard";
-import FloatingButton from "@cmp/FloatingButton";
-import { getMenuItems } from "@/layout/menu";
-import Header from "@/layout/Header";
 
-const MobileBalanceGameList = () => {
+const MobileBalanceGameSearchButton = ({
+  filters,
+  handleCategoryChange,
+
+  handleFilterChange,
+  handleDateChange,
+  applySearch,
+  defaultValue,
+  setFilters,
+}: IUseBalanceGame) => {
   const { isLogin } = useUserStore();
-  const {
-    filters,
-    data,
-    isLoading,
-    handleFilterChange,
-    handleDateChange,
-    handleCategoryChange,
-    applySearch,
-    isFetchingNextPage,
-    fetchNextPage,
-    hasNextPage,
-  } = useBalanceGameList(10);
+
   const [opened, { open, close }] = useDisclosure(false);
   const navigate = useNavigate();
-  const observerRef = useRef<HTMLDivElement | null>(null);
-
-  // ✅ IntersectionObserver를 사용한 자동 로딩
-  useEffect(() => {
-    if (!observerRef.current) return;
-
-    const currentRef = observerRef.current; // ref 값을 변수에 저장
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
-        }
-      },
-      { threshold: 0.5 }
-    );
-    observer.observe(currentRef);
-
-    return () => {
-      if (currentRef) observer.unobserve(currentRef);
-    };
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   const handleOpen = () => {
     if (!isLogin) {
@@ -81,6 +47,15 @@ const MobileBalanceGameList = () => {
       return;
     }
     open();
+  };
+
+  const handleClose = () => {
+    if (setFilters) {
+      if (defaultValue) {
+        setFilters(defaultValue as FilterType);
+      }
+    }
+    close();
   };
 
   return (
@@ -123,7 +98,7 @@ const MobileBalanceGameList = () => {
             dropdownType="modal"
             valueFormat="YYYY-MM-DD"
             placeholder="날짜 선택"
-            value={filters.startDate}
+            value={filters.startDate.toDate()}
             onChange={(v: any) => handleDateChange(v, "startDate")}
             locale="ko"
             flex={1}
@@ -134,7 +109,7 @@ const MobileBalanceGameList = () => {
             dropdownType="modal"
             valueFormat="YYYY-MM-DD"
             placeholder="날짜 선택"
-            value={filters.endDate}
+            value={filters.endDate.toDate()}
             onChange={(v: any) => handleDateChange(v, "endDate")}
             locale="ko"
             flex={1}
@@ -182,32 +157,8 @@ const MobileBalanceGameList = () => {
           적용하기
         </Button>
       </Modal>
-
-      <Box>
-        {data?.pages[0].totalElements === 0 && (
-          <Title ta={"center"} order={2} mt="xl">
-            검색 결과가 없습니다.
-          </Title>
-        )}
-        {isLogin ? (
-          <Stack>
-            {isLogin}
-            {data?.pages?.map((page) =>
-              page.content.map((item) => (
-                <BalanceCard key={item.questionId} data={item} />
-              ))
-            )}
-            {/* ✅ 마지막 요소 감지용 div */}
-          </Stack>
-        ) : (
-          <Dummy cols={1} spacing={25} repeat={6} />
-        )}
-        <Box ref={observerRef} bg={"transparent"} h={1} />
-
-        {<Flex justify={"center"}>{isFetchingNextPage && <Loader />}</Flex>}
-      </Box>
     </Flex>
   );
 };
 
-export default MobileBalanceGameList;
+export default MobileBalanceGameSearchButton;

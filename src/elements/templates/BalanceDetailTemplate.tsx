@@ -29,7 +29,7 @@ import SelectAnimation from "../components/SelectAnimation";
 
 import { IAPI_RESPONSE } from "@/api/api";
 import { getUserKey } from "@/api/userApi";
-import { useDesktopView } from "@/context";
+import { useDesktopHeader } from "@/context/headerContext";
 import { getDefaultImage } from "@cmp/imges";
 import { AxiosResponse } from "axios";
 import { debounce } from "lodash";
@@ -38,7 +38,7 @@ import Content from "@/layout/Content";
 const BalanceDetailTemplate = () => {
   const qc = useQueryClient();
   const requestTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const isDesktopView = useDesktopView();
+  const isDesktopView = useDesktopHeader();
 
   const { showAlert } = useAlertStore();
   const { isLogin } = useUserStore();

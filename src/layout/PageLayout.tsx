@@ -1,10 +1,10 @@
 import { Container } from "@mantine/core";
 
-import { useDesktopView } from "@/context";
+import { useDesktopHeader } from "@/context/headerContext";
 import { Outlet } from "react-router-dom";
 
 const PageLayout = () => {
-  const isDesktopView = useDesktopView();
+  const isDesktopView = useDesktopHeader();
   return (
     <Container
       pt={0}

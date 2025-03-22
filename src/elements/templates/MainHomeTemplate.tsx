@@ -1,10 +1,10 @@
-import { useDesktopView } from "@/context";
+import { useDesktopHeader } from "@/context/headerContext";
 import Content from "@/layout/Content";
 import Header from "@/layout/Header";
 
 const MainHomeTemplate = () => {
   // };
-  const isDesktopView = useDesktopView();
+  const isDesktopView = useDesktopHeader();
 
   return (
     <Content>

@@ -5,9 +5,19 @@ import {
   PageResponse,
 } from "@/api/questionApi";
 import { useAlertStore, useUserStore } from "@/store/store";
-import { InfiniteData, useInfiniteQuery } from "@tanstack/react-query";
-import dayjs from "dayjs";
-import { useEffect, useMemo, useState } from "react";
+import {
+  FetchNextPageOptions,
+  InfiniteData,
+  useInfiniteQuery,
+} from "@tanstack/react-query";
+import dayjs, { Dayjs } from "dayjs";
+import {
+  ChangeEvent,
+  SetStateAction,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useSearchParams } from "react-router-dom";
 
 const searchParamsToObject = (searchParams: URLSearchParams) => {
@@ -18,7 +28,32 @@ const searchParamsToObject = (searchParams: URLSearchParams) => {
   return params;
 };
 
-export const useBalanceGameList = (pageSize: number = 30) => {
+export type FilterType = {
+  search: string;
+  categories: string[];
+  startDate: Dayjs;
+  endDate: Dayjs;
+  showEnded: boolean;
+};
+
+export interface IUseBalanceGame {
+  filters: FilterType;
+  setFilters?: React.Dispatch<SetStateAction<FilterType>>;
+
+  data?: InfiniteData<PageResponse<IQuestionResult>>;
+  isLoading?: boolean;
+  handleFilterChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleDateChange: (value: string | null, field: string) => void;
+  handleCategoryChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  applySearch: () => void;
+  isFetchingNextPage?: boolean;
+  isFetching?: boolean;
+  fetchNextPage?: (options?: FetchNextPageOptions) => void;
+  hasNextPage?: boolean;
+  defaultValue?: FilterType;
+}
+
+export const useBalanceGameList = (pageSize: number = 30): IUseBalanceGame => {
   const { isLogin } = useUserStore();
   const [searchParams, setSearchParams] = useSearchParams();
   const [InfiniteData, setInfiniteData] = useState<
@@ -27,13 +62,15 @@ export const useBalanceGameList = (pageSize: number = 30) => {
 
   const { showAlert } = useAlertStore();
 
-  const [filters, setFilters] = useState<any>({
+  const defaultValue = {
     search: "",
     categories: [""],
     startDate: dayjs(),
     endDate: dayjs().add(1, "month"),
     showEnded: false,
-  });
+  };
+
+  const [filters, setFilters] = useState<FilterType>(defaultValue);
 
   const memoParams = useMemo(
     () => searchParamsToObject(searchParams),
@@ -86,9 +123,9 @@ export const useBalanceGameList = (pageSize: number = 30) => {
   };
 
   // 카테고리 체크박스 핸들러
-  const handleCategoryChange = (e: any) => {
+  const handleCategoryChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { value, checked } = e.currentTarget;
-    setFilters((prevFilters: any) => {
+    setFilters((prevFilters: FilterType) => {
       let newCategories = [...prevFilters.categories];
 
       // "전체" 카테고리가 선택되면 다른 카테고리들을 모두 해제
@@ -188,5 +225,7 @@ export const useBalanceGameList = (pageSize: number = 30) => {
     isFetching,
     fetchNextPage,
     hasNextPage,
+    defaultValue,
+    setFilters,
   };
 };

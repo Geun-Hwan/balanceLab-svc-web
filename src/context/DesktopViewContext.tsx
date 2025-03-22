@@ -1,5 +1,5 @@
 import React, { ReactNode, useEffect, useState } from "react";
-import { isDesktop, isMobile } from "react-device-detect";
+import { isDesktop, isMobile, isTablet } from "react-device-detect";
 import { DesktopViewContext } from ".";
 import { useMediaQuery } from "@mantine/hooks";
 // isDesktopView 상태를 저장할 컨텍스트를 생성
@@ -14,8 +14,8 @@ interface DesktopViewProviderProps {
 const DesktopViewProvider: React.FC<DesktopViewProviderProps> = ({
   children,
 }) => {
-  const [isDesktopView, setIsDesktopView] = useState(isMobile);
-  const isMobileSize = useMediaQuery("(max-width: 768px)"); // 모바일 화면에서 true가 됩니다.
+  const [isDesktopView, setIsDesktopView] = useState(isDesktop);
+  const isMobileSize = useMediaQuery("(max-width: 1024px)"); // 모바일 화면에서 true가 됩니다.
 
   useEffect(() => {
     const userAgent = navigator.userAgent;
@@ -26,6 +26,12 @@ const DesktopViewProvider: React.FC<DesktopViewProviderProps> = ({
           userAgent.includes("Windows") ||
           !isMobileSize
       );
+
+    if (isTablet) {
+      setIsDesktopView(
+        userAgent.includes("Macintosh") || userAgent.includes("Windows")
+      );
+    }
 
     if (isDesktop) {
       setIsDesktopView(!isMobileSize);

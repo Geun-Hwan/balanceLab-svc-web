@@ -40,7 +40,9 @@ type ScreenType = "manageMent" | "participation";
 const QuestionsList = ({
   result,
   type,
+  children,
 }: {
+  children?: ReactNode;
   type: ScreenType;
   result?: InfiniteQueryObserverBaseResult<
     InfiniteData<PageResponse<IQuestionResult>>
@@ -57,7 +59,7 @@ const QuestionsList = ({
 
   const { mutate: remove, isPending } = useMutation({
     mutationFn: (questionId: string) => removeQuestion(questionId),
-    onMutate: (variables) => {},
+    onMutate: () => {},
     onSuccess: (data) => {
       if (data > 0) {
         qc.invalidateQueries({ queryKey: getQuestionKey({ isMine: true }) });
@@ -66,7 +68,7 @@ const QuestionsList = ({
         showAlert("삭제 가능한 기간이 아닙니다.", "warning");
       }
     },
-    onError: (error, variables, context) => {
+    onError: () => {
       showAlert("오류가 발생했습니다.\n잠시후 다시 시도해주세요.", "error");
 
       // 에러 처리 (로그 등)
@@ -198,65 +200,64 @@ const QuestionsList = ({
   };
 
   return (
-    <Box>
-      <Stack gap="md">
-        {data?.pages.map((page, pageIndex) => (
-          <React.Fragment key={pageIndex}>
-            {page.content.map((question) => (
-              <Card
-                key={question.questionId}
-                shadow="sm"
-                p="md"
-                radius="md"
-                withBorder
-                w={"100%"}
-              >
-                <Card.Section p="md" withBorder>
-                  <Group justify="space-between">
-                    <Group>
-                      {question.delYn && type === "manageMent" && (
-                        <Badge color="red">삭제됨</Badge>
-                      )}
+    <Stack gap="md" w={"100%"}>
+      {children}
+      {data?.pages.map((page, pageIndex) => (
+        <React.Fragment key={pageIndex}>
+          {page.content.map((question) => (
+            <Card
+              key={question.questionId}
+              shadow="sm"
+              p="md"
+              radius="md"
+              withBorder
+              w={"100%"}
+            >
+              <Card.Section p="md" withBorder>
+                <Group justify="space-between">
+                  <Group>
+                    {question.delYn && type === "manageMent" && (
+                      <Badge color="red">삭제됨</Badge>
+                    )}
 
-                      {getStatusBadge(question.questionStatusCd)}
-                    </Group>
-                    <Text fz="sm" c="dimmed">
-                      {getCategoryName(question.categoryCd)}
-                    </Text>
+                    {getStatusBadge(question.questionStatusCd)}
                   </Group>
-                </Card.Section>
-
-                <Group justify="flex-start" mt="md" flex={1}>
-                  <Text
-                    fw={500}
-                    fz="lg"
-                    lineClamp={1}
-                    style={{ flex: 1, wordBreak: "break-word" }}
-                  >
-                    {question.title}
+                  <Text fz="sm" c="dimmed">
+                    {getCategoryName(question.categoryCd)}
                   </Text>
-                  {question.point > 0 && (
-                    <Badge color="cyan">{question.point ?? 0}p</Badge>
-                  )}
                 </Group>
+              </Card.Section>
 
-                <QuestionsList.Content type={type} item={question} />
+              <Group justify="flex-start" mt="md" flex={1}>
+                <Text
+                  fw={500}
+                  fz="lg"
+                  lineClamp={1}
+                  style={{ flex: 1, wordBreak: "break-word" }}
+                >
+                  {question.title}
+                </Text>
+                {question.point > 0 && (
+                  <Badge color="cyan">{question.point ?? 0}p</Badge>
+                )}
+              </Group>
 
-                <QuestionsList.Footer type={type} item={question}>
-                  {renderActionIcons(question)}
-                </QuestionsList.Footer>
-              </Card>
-            ))}
-          </React.Fragment>
-        ))}
-        <Box ref={observerRef} bg={"transparent"} h={30} />
+              <QuestionsList.Content type={type} item={question} />
 
-        {(isFetchingNextPage || isLoading) && (
-          <Flex justify={"center"}>
-            <Loader size={"xl"} />
-          </Flex>
-        )}
-      </Stack>
+              <QuestionsList.Footer type={type} item={question}>
+                {renderActionIcons(question)}
+              </QuestionsList.Footer>
+            </Card>
+          ))}
+        </React.Fragment>
+      ))}
+      <Box ref={observerRef} bg={"transparent"} h={30} />
+
+      {(isFetchingNextPage || isLoading) && (
+        <Flex justify={"center"}>
+          <Loader size={"xl"} />
+        </Flex>
+      )}
       {opened && type === "manageMent" && (
         <BalanceCreateModal
           opened={opened}
@@ -265,7 +266,7 @@ const QuestionsList = ({
           isModify={true}
         />
       )}
-    </Box>
+    </Stack>
   );
 };
 

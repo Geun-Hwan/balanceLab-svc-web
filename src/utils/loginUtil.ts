@@ -1,4 +1,3 @@
-import { navigateTo } from "@/routes/router";
 import { ILoginResult } from "../api/authApi";
 import { ACCEES_TOKEN } from "../constants/serviceConstants";
 import { useUserStore } from "../store/store";
@@ -8,17 +7,20 @@ export const handleLoginSuccess = (
   data: ILoginResult,
   callback?: () => void
 ) => {
-  const { setIsLogin, setUserData } = useUserStore.getState();
+  const { setIsLogin, setUserData, setRememberId, idSaveCheck } =
+    useUserStore.getState();
 
   const { accessToken, ...rest } = data;
   setAccessToken(accessToken);
   setUserData(rest);
   setIsLogin(true);
 
+  setRememberId(idSaveCheck ? rest.loginId : null);
+
   if (callback) {
     callback();
   } else {
-    navigateTo("/");
+    window.location.replace("/");
   }
 };
 
@@ -28,11 +30,9 @@ export const handleLogoutCallback = (callback?: () => void) => {
 
   removeCookie(ACCEES_TOKEN);
 
-  requestAnimationFrame(() => {
-    if (callback) {
-      callback();
-    } else {
-      navigateTo("/");
-    }
-  });
+  if (callback) {
+    callback();
+  } else {
+    window.location.replace("/");
+  }
 };

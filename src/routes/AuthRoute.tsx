@@ -1,11 +1,11 @@
 import PageLayout from "@/layout/PageLayout";
-import { useUserStore, useAlertStore } from "@/store/store";
+import { useAlertStore, useUserStore } from "@/store/store";
 import { useEffect } from "react";
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 const AuthRoute = () => {
   const { isLogin } = useUserStore();
-  const { showAlert } = useAlertStore();
+  const { showAlert, alertVisible } = useAlertStore();
 
   useEffect(() => {
     if (!isLogin) {
@@ -13,7 +13,7 @@ const AuthRoute = () => {
     }
   }, []);
 
-  if (!isLogin) {
+  if (!isLogin && !alertVisible) {
     return <Navigate to="/login" />;
   }
 

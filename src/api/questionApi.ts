@@ -1,6 +1,5 @@
-import { Dayjs } from "dayjs";
-import { instance } from "./api";
 import { QuestionStatusCd } from "../constants/serviceConstants";
+import { instance } from "./api";
 
 export type QuestionRequestType = {
   page?: number | string;

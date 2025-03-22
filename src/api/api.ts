@@ -1,9 +1,9 @@
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
-import { logout, republish } from "./authApi";
-import { getAccessToken, setAccessToken } from "../utils/cookieUtil";
-import { handleLogoutCallback } from "../utils/loginUtil";
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { CustomError } from "../constants/serviceConstants";
 import { useAlertStore } from "../store/store";
+import { getAccessToken, setAccessToken } from "../utils/cookieUtil";
+import { handleLogoutCallback } from "../utils/loginUtil";
+import { logout, republish } from "./authApi";
 
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -35,6 +35,7 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const errorCode = error.response?.data?.code;
+    const { showAlert } = useAlertStore.getState();
 
     if (errorCode === CustomError.ACCESS_TOKEN_EXPIRED) {
       try {
@@ -48,10 +49,8 @@ axiosInstance.interceptors.response.use(
 
         // 예: 토큰 만료 시 로그아웃 처리
       } catch (refreshError) {
-        //  CustomError.SESSION_EXPIRED
-
-        console.error("토큰 재발급 실패, 로그아웃 처리");
         await logout();
+        localStorage.setItem("showPopup", "autoLogout");
 
         handleLogoutCallback();
         return Promise.reject(refreshError);
@@ -60,7 +59,10 @@ axiosInstance.interceptors.response.use(
 
     if (errorCode === CustomError.SESSION_EXPIRED) {
       await logout();
+      localStorage.setItem("showPopup", "autoLogout");
+
       handleLogoutCallback();
+
       return Promise.reject(
         error.response as AxiosResponse<IAPI_RESPONSE<any>>
       );
@@ -71,7 +73,6 @@ axiosInstance.interceptors.response.use(
         error.response as AxiosResponse<IAPI_RESPONSE<any>>
       );
     }
-    const { showAlert } = useAlertStore.getState();
 
     if (!navigator.onLine) {
       showAlert(

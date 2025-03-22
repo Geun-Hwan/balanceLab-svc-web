@@ -14,7 +14,6 @@ import { useAlertStore, useUserStore } from "@/store/store";
 import {
   Box,
   Card,
-  Flex,
   Group,
   Image,
   Skeleton,
@@ -29,16 +28,16 @@ import SelectAnimation from "../components/SelectAnimation";
 
 import { IAPI_RESPONSE } from "@/api/api";
 import { getUserKey } from "@/api/userApi";
-import { useDesktopView } from "@/context";
+import { useDesktopHeader } from "@/context/headerContext";
+import Content from "@/layout/Content";
 import { getDefaultImage } from "@cmp/imges";
 import { AxiosResponse } from "axios";
 import { debounce } from "lodash";
-import Content from "@/layout/Content";
 
 const BalanceDetailTemplate = () => {
   const qc = useQueryClient();
   const requestTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const isDesktopView = useDesktopView();
+  const isDesktopView = useDesktopHeader();
 
   const { showAlert } = useAlertStore();
   const { isLogin } = useUserStore();
@@ -72,7 +71,7 @@ const BalanceDetailTemplate = () => {
 
   const { mutate: createSelect } = useMutation({
     mutationFn: (params: SelectionCreateType) => createSelection(params),
-    onMutate: (variables) => {
+    onMutate: () => {
       const previousState: IQuestionResult = qc.getQueryData(
         getQuestionKey({ questionId })
       ) as IQuestionResult;
@@ -83,7 +82,7 @@ const BalanceDetailTemplate = () => {
       qc.invalidateQueries({ queryKey: getUserKey({ totalPoint: true }) });
       qc.invalidateQueries({ queryKey: getQuestionKey({ questionId }) });
     },
-    onError: (error, variables, context) => {
+    onError: (_error, _variables, context) => {
       // 에러가 발생하면, 이전 상태로 되돌립니다.
       showAlert("오류가 발생했습니다.\n잠시후 다시 시도해주세요.", "error");
 
@@ -99,7 +98,7 @@ const BalanceDetailTemplate = () => {
 
   const { mutate: modifySelect } = useMutation({
     mutationFn: (params: SelectionCreateType) => modifySelection(params),
-    onMutate: (variables) => {
+    onMutate: () => {
       const previousState: IQuestionResult = qc.getQueryData(
         getQuestionKey({ questionId })
       ) as IQuestionResult;
@@ -109,7 +108,7 @@ const BalanceDetailTemplate = () => {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: getQuestionKey({ questionId }) });
     },
-    onError: (error, variables, context) => {
+    onError: (_error, _variables, context) => {
       // 에러가 발생하면, 이전 상태로 되돌립니다.
 
       showAlert("오류 반복시 문의해주세요.", "error");

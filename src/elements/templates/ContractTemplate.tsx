@@ -1,5 +1,5 @@
 import Content from "@/layout/Content";
-import { Button, Flex, Paper, Stack, Text, Title } from "@mantine/core";
+import { Button, Paper, Stack, Text, Title } from "@mantine/core";
 
 const ContractTemplate = () => {
   return (
@@ -8,12 +8,13 @@ const ContractTemplate = () => {
         p="xl"
         shadow="md"
         maw={600}
-        m="auto"
+        mx="auto"
         mih={350}
         withBorder
         radius="md"
         display={"flex"}
-        style={{ flexDirection: "column", top: -50, position: "relative" }}
+        style={{ flexDirection: "column", position: "relative" }}
+        mt={"xl"}
       >
         <Stack>
           <Title order={3} ta="center">

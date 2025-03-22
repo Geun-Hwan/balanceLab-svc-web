@@ -1,25 +1,16 @@
-import { useDesktopView } from "@/context";
 import Content from "@/layout/Content";
-import Header from "@/layout/Header";
 
+import { useDesktopHeader } from "@/context/headerContext";
+import SubHeader from "@/layout/SubHeader";
+import BalanceGameList from "@cmp/BalanceGameList";
 import FloatingButton from "@cmp/FloatingButton";
-import MobileBalanceGameList from "@cmp/mobile/MobileBalanceGameList";
-import PcBalanceGameList from "@cmp/pc/PcBalanceGameList";
-import { Flex } from "@mantine/core";
 
 const BalanceTemplate = () => {
-  const isDesktopView = useDesktopView();
-
+  const isDesktopHeader = useDesktopHeader();
   return (
-    <Content>
-      {isDesktopView ? (
-        <PcBalanceGameList />
-      ) : (
-        <Flex direction={"column"}>
-          <Header.MobileSubHeader />
-          <MobileBalanceGameList />
-        </Flex>
-      )}
+    <Content headerProps={{ name: "Balance" }}>
+      {!isDesktopHeader && <SubHeader menuNames={["Balance", "Prediction"]} />}
+      <BalanceGameList />
       <FloatingButton />
     </Content>
   );

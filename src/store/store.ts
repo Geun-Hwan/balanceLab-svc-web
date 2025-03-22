@@ -22,36 +22,51 @@ export const useAlertStore = create<AlertStore>((set) => ({
   hideAlert: () => set({ alertVisible: false }),
 }));
 
+type themeType = "light" | "dark";
 interface UserState {
   userData: ILoginResult | null;
+  idSaveCheck: boolean;
+  isLogin: boolean;
+  themeColor: themeType;
+  animationEnable: boolean;
+  rememberId: string | null;
+}
+interface UserSetState {
+  setThemeColor: (themeColor: "light" | "dark") => void; // themeColor를 설정하는 메서드
+  setIsLogin: (isLogin: boolean) => void;
+  setUserPoint: (totalPoint: number) => void;
+  setIdSaveCheck: (idSaveCheck: boolean) => void;
   setUserData: (data: any) => void;
   resetStore: () => void;
-  isLogin: boolean;
-  setIsLogin: (isLogin: boolean) => void;
-  themeColor: "light" | "dark"; // 추가된 themeColor 필드
-  setThemeColor: (themeColor: "light" | "dark") => void; // themeColor를 설정하는 메서드
-  animationEnable: boolean;
   toggleAnimation: () => void;
-  setUserPoint: (totalPoint: number) => void;
+  setRememberId: (rememberId: string | null) => void;
 }
-export const useUserStore = create<UserState>()(
+
+interface UserStore extends UserState, UserSetState {}
+
+const initialState: UserState = {
+  userData: null,
+  isLogin: false,
+  themeColor: window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light",
+  animationEnable: true,
+  idSaveCheck: false,
+  rememberId: null,
+};
+
+export const useUserStore = create<UserStore>()(
   persist(
     (set) => ({
-      userData: null, // 사용자 데이터 초기값
-      isLogin: false, // 로그인 상태 초기값
-      themeColor: window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light",
-      animationEnable: true,
+      ...initialState,
+      setIdSaveCheck: (idSaveCheck: boolean) => set({ idSaveCheck }),
 
       setIsLogin: (isLogin: boolean) => set({ isLogin }),
-
       setUserData: (data: any) => set({ userData: data, isLogin: true }),
       setThemeColor: (themeColor: "light" | "dark") => set({ themeColor }),
       toggleAnimation: () => {
         set((state) => ({ animationEnable: !state.animationEnable }));
       },
-
       setUserPoint: (totalPoint: number) => {
         set((state) => {
           if (state.userData) {
@@ -65,6 +80,7 @@ export const useUserStore = create<UserState>()(
           return state;
         });
       },
+      setRememberId: (rememberId: string | null) => set({ rememberId }),
 
       resetStore: () => set({ userData: null, isLogin: false }),
     }),

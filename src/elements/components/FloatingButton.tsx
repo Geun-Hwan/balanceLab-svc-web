@@ -1,11 +1,11 @@
-import { useDesktopView } from "@/context";
+import { useDesktopHeader } from "@/context/headerContext";
 import { ActionIcon } from "@mantine/core";
 import { IconArrowUp } from "@tabler/icons-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 
 const FloatingButton = () => {
-  const isDesktop = useDesktopView();
+  const isDesktop = useDesktopHeader();
   const handleScrollToTop = () => {
     window.scrollTo({
       top: 0,

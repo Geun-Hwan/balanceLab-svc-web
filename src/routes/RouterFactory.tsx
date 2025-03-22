@@ -9,7 +9,7 @@ import router from "./router";
 const RouterFactory = () => {
   const { isLogin, setUserPoint } = useUserStore();
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: getUserKey({ totalPoint: true }),
     queryFn: () => getTotalPoint(),
     enabled: isLogin,

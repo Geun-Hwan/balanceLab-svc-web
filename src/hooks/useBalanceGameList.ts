@@ -4,10 +4,20 @@ import {
   IQuestionResult,
   PageResponse,
 } from "@/api/questionApi";
-import { useAlertStore, useUserStore } from "@/store/store";
-import { InfiniteData, useInfiniteQuery } from "@tanstack/react-query";
-import dayjs from "dayjs";
-import { useEffect, useMemo, useState } from "react";
+import { useAlertStore } from "@/store/store";
+import {
+  FetchNextPageOptions,
+  InfiniteData,
+  useInfiniteQuery,
+} from "@tanstack/react-query";
+import dayjs, { Dayjs } from "dayjs";
+import {
+  ChangeEvent,
+  SetStateAction,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useSearchParams } from "react-router-dom";
 
 const searchParamsToObject = (searchParams: URLSearchParams) => {
@@ -18,8 +28,35 @@ const searchParamsToObject = (searchParams: URLSearchParams) => {
   return params;
 };
 
-export const useBalanceGameList = (pageSize: number = 30) => {
-  const { isLogin } = useUserStore();
+export type FilterType = {
+  search: string;
+  categories: string[];
+  startDate: Dayjs;
+  endDate: Dayjs;
+  showEnded: boolean;
+};
+
+export interface IUseBalanceGame {
+  filters: FilterType;
+  setFilters?: React.Dispatch<SetStateAction<FilterType>>;
+
+  data?: InfiniteData<PageResponse<IQuestionResult>>;
+  isLoading?: boolean;
+  handleFilterChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleDateChange: (value: string | null, field: string) => void;
+  handleCategoryChange: (value: string[]) => void;
+  applySearch: () => void;
+  isFetchingNextPage?: boolean;
+  isFetching?: boolean;
+  fetchNextPage?: (options?: FetchNextPageOptions) => void;
+  hasNextPage?: boolean;
+  defaultValue?: FilterType;
+}
+
+export const useBalanceGameList = (
+  isLogin: boolean,
+  pageSize: number = 30
+): IUseBalanceGame => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [InfiniteData, setInfiniteData] = useState<
     InfiniteData<PageResponse<IQuestionResult>, unknown> | undefined
@@ -27,13 +64,15 @@ export const useBalanceGameList = (pageSize: number = 30) => {
 
   const { showAlert } = useAlertStore();
 
-  const [filters, setFilters] = useState<any>({
+  const defaultValue = {
     search: "",
-    categories: [""],
+    categories: [],
     startDate: dayjs(),
     endDate: dayjs().add(1, "month"),
     showEnded: false,
-  });
+  };
+
+  const [filters, setFilters] = useState<FilterType>(defaultValue);
 
   const memoParams = useMemo(
     () => searchParamsToObject(searchParams),
@@ -62,7 +101,7 @@ export const useBalanceGameList = (pageSize: number = 30) => {
       }),
     initialPageParam: 0,
 
-    getNextPageParam: (lastPage, allPages) => {
+    getNextPageParam: (lastPage, _allPages) => {
       return !lastPage.last ? lastPage.number + 1 : undefined;
     },
     enabled: isLogin,
@@ -86,34 +125,8 @@ export const useBalanceGameList = (pageSize: number = 30) => {
   };
 
   // 카테고리 체크박스 핸들러
-  const handleCategoryChange = (e: any) => {
-    const { value, checked } = e.currentTarget;
-    setFilters((prevFilters: any) => {
-      let newCategories = [...prevFilters.categories];
-
-      // "전체" 카테고리가 선택되면 다른 카테고리들을 모두 해제
-      if (value === "") {
-        newCategories = checked ? [""] : [];
-      } else {
-        // 다른 카테고리가 선택되면 "전체"는 해제
-        if (checked) {
-          newCategories.push(value);
-        } else {
-          newCategories = newCategories.filter(
-            (category) => category !== value
-          );
-        }
-
-        // "전체" 체크박스는 해제
-        newCategories = newCategories.filter((category) => category !== "");
-      }
-
-      if (newCategories.length === 0) {
-        newCategories = [""];
-      }
-
-      return { ...prevFilters, categories: newCategories };
-    });
+  const handleCategoryChange = (value: string[]) => {
+    setFilters({ ...filters, categories: value });
   };
 
   // 필터 적용 함수
@@ -171,10 +184,12 @@ export const useBalanceGameList = (pageSize: number = 30) => {
   };
 
   useEffect(() => {
-    if (data) {
+    if (!isLoading) {
       setInfiniteData(data);
     }
-  }, [data]);
+
+    return () => {};
+  }, [data, isLoading]);
 
   return {
     filters,
@@ -188,5 +203,7 @@ export const useBalanceGameList = (pageSize: number = 30) => {
     isFetching,
     fetchNextPage,
     hasNextPage,
+    defaultValue,
+    setFilters,
   };
 };

@@ -78,7 +78,7 @@ const BalanceCreateModal = ({
   };
   const { mutate: createMutate } = useMutation({
     mutationFn: (params: QuestionCreateType) => createQuestion(params),
-    onMutate: (variables) => {},
+    onMutate: (_variables) => {},
     onSuccess: () => {
       resetForm();
 
@@ -88,7 +88,7 @@ const BalanceCreateModal = ({
 
       showAlert("성공적으로 생성되었습니다.", "success");
     },
-    onError: (error, variables, context) => {
+    onError: (_error, _variables, _context) => {
       // 에러가 발생하면, 이전 상태로 되돌립니다.
 
       showAlert("오류가 발생했습니다.\n잠시후 다시 시도해주세요.", "error");
@@ -97,7 +97,7 @@ const BalanceCreateModal = ({
 
   const { mutate: modifyMutate } = useMutation({
     mutationFn: (params: QuestionCreateType) => modifyQuestion(params),
-    onMutate: (variables) => {},
+    onMutate: (_variables) => {},
     onSuccess: (data) => {
       modals.close("create_confirm");
       close();
@@ -110,9 +110,10 @@ const BalanceCreateModal = ({
         showAlert("수정 가능한 기간이 만료되었습니다.", "warning");
       }
     },
-    onError: (error, variables, context) => {
+    onError: (_error) => {
       // 에러가 발생하면, 이전 상태로 되돌립니다.
       modals.close("create_confirm");
+
       showAlert("오류가 발생했습니다.\n잠시후 다시 시도해주세요.", "error");
 
       // 에러 처리 (로그 등)
@@ -329,7 +330,7 @@ const BalanceCreateModal = ({
       <Select
         label="카테고리"
         name="categoryCd"
-        data={CATEGORIES.filter((category) => category.value !== "")}
+        data={CATEGORIES}
         value={formData.categoryCd}
         onChange={(value) =>
           setFormData((prev) => ({ ...prev, categoryCd: value }))

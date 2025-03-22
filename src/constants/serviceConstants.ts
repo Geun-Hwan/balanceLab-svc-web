@@ -28,7 +28,6 @@ interface Category {
 }
 
 export const CATEGORIES: Category[] = [
-  { value: CategoryValue.ALL, label: "전체" },
   { value: CategoryValue.DAILY, label: "일상" },
   { value: CategoryValue.FOOD, label: "음식" },
   { value: CategoryValue.SELF_IMPROVEMENT, label: "자기계발" },

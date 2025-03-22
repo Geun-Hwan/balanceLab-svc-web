@@ -1,11 +1,6 @@
+import MypageTemplate from "@/elements/templates/MypageTemplate";
+import PredictTemplate from "@/elements/templates/PredictTemplate";
 import PageLayout from "@/layout/PageLayout";
-import {
-  RouteObject,
-  createBrowserRouter,
-  useLocation,
-  useNavigate,
-} from "react-router-dom";
-import AuthRoute from "./AuthRoute";
 import {
   BalanceDetailTemplate,
   BalanceTemplate,
@@ -18,6 +13,8 @@ import {
   ParticipationsTemplate,
   SettingTemplate,
 } from "@tmp";
+import { RouteObject, createBrowserRouter } from "react-router-dom";
+import AuthRoute from "./AuthRoute";
 
 const routes: RouteObject[] = [
   {
@@ -50,16 +47,21 @@ const routes: RouteObject[] = [
         path: "balance",
         element: <BalanceTemplate />, // 로그인한 사용자만 접근
       },
+      {
+        path: "predict",
+        element: <PredictTemplate />, // 로그인한 사용자만 접근
+      },
     ],
   },
   {
     element: <AuthRoute />,
     children: [
       {
-        path: "balance/:questionId",
-        element: <BalanceDetailTemplate />,
+        path: "mypage",
+        element: <MypageTemplate />,
         children: [],
       },
+
       {
         path: "my-participations",
         element: <ParticipationsTemplate />,
@@ -69,6 +71,11 @@ const routes: RouteObject[] = [
       {
         path: "my-games",
         element: <MyGamesTemplate />,
+        children: [],
+      },
+      {
+        path: "balance/:questionId",
+        element: <BalanceDetailTemplate />,
         children: [],
       },
     ],
@@ -81,21 +88,4 @@ const routes: RouteObject[] = [
 
 const router = createBrowserRouter(routes);
 
-export const currentPath = () => {
-  return router.state.location.pathname;
-};
-
-export const navigateTo = (path: string | number, replace: boolean = false) => {
-  const currentPath = router.state.location.pathname;
-
-  if (typeof path === "string") {
-    if (currentPath !== path) {
-      router.navigate(path, { replace });
-    }
-  } else if (path === -1) {
-    console.log("path", path);
-
-    router.navigate(-1); // -1일 경우 뒤로 가기
-  }
-};
 export default router;

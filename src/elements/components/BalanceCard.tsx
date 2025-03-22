@@ -1,5 +1,5 @@
 import { IQuestionResult } from "@/api/questionApi";
-import { useAlertStore, useUserStore } from "@/store/store";
+import { useUserStore } from "@/store/store";
 import { Badge, Box, Button, Card, Flex, Text } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import dayjs from "dayjs";
@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 const BalanceCard = React.memo(
   ({ data, isBlur = false }: { data?: IQuestionResult; isBlur?: boolean }) => {
     const navigate = useNavigate();
-    const { showAlert } = useAlertStore();
+    // const { showAlert } = useAlertStore();
 
     const { isLogin } = useUserStore();
     const handleClick = (

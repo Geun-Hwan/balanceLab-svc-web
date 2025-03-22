@@ -1,7 +1,6 @@
 import Content from "@/layout/Content";
 import { useUserStore } from "@/store/store";
 import {
-  Box,
   Flex,
   Group,
   Paper,
@@ -12,7 +11,7 @@ import {
 } from "@mantine/core";
 
 const SettingTemplate = () => {
-  const { isLogin, animationEnable, toggleAnimation } = useUserStore();
+  const { animationEnable, toggleAnimation } = useUserStore();
   const { setThemeColor, themeColor } = useUserStore();
   const { toggleColorScheme } = useMantineColorScheme();
 
@@ -31,7 +30,8 @@ const SettingTemplate = () => {
         mih={600}
         w={"100%"}
         display={"flex"}
-        m={"auto"}
+        mx={"auto"}
+        mt={"xl"}
       >
         <Flex direction={"column"} gap={"lg"} flex={1}>
           <Title order={2} ta={"center"} mb={"xl"}>

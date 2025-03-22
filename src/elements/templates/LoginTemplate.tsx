@@ -4,7 +4,6 @@ import { useAlertStore, useUserStore } from "@/store/store";
 import { handleLoginSuccess } from "@/utils/loginUtil";
 import {
   Anchor,
-  Box,
   Button,
   Checkbox,
   Flex,
@@ -22,17 +21,18 @@ import { Form, useNavigate } from "react-router-dom";
 
 const LoginTemplate = () => {
   const { showAlert, alertVisible } = useAlertStore();
-  const { isLogin } = useUserStore();
+  const { isLogin, setIdSaveCheck, idSaveCheck, rememberId, setRememberId } =
+    useUserStore();
   const navigate = useNavigate();
   const [loginState, setLoginState] = useState<LoginRequestType>({
-    loginIdOrEmail: "",
+    loginIdOrEmail: idSaveCheck && rememberId ? rememberId : "",
     password: "",
   });
 
   const { mutate: loginMutate, isPending } = useMutation({
     mutationFn: (params: LoginRequestType) => login(params),
     onSuccess: (data) => {
-      handleLoginSuccess(data);
+      handleLoginSuccess(data, () => navigate("/", { replace: true }));
     },
     onError: (res: AxiosResponse) => {
       if (res?.data?.code) {
@@ -64,7 +64,23 @@ const LoginTemplate = () => {
     if (isLogin) {
       navigate("/", { replace: true });
     }
-  }, [isLogin]);
+
+    if (idSaveCheck) {
+      if (!rememberId) {
+        setIdSaveCheck(false);
+      }
+    }
+  }, []);
+
+  const handleCheckId = (e: ChangeEvent<HTMLInputElement>) => {
+    const { checked } = e.currentTarget;
+
+    setIdSaveCheck(checked);
+
+    if (checked) {
+      setRememberId(loginState.loginIdOrEmail);
+    }
+  };
 
   return (
     <Content headerProps={{ name: "Login" }}>
@@ -75,10 +91,11 @@ const LoginTemplate = () => {
         w={"100%"}
         maw={"600"}
         withBorder
-        m="auto"
+        mx="auto"
         mih={350}
+        mt={"xl"}
         display={"flex"}
-        style={{ flexDirection: "column", position: "relative", top: -50 }}
+        style={{ flexDirection: "column", position: "relative" }}
       >
         <Title ta={"center"} order={2}>
           로그인
@@ -113,8 +130,8 @@ const LoginTemplate = () => {
         </Form>
 
         <Stack justify="flex-end" flex={1}>
-          <Flex>
-            <Checkbox />
+          <Flex gap={"sm"}>
+            <Checkbox checked={idSaveCheck} onChange={handleCheckId} />
             아이디 저장
           </Flex>
           <Button fullWidth onClick={handleLogin} loading={isPending}>

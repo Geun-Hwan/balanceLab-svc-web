@@ -316,7 +316,7 @@ const JointTemplate = () => {
         return;
       }
 
-      const nicknameRegex = /^[a-zA-Z0-9가-힣]{2,8}$/;
+      const nicknameRegex = /^[a-zA-Z0-9가-힣]{2,10}$/;
       if (!nicknameRegex.test(nickName)) {
         setErrorMessage((prev) => {
           return {
@@ -384,10 +384,10 @@ const JointTemplate = () => {
         radius="md"
         shadow="md"
         maw={"600"}
-        m="auto"
+        mx="auto"
         withBorder
         w={"100%"}
-        display={"flex"}
+        my={"xl"}
         style={{ flexDirection: "column" }}
       >
         <Title order={2} ta="center" mb="md">
@@ -608,7 +608,7 @@ const JointTemplate = () => {
               successMessage.nickName
                 ? successMessage.nickName
                 : !errorMessage.nickName
-                ? "닉네임은 2~8자, 한글, 영어, 숫자만 입력하세요."
+                ? "닉네임은 2~10자, 한글, 영어, 숫자만 입력하세요."
                 : ""
             }
             error={errorMessage.nickName}

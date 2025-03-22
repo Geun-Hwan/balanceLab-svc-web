@@ -4,7 +4,7 @@ import {
   IQuestionResult,
 } from "@/api/questionApi";
 import { useUserStore } from "@/store/store";
-import { SimpleGrid } from "@mantine/core";
+import { SimpleGrid, Skeleton } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
@@ -59,25 +59,29 @@ const Dummy = ({
   return (
     <SimpleGrid cols={cols} spacing={spacing} w={"100%"}>
       {/* 비로그인 사용자도 볼수있음 */}
-      {<BalanceCard data={dummyData as IQuestionResult} isBlur={isLoading} />}
+      <Skeleton visible={isLoading} key={"public-skeleton"}>
+        <BalanceCard data={dummyData as IQuestionResult} />
+      </Skeleton>
       {Array.from({ length: repeat }).map((_, index) => {
         const randomTitle = generateRandomHangulWithSpaces(10, 35);
         return (
-          <BalanceCard
-            key={index}
-            isBlur
-            data={
-              {
-                strDate: dayjs(),
-                endDate: dayjs(),
-                title: randomTitle,
-              } as IQuestionResult
-            }
-          />
+          <Skeleton visible={isLoading} key={`public-skeleton-${index}`}>
+            <BalanceCard
+              key={index}
+              isBlur
+              data={
+                {
+                  strDate: dayjs(),
+                  endDate: dayjs(),
+                  title: randomTitle,
+                } as IQuestionResult
+              }
+            />
+          </Skeleton>
         );
       })}
     </SimpleGrid>
   );
 };
 
-export default Dummy;
+export default React.memo(Dummy);

@@ -1,74 +1,48 @@
-import { ILoginResult, logout } from "@/api/authApi";
-import { useDesktopView } from "@/context";
-import { useAlertStore, useUserStore } from "@/store/store";
-import { handleLogoutCallback } from "@/utils/loginUtil";
+import { ILoginResult } from "@/api/authApi";
+import { useDesktopHeader } from "@/context/headerContext";
+import useContentType from "@/hooks/useContentType";
+import { useUserStore } from "@/store/store";
 import {
   Button,
+  CloseButton,
   Divider,
   Drawer,
   Flex,
   Group,
   Menu,
-  ScrollArea,
   Stack,
   Text,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { modals } from "@mantine/modals";
-import { IconChevronLeft, IconMenu2, IconUser } from "@tabler/icons-react";
-import { useMutation } from "@tanstack/react-query";
-import React, { useMemo } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { getMenuItems, MenuItem, MenuItemsType, MenuName } from "./menu";
+import { IconMenu2, IconUser } from "@tabler/icons-react";
+import React from "react";
+import {
+  MenuName,
+  MobileMenuType,
+  PcMenuType,
+  useGetMenuItems,
+} from "../hooks/useGetMenuItems";
 
 const Header = ({ name }: { name?: MenuName }) => {
-  const location = useLocation();
-  const isDesktopView = useDesktopView();
+  const isDesktopView = useDesktopHeader();
   const { isLogin, userData } = useUserStore();
-  const { showAlert } = useAlertStore();
 
-  const { mutate: logoutMutate, isPending } = useMutation({
-    mutationFn: () => logout(),
-    onSuccess: (data, variables, context) => {
-      handleLogoutCallback(() => showAlert("로그아웃 완료!"));
-    },
-    onError: () => {
-      handleLogoutCallback();
-    },
-  });
-
-  const handleLogout = () => {
-    modals.openConfirmModal({
-      modalId: "login_confirm",
-      centered: true,
-      title: "알림",
-      closeOnConfirm: true,
-      children: <Text>로그아웃</Text>,
-      labels: { confirm: "확인", cancel: "취소" },
-      onConfirm: () => logoutMutate(),
-    });
-  };
-  const MenuItems: MenuItemsType = useMemo(() => {
-    return getMenuItems(handleLogout);
-  }, [handleLogout]);
+  const MenuItems = useGetMenuItems(isDesktopView as boolean);
 
   return (
     <>
       {isDesktopView ? (
         <Header.DeskTop
-          MenuItems={MenuItems["desktop"]}
+          MenuItems={MenuItems}
           userData={userData}
           isLogin={isLogin}
         />
       ) : (
         <Header.Mobile
-          MenuItems={MenuItems["mobile"]}
+          MenuItems={MenuItems}
           name={name}
           userData={userData}
           isLogin={isLogin}
-          // open={open}
-          // opened={opened}
-          // close={close}
         />
       )}
     </>
@@ -81,16 +55,21 @@ Header.DeskTop = ({
   isLogin,
   userData,
 }: {
-  MenuItems: Partial<MenuItem>;
+  MenuItems: PcMenuType;
 
   isLogin: boolean;
   userData: ILoginResult | null;
 }) => {
-  const DeskTopUserMenu = () => {
+  const DeskTopDropDown = () => {
     return (
-      <Menu shadow="md" closeOnItemClick closeOnClickOutside={true}>
+      <Menu>
         <Menu.Target>
-          <Button key="mypage" variant="subtle" leftSection={<IconUser />}>
+          <Button
+            w={"auto"}
+            key="mypage"
+            variant="transparent"
+            leftSection={<IconUser />}
+          >
             내정보
           </Button>
         </Menu.Target>
@@ -107,31 +86,29 @@ Header.DeskTop = ({
             </Flex>
           </Menu.Label>
 
-          {MenuItems.MyPage}
+          <MenuItems.MyPage />
 
-          {MenuItems.MyGames}
-
+          <MenuItems.MyGames />
           <Menu.Divider />
-
-          {MenuItems.Logout}
+          <MenuItems.Logout />
         </Menu.Dropdown>
       </Menu>
     );
   };
 
   return (
-    <>
-      <Group align={"flex-start"} w={"70%"} py={"md"} mih={80} mx={"auto"}>
-        {MenuItems.Home}
+    <Group align={"flex-start"} w={"100%"} py={"md"} mih={80} mx={"auto"}>
+      {MenuItems.Home && <MenuItems.Home />}
 
-        <Stack flex={1} gap={"xs"}>
-          <Flex justify={"flex-end"} gap={"xs"}>
+      <Stack flex={1} gap={"sm"}>
+        <Flex justify={"flex-end"} gap={"xs"}>
+          <Menu closeOnItemClick closeOnClickOutside>
             {[
-              MenuItems.Setting,
-              MenuItems.Contact,
-              isLogin && <DeskTopUserMenu />,
-              !isLogin && MenuItems.Login,
-              !isLogin && MenuItems.Join,
+              <MenuItems.Setting />,
+              <MenuItems.Contact />,
+              !isLogin && <MenuItems.Login />,
+              !isLogin && <MenuItems.Join />,
+              isLogin && <DeskTopDropDown />,
             ]
               .filter(Boolean)
               .map((item, index, array) => (
@@ -142,16 +119,15 @@ Header.DeskTop = ({
                   )}
                 </React.Fragment>
               ))}
-          </Flex>
-
-          <Menu>
-            <Flex gap={"md"} mt={"md"} ml={50}>
-              {[MenuItems.Balance, MenuItems.Prediction]}
-            </Flex>
           </Menu>
-        </Stack>
-      </Group>
-    </>
+        </Flex>
+
+        <Flex gap={"md"} mt={"lg"}>
+          <MenuItems.Balance />
+          <MenuItems.Prediction />
+        </Flex>
+      </Stack>
+    </Group>
   );
 };
 
@@ -161,73 +137,92 @@ Header.Mobile = ({
   isLogin,
   userData,
 }: {
-  MenuItems: Partial<MenuItem>;
+  MenuItems: MobileMenuType;
   name?: MenuName;
   isLogin: boolean;
   userData: ILoginResult | null;
 }) => {
   const MobileDrawerMenu = () => {
     const [opened, { open, close }] = useDisclosure(false);
-
+    const { isSmall } = useContentType();
     return (
       <Menu>
         <Menu.Target>
-          <IconMenu2 size={25} style={{ flexGrow: 0 }} onClick={open} />
+          <IconMenu2 size={30} style={{ flexGrow: 0 }} onClick={open} />
         </Menu.Target>
 
         <Drawer
           opened={opened}
           onClose={close}
-          size="xs"
+          size={isSmall ? "xs" : "md"}
+          position="right"
           withCloseButton={false}
-          miw={320}
           styles={{
             body: {
               height: "100%",
               flexDirection: "column",
               display: "flex",
-              minWidth: 320,
             },
           }}
         >
-          <Flex mb={"md"}>
-            <IconChevronLeft size={30} stroke={1.5} onClick={close} />
+          <Flex mb={"md"} align="center" gap={"xs"}>
+            <CloseButton
+              size={isSmall ? 30 : 50}
+              onClick={close}
+              variant="transparent"
+              bd={0}
+              style={{ outline: "none" }}
+            />
 
             {isLogin ? (
-              <Flex
-                direction={"column"}
-                justify={"flex-start"}
-                flex={1}
-                gap={"xs"}
-                pl={"xs"}
-              >
-                <Flex justify={"space-between"} align={"center"}>
+              <Flex direction={"column"} w={"100%"}>
+                <Flex align={"center"} justify={"space-between"}>
                   <Text
                     ta={"left"}
                     fw={900}
                     lineClamp={1}
-                    flex={1}
-                    fz={"lg"}
+                    fz={isSmall ? "h4" : "h3"}
                     style={{
+                      wordBreak: "break-word",
                       textOverflow: "ellipsis",
                     }}
                   >
                     {userData?.nickNm}
                   </Text>
-                  <Text
-                    ta={"right"}
-                    size="sm"
-                    c="blue"
-                    fw={900}
-                    flex={1}
-                    lineClamp={1}
-                    style={{
-                      textOverflow: "ellipsis",
-                    }}
-                  >
-                    {userData?.totalPoint.toLocaleString()}P
-                  </Text>
+                  <Flex>
+                    <Text
+                      ta={"right"}
+                      fz={isSmall ? "sm" : "md"}
+                      c="blue"
+                      fw={900}
+                      lineClamp={1}
+                      style={{
+                        wordBreak: "break-word",
+
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {userData?.totalPoint.toLocaleString()}
+                    </Text>
+                    <Text
+                      ta={"right"}
+                      fz={isSmall ? "sm" : "md"}
+                      c="blue.3"
+                      fw={900}
+                    >
+                      P
+                    </Text>
+                  </Flex>
                 </Flex>
+                <Text
+                  ta={"left"}
+                  fw={700}
+                  fz={isSmall ? "xs" : "sm"}
+                  c={"gray"}
+                  flex={1}
+                >
+                  {userData?.email}
+                </Text>
               </Flex>
             ) : (
               <Stack flex={1} gap={"md"}>
@@ -251,21 +246,29 @@ Header.Mobile = ({
             )}
           </Flex>
           <Stack gap={"xl"} flex={1} pt={"xl"}>
-            {isLogin ? [MenuItems.MyGames] : MenuItems.DrawerLogin}
-
-            {[MenuItems.Contact, MenuItems.Setting]}
+            {isLogin ? (
+              <>
+                <MenuItems.MyGames />
+              </>
+            ) : (
+              <MenuItems.DrawerLogin />
+            )}
+            <MenuItems.Contact />
+            <MenuItems.Setting />
           </Stack>
           <Stack pt={"md"}>
-            <Group
+            <Flex
               justify={"space-between"}
               align={"center"}
-              grow
-              flex={1}
               mih={35}
-              mah={50}
+              w={"100%"}
             >
-              {isLogin && [MenuItems.MyPage, MenuItems.Logout]}
-            </Group>
+              {isLogin && (
+                <>
+                  <MenuItems.MyPage /> <MenuItems.Logout />
+                </>
+              )}
+            </Flex>
           </Stack>
         </Drawer>
       </Menu>
@@ -274,28 +277,17 @@ Header.Mobile = ({
   return (
     <Group align={"center"} w={"100%"} pt={"xs"} mih={70} mx={"auto"}>
       <Group grow miw={80} flex={1}>
-        {name !== "Login" && name !== "Join" && <MobileDrawerMenu />}
+        {/* {name !== "Login" && name !== "Join" && <MobileDrawerMenu />} */}
+        {name !== "Login" && name !== "Home" && <MenuItems.Back />}
       </Group>
 
-      <Group justify="center">{MenuItems.Home}</Group>
+      <Group justify="center">{<MenuItems.Home />}</Group>
 
       <Group grow miw={80} flex={1} justify="flex-end">
-        {name !== "Login" && !isLogin && MenuItems.Login}
+        {name !== "Login" && name !== "Join" && <MobileDrawerMenu />}
       </Group>
     </Group>
   );
 };
 
 export default Header;
-
-Header.MobileSubHeader = () => {
-  const MainItems = getMenuItems(undefined, ["Balance", "Prediction"])[
-    "mobile"
-  ];
-
-  return (
-    <ScrollArea w="90dvw" type="never" mt={"md"}>
-      <Flex gap={"sm"}>{Object.values(MainItems)}</Flex>
-    </ScrollArea>
-  );
-};

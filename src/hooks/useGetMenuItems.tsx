@@ -17,6 +17,8 @@ import {
   IconMailQuestion,
   IconQuestionMark,
   IconSettings,
+  IconSettings2,
+  IconSettingsCheck,
   IconUserCheck,
   IconUserEdit,
   IconUserPlus,
@@ -246,23 +248,20 @@ export const useGetMenuItems = (
       />
     ),
     Contact: () => (
-      <Button
-        miw={125}
-        variant="outline"
-        key="contact-mobile"
-        onClick={() => handleNavigate("/contact")}
-      >
-        문의
-      </Button>
+      <NavLink
+        key="contract-mobile"
+        leftSection={<IconMailQuestion size={16} />}
+        onClick={() => handleNavigate("/contract")}
+        label="문의"
+      />
     ),
     Setting: () => (
-      <Button
-        miw={125}
-        key={"setting-mobile"}
+      <NavLink
+        key="setting-mobile"
+        leftSection={<IconSettingsCheck size={16} />}
         onClick={() => handleNavigate("/setting")}
-      >
-        설정
-      </Button>
+        label="설정"
+      />
     ),
     Login: () => (
       <Button
@@ -279,8 +278,8 @@ export const useGetMenuItems = (
       <NavLink
         key="mygames-mobile"
         leftSection={<IconDeviceGamepad2 size={16} />}
-        onClick={() => handleNavigate("/my-games")}
         label="게임관리"
+        onClick={() => handleNavigate("/my-games")}
       />
     ),
     /* 탭 */

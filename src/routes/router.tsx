@@ -36,7 +36,7 @@ const routes: RouteObject[] = [
       },
 
       {
-        path: "contact",
+        path: "contract",
         element: <ContractTemplate />,
       },
       {

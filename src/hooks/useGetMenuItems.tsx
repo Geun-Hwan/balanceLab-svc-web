@@ -249,9 +249,9 @@ export const useGetMenuItems = (
     ),
     Contact: () => (
       <NavLink
-        key="contract-mobile"
+        key="contact-mobile"
         leftSection={<IconMailQuestion size={16} />}
-        onClick={() => handleNavigate("/contract")}
+        onClick={() => handleNavigate("/contact")}
         label="문의"
       />
     ),

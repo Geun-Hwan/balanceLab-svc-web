@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import { CustomError } from "../constants/serviceConstants";
 import { useAlertStore } from "../store/store";
 import { getAccessToken, setAccessToken } from "../utils/cookieUtil";
@@ -48,20 +48,26 @@ axiosInstance.interceptors.response.use(
         return axiosInstance.request(error.config);
 
         // 예: 토큰 만료 시 로그아웃 처리
-      } catch (refreshError) {
+      } catch (refreshError: any) {
         await logout();
-        localStorage.setItem("showPopup", "autoLogout");
-
-        handleLogoutCallback();
+        handleLogoutCallback(() => {
+          localStorage.setItem(
+            "showPopup",
+            refreshError?.response?.data.message
+          );
+          window.location.replace("/");
+        });
         return Promise.reject(refreshError);
       }
     }
 
     if (errorCode === CustomError.SESSION_EXPIRED) {
       await logout();
-      localStorage.setItem("showPopup", "autoLogout");
 
-      handleLogoutCallback();
+      handleLogoutCallback(() => {
+        localStorage.setItem("showPopup", error.response?.data?.message);
+        window.location.replace("/");
+      });
 
       return Promise.reject(
         error.response as AxiosResponse<IAPI_RESPONSE<any>>

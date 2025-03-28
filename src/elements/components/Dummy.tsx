@@ -1,14 +1,11 @@
-import {
-  getQuestionKey,
-  getPublicQuestion,
-  IQuestionResult,
-} from "@/api/questionApi";
+import { getQuestionKey, IQuestionResult } from "@/api/questionApi";
 import { useUserStore } from "@/store/store";
 import { SimpleGrid, Skeleton } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import BalanceCard from "./BalanceCard";
+import { getPublicQuestion } from "@/api/publicApi";
 
 const Dummy = ({
   repeat = 12,

@@ -17,8 +17,8 @@ const DesktopHeaderProvider: React.FC<DesktopViewProviderProps> = ({
   const [isDesktopHeader, setIsDesktopHeader] = useState<boolean | undefined>(
     undefined
   );
-  const userAgent = navigator.userAgent;
 
+  const userAgent = navigator.userAgent;
   const isMobileHeader = useMediaQuery("(max-width: 1024px)");
   useEffect(() => {
     if (isMobile || isTablet) {

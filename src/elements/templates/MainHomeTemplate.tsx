@@ -15,8 +15,9 @@ const MainHomeTemplate = () => {
   const isDesktopHeader = useDesktopHeader();
 
   useEffect(() => {
-    if (localStorage.getItem("showPopup") === "autoLogout") {
-      showAlert("자동 로그아웃 되었습니다.");
+    const message = localStorage.getItem("showPopup");
+    if (message) {
+      showAlert(message);
       localStorage.removeItem("showPopup");
       qc.clear();
     }
@@ -43,5 +44,7 @@ MainHomeTemplate.Mobile = () => {
     </Flex>
   );
 };
+
+const BalanceCardSlider = () => {};
 
 export default MainHomeTemplate;

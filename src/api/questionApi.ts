@@ -101,12 +101,6 @@ export const getQuestionDetail = async (
     .then((res) => res.data.data);
 };
 
-export const getPublicQuestion = async (): Promise<IQuestionResult> => {
-  return instance
-    .get<IQuestionResult>(PRE_FIX + `/public`)
-    .then((res) => res.data.data);
-};
-
 export const createQuestion = async (
   param: QuestionCreateType
 ): Promise<any> => {

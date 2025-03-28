@@ -4,7 +4,7 @@ import PageLayout from "@/layout/PageLayout";
 import {
   BalanceDetailTemplate,
   BalanceTemplate,
-  ContractTemplate,
+  ContactTemplate,
   JointTemplate,
   LoginTemplate,
   MainHomeTemplate,
@@ -13,7 +13,7 @@ import {
   ParticipationsTemplate,
   SettingTemplate,
 } from "@tmp";
-import { RouteObject, createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, RouteObject } from "react-router-dom";
 import AuthRoute from "./AuthRoute";
 
 const routes: RouteObject[] = [
@@ -36,8 +36,8 @@ const routes: RouteObject[] = [
       },
 
       {
-        path: "contract",
-        element: <ContractTemplate />,
+        path: "contact",
+        element: <ContactTemplate />,
       },
       {
         path: "setting",

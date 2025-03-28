@@ -30,9 +30,12 @@ import { IAPI_RESPONSE } from "@/api/api";
 import { getUserKey } from "@/api/userApi";
 import { useDesktopHeader } from "@/context/headerContext";
 import Content from "@/layout/Content";
-import { getDefaultImage } from "@cmp/imges";
+
 import { AxiosResponse } from "axios";
 import { debounce } from "lodash";
+
+import etcA from "@asset/images/etcA.png";
+import etcB from "@asset/images/etcB.png";
 
 const BalanceDetailTemplate = () => {
   const qc = useQueryClient();
@@ -259,13 +262,11 @@ const BalanceDetailTemplate = () => {
           <Group justify="center">
             <BalanceDetailTemplate.BalanceImage
               size={200}
-              categoryCd={data?.categoryCd as CategoryValue}
               type={"A"}
               imageUrl={data?.imgUrlA}
             />
             <BalanceDetailTemplate.BalanceImage
               size={200}
-              categoryCd={data?.categoryCd as CategoryValue}
               type={"B"}
               imageUrl={data?.imgUrlB}
             />
@@ -274,13 +275,11 @@ const BalanceDetailTemplate = () => {
           <Group justify="center">
             <BalanceDetailTemplate.BalanceImage
               size={120}
-              categoryCd={data?.categoryCd as CategoryValue}
               type={"A"}
               imageUrl={data?.imgUrlA}
             />
             <BalanceDetailTemplate.BalanceImage
               size={120}
-              categoryCd={data?.categoryCd as CategoryValue}
               type={"B"}
               imageUrl={data?.imgUrlB}
             />
@@ -378,12 +377,10 @@ const BalanceDetailTemplate = () => {
 
 BalanceDetailTemplate.BalanceImage = ({
   imageUrl,
-  categoryCd,
   size,
   type,
 }: {
   imageUrl?: string | null;
-  categoryCd: CategoryValue;
   size: number;
   type: "A" | "B";
 }) => {
@@ -395,7 +392,7 @@ BalanceDetailTemplate.BalanceImage = ({
       <Image
         w={size}
         h={size}
-        src={getDefaultImage(categoryCd, type, imageUrl)}
+        src={imageUrl ? imageUrl : type === "A" ? etcA : etcB}
       ></Image>
     </Box>
   );

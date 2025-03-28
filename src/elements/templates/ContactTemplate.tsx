@@ -1,7 +1,7 @@
 import Content from "@/layout/Content";
 import { Button, Paper, Stack, Text, Title } from "@mantine/core";
 
-const ContractTemplate = () => {
+const ContactTemplate = () => {
   return (
     <Content>
       <Paper
@@ -45,4 +45,4 @@ const ContractTemplate = () => {
   );
 };
 
-export default ContractTemplate;
+export default ContactTemplate;

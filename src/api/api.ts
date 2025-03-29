@@ -51,10 +51,10 @@ axiosInstance.interceptors.response.use(
       } catch (refreshError: any) {
         await logout();
         handleLogoutCallback(() => {
-          localStorage.setItem(
-            "showPopup",
-            refreshError?.response?.data.message
-          );
+          const message = refreshError.response?.data?.message;
+          if (message) {
+            localStorage.setItem("showPopup", message);
+          }
           window.location.replace("/");
         });
         return Promise.reject(refreshError);
@@ -65,7 +65,10 @@ axiosInstance.interceptors.response.use(
       await logout();
 
       handleLogoutCallback(() => {
-        localStorage.setItem("showPopup", error.response?.data?.message);
+        const message = error.response?.data?.message;
+        if (message) {
+          localStorage.setItem("showPopup", message);
+        }
         window.location.replace("/");
       });
 

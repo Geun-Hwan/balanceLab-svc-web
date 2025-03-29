@@ -260,29 +260,37 @@ const BalanceDetailTemplate = () => {
         </Text>
         {isDesktopView ? (
           <Group justify="center">
-            <BalanceDetailTemplate.BalanceImage
-              size={200}
-              type={"A"}
-              imageUrl={data?.imgUrlA}
-            />
-            <BalanceDetailTemplate.BalanceImage
-              size={200}
-              type={"B"}
-              imageUrl={data?.imgUrlB}
-            />
+            {!isLoading && (
+              <BalanceDetailTemplate.BalanceImage
+                size={200}
+                type={"A"}
+                imageUrl={data?.imgUrlA}
+              />
+            )}
+            {!isLoading && (
+              <BalanceDetailTemplate.BalanceImage
+                size={200}
+                type={"B"}
+                imageUrl={data?.imgUrlB}
+              />
+            )}
           </Group>
         ) : (
           <Group justify="center">
-            <BalanceDetailTemplate.BalanceImage
-              size={120}
-              type={"A"}
-              imageUrl={data?.imgUrlA}
-            />
-            <BalanceDetailTemplate.BalanceImage
-              size={120}
-              type={"B"}
-              imageUrl={data?.imgUrlB}
-            />
+            {!isLoading && (
+              <BalanceDetailTemplate.BalanceImage
+                size={120}
+                type={"A"}
+                imageUrl={data?.imgUrlA}
+              />
+            )}
+            {!isLoading && (
+              <BalanceDetailTemplate.BalanceImage
+                size={120}
+                type={"B"}
+                imageUrl={data?.imgUrlB}
+              />
+            )}
           </Group>
         )}
         <Stack p="md" mt={"lg"} align="center">
@@ -384,16 +392,21 @@ BalanceDetailTemplate.BalanceImage = ({
   size: number;
   type: "A" | "B";
 }) => {
+  const defaultImage = type === "A" ? etcA : etcB;
+
   return (
     <Box>
       <Title ta={"center"} mb={"sm"}>
         {type}
       </Title>
+
       <Image
+        loading="eager"
         w={size}
         h={size}
-        src={imageUrl ? imageUrl : type === "A" ? etcA : etcB}
-      ></Image>
+        src={imageUrl}
+        fallbackSrc={defaultImage}
+      />
     </Box>
   );
 };

@@ -14,7 +14,7 @@ const AuthRoute = () => {
   }, []);
 
   if (!isLogin && !alertVisible) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" replace />;
   }
 
   return <PageLayout />; // 로그인한 경우 자식 요소를 렌더링

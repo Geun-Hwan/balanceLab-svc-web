@@ -30,6 +30,7 @@ export type QuestionCreateType = {
 };
 
 export interface IQuestionResult {
+  isBlur: boolean | undefined;
   questionId: string;
   title: string; //제목
   userId: string;
@@ -42,7 +43,7 @@ export interface IQuestionResult {
   categoryCd: string;
   imgUrlA: string | null;
   imgUrlB: string | null;
-
+  isPublic: boolean;
   delYn: boolean; //삭제여부
   questionStatusCd: QuestionStatusCd; // 선택지상태
   participation: boolean;

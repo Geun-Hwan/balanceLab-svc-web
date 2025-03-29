@@ -11,11 +11,11 @@ import {
 import { useBalanceGameList } from "@/hooks/useBalanceGameList";
 import useContentType from "@/hooks/useContentType";
 import { useUserStore } from "@/store/store";
-import Dummy from "@cmp/Dummy";
 import { modals } from "@mantine/modals";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BalanceCard from "./BalanceCard";
+import DummyComponent from "./DummyComponent";
 import MobileBalanceGameSearchButton from "./mobile/MobileBalanceGameSearchButton";
 import PcBalanceGameSearchArea from "./pc/PcBalanceGameSearchArea";
 
@@ -138,7 +138,7 @@ const BalanceGameList = () => {
                   return (
                     <Skeleton
                       visible={isInitialLoading}
-                      key={`public-skeleton-${index}`}
+                      key={`'skel'-${index}`}
                     >
                       <BalanceCard key={index} isBlur />
                     </Skeleton>
@@ -151,7 +151,7 @@ const BalanceGameList = () => {
                 )}
           </SimpleGrid>
         ) : (
-          <Dummy cols={colSize} repeat={colSize * 6} />
+          <DummyComponent cols={colSize} />
         )}
       </Box>
       <Box ref={observerRef} bg={"transparent"} h={30} />

@@ -13,6 +13,7 @@ import dayjs from "dayjs";
 
 import "./App.css";
 import "dayjs/locale/ko"; // 한국어 로케일 가져오기
+import AdsenseAd from "./elements/ads/AdsenseAd";
 
 dayjs.locale("ko");
 

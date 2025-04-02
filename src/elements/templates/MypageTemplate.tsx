@@ -1,6 +1,6 @@
-import { ILoginResult, logout } from "@/api/authApi";
-import { modifyUser, UserModifyType, withdrawUser } from "@/api/userApi";
-import { ALL_ERRORS, AUTH_ERROR } from "@/constants/ErrorConstants";
+import { ILoginResult, logout } from "@api/authApi";
+import { modifyUser, UserModifyType, withdrawUser } from "@api/userApi";
+import { ALL_ERRORS } from "@/constants/ErrorConstants";
 import Content from "@/layout/Content";
 import { useAlertStore, useUserStore } from "@/store/store";
 import { handleLoginSuccess, handleLogoutCallback } from "@/utils/loginUtil";
@@ -22,7 +22,6 @@ import {
 import { modals } from "@mantine/modals";
 import {
   IconBell,
-  IconHistory,
   IconLock,
   IconLogout,
   IconMail,

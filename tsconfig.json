@@ -24,8 +24,9 @@
       "@img": ["./src/assets/images/*"],
 
       "@asset/*": ["./src/assets/*"],
+      "@api/*": ["./api/*"],
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "api"]
 }

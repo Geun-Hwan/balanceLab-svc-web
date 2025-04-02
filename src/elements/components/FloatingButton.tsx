@@ -14,7 +14,9 @@ const FloatingButton = () => {
   };
 
   const [showButton, setShowButton] = useState(false); // 버튼 보이기 여부 상태
-  const [scrollTimeout, setScrollTimeout] = useState<number | null>(null);
+  const [scrollTimeout, setScrollTimeout] = useState<ReturnType<
+    typeof setTimeout
+  > | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {

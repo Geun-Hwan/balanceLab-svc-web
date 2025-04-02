@@ -1,5 +1,5 @@
 import { QuestionStatusCd } from "@/constants/ServiceConstants";
-import { instance } from "./api";
+import { instance } from "@api/api";
 
 export type QuestionRequestType = {
   page?: number | string;

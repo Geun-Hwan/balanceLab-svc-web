@@ -2,22 +2,17 @@ import {
   getMyQuestionList,
   getParticipationList,
   getQuestionKey,
-} from "@/api/questionApi";
+} from "@api/questionApi";
 import Content from "@/layout/Content";
 import { useUserStore } from "@/store/store";
-import { Box, Button, Group, Tabs, Text } from "@mantine/core";
+import { Button, Group, Tabs, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import {
-  IconGoGame,
-  IconList,
-  IconListCheck,
-  IconPlus,
-} from "@tabler/icons-react";
+import { IconGoGame, IconListCheck, IconPlus } from "@tabler/icons-react";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import BalanceCreateModal from "../components/BalanceCreateModal";
-import QuestionsList from "../components/QuestionList";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import BalanceCreateModal from "../components/BalanceCreateModal";
+import QuestionsList from "../components/QuestionList";
 
 type TabType = "#my-rgstr" | "#my-participations";
 

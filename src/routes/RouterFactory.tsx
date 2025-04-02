@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { RouterProvider } from "react-router-dom";
-import { getTotalPoint, getUserKey } from "../api/userApi";
+import { getTotalPoint, getUserKey } from "../../api/userApi";
 
 import { useUserStore } from "@/store/store";
 import router from "./router";

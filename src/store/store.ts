@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { ILoginResult } from "../api/authApi";
+import { ILoginResult } from "../../api/authApi";
 
 export type AlertType = "error" | "success" | "info" | "warning"; // 알림 타입
 

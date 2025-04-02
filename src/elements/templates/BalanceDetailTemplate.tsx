@@ -2,8 +2,8 @@ import {
   getQuestionDetail,
   getQuestionKey,
   IQuestionResult,
-} from "@/api/questionApi";
-import { createSelection, SelectionCreateType } from "@/api/selectionApi";
+} from "@api/questionApi";
+import { createSelection, SelectionCreateType } from "@api/selectionApi";
 import { QuestionStatusCd } from "@/constants/ServiceConstants";
 
 import { useAlertStore, useUserStore } from "@/store/store";
@@ -18,12 +18,12 @@ import {
   Title,
 } from "@mantine/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import SelectAnimation from "../components/SelectAnimation";
 
-import { IAPI_RESPONSE } from "@/api/api";
-import { getUserKey } from "@/api/userApi";
+import { IAPI_RESPONSE } from "@api/api";
+import { getUserKey } from "@api/userApi";
 import { useDesktopHeader } from "@/context/headerContext";
 import Content from "@/layout/Content";
 

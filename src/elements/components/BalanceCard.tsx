@@ -1,4 +1,4 @@
-import { IQuestionResult } from "@/api/questionApi";
+import { IQuestionResult } from "@api/questionApi";
 import { QuestionStatusCd } from "@/constants/ServiceConstants";
 import { useUserStore } from "@/store/store";
 import { Badge, Box, Button, Card, Flex, Text } from "@mantine/core";

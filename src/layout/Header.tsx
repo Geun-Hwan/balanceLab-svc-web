@@ -1,4 +1,4 @@
-import { ILoginResult } from "@/api/authApi";
+import { ILoginResult } from "@api/authApi";
 import { useDesktopHeader } from "@/context/headerContext";
 import useContentType from "@/hooks/useContentType";
 import { useUserStore } from "@/store/store";

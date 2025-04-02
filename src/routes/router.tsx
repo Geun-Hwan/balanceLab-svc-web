@@ -25,6 +25,15 @@ const routes: RouteObject[] = [
         element: <MainHomeTemplate />,
       },
       {
+        path: "sitemap.xml",
+        element: null,
+      },
+      {
+        path: "@api/*",
+        element: null,
+      },
+
+      {
         path: "login",
 
         element: <LoginTemplate />,
@@ -40,11 +49,11 @@ const routes: RouteObject[] = [
       },
       {
         path: "setting",
-        element: <SettingTemplate />, // 로그인한 사용자만 접근
+        element: <SettingTemplate />,
       },
       {
         path: "balance",
-        element: <BalanceTemplate />, // 로그인한 사용자만 접근
+        element: <BalanceTemplate />,
       },
 
       {
@@ -54,7 +63,7 @@ const routes: RouteObject[] = [
 
       {
         path: "predict",
-        element: <PredictTemplate />, // 로그인한 사용자만 접근
+        element: <PredictTemplate />,
       },
     ],
   },

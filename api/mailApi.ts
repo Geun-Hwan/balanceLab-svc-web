@@ -1,4 +1,4 @@
-import { instance } from "./api";
+import { instance } from "@api/api";
 
 const PRE_FIX = "/mail";
 export const verifyMailSend = async (param: {

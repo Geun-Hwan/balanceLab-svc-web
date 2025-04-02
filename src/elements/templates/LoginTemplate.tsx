@@ -1,4 +1,4 @@
-import { login, LoginRequestType } from "@/api/authApi";
+import { login, LoginRequestType } from "@api/authApi";
 import { ALL_ERRORS } from "@/constants/ErrorConstants";
 import Content from "@/layout/Content";
 import { useAlertStore, useUserStore } from "@/store/store";

@@ -3,7 +3,7 @@ import {
   IQuestionResult,
   PageResponse,
   removeQuestion,
-} from "@/api/questionApi";
+} from "@api/questionApi";
 import { CATEGORIES, QuestionStatusCd } from "@/constants/ServiceConstants";
 import { useAlertStore } from "@/store/store";
 import {

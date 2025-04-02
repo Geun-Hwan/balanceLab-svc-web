@@ -19,7 +19,7 @@ import {
 import { DatePickerInput } from "@mantine/dates";
 import { useDisclosure } from "@mantine/hooks";
 import { modals } from "@mantine/modals";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const MobileBalanceGameSearchButton = ({

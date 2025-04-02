@@ -3,7 +3,7 @@ import {
   getQuestionList,
   IQuestionResult,
   PageResponse,
-} from "@/api/questionApi";
+} from "@api/questionApi";
 import { useAlertStore } from "@/store/store";
 import { getAccessToken } from "@/utils/cookieUtil";
 import {

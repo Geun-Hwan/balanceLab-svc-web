@@ -1,5 +1,5 @@
-import { idDuplicationCheck, join, JoinRequest } from "@api/authApi";
-import { verifyCheck, verifyMailSend } from "@api/mailApi";
+import { idDuplicationCheck, join, JoinRequest } from "@/service/authApi";
+import { verifyCheck, verifyMailSend } from "@/service/mailApi";
 import Content from "@/layout/Content";
 import { useAlertStore } from "@/store/store";
 import { handleLoginSuccess } from "@/utils/loginUtil";

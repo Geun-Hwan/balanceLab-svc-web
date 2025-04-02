@@ -5,9 +5,9 @@ import { useAlertStore, useUserStore } from "@/store/store";
 import { Carousel, Embla } from "@mantine/carousel";
 import { Box, Card, Flex, SimpleGrid, Skeleton, Text } from "@mantine/core";
 
+import { getRankList, getTodayQuestion } from "@/service/publicApi";
+import { IQuestionResult } from "@/service/questionApi";
 import useContentType from "@/hooks/useContentType";
-import { getRankList, getTodayQuestion } from "@api/publicApi";
-import { IQuestionResult } from "@api/questionApi";
 import BalanceCard from "@cmp/BalanceCard";
 import { useQueries, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";

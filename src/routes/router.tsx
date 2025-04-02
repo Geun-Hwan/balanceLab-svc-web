@@ -24,14 +24,6 @@ const routes: RouteObject[] = [
         path: "",
         element: <MainHomeTemplate />,
       },
-      {
-        path: "sitemap.xml",
-        element: null,
-      },
-      {
-        path: "@api/*",
-        element: null,
-      },
 
       {
         path: "login",

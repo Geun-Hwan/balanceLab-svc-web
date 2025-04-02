@@ -2,7 +2,7 @@ import {
   getMyQuestionList,
   getParticipationList,
   getQuestionKey,
-} from "@api/questionApi";
+} from "@/service/questionApi";
 import Content from "@/layout/Content";
 import { useUserStore } from "@/store/store";
 import { Button, Group, Tabs, Text } from "@mantine/core";

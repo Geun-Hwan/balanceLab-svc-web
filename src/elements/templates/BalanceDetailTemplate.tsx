@@ -2,8 +2,8 @@ import {
   getQuestionDetail,
   getQuestionKey,
   IQuestionResult,
-} from "@api/questionApi";
-import { createSelection, SelectionCreateType } from "@api/selectionApi";
+} from "@/service/questionApi";
+import { createSelection, SelectionCreateType } from "@/service/selectionApi";
 import { QuestionStatusCd } from "@/constants/ServiceConstants";
 
 import { useAlertStore, useUserStore } from "@/store/store";
@@ -22,8 +22,8 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import SelectAnimation from "../components/SelectAnimation";
 
-import { IAPI_RESPONSE } from "@api/api";
-import { getUserKey } from "@api/userApi";
+import { IAPI_RESPONSE } from "@/service/api";
+import { getUserKey } from "@/service/userApi";
 import { useDesktopHeader } from "@/context/headerContext";
 import Content from "@/layout/Content";
 

@@ -14,9 +14,12 @@ export default defineConfig({
   build: {
     minify: "esbuild",
     cssCodeSplit: true,
+    chunkSizeWarningLimit: 1000, // 청크 크기 경고 기준 상향 조정
     rollupOptions: {
       output: {
-        manualChunks: {},
+        manualChunks: {
+          vendor: ["react", "react-dom", "react-router-dom"], // 주요 라이브러리 분리
+        },
       },
     },
   },
@@ -24,7 +27,6 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      "@api": path.resolve(__dirname, "./api"),
 
       "@asset": path.resolve(__dirname, "./src/assets"),
       "@img": path.resolve(__dirname, "./src/assets/images"),

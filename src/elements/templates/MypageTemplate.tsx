@@ -1,5 +1,5 @@
-import { ILoginResult, logout } from "@api/authApi";
-import { modifyUser, UserModifyType, withdrawUser } from "@api/userApi";
+import { ILoginResult, logout } from "@/service/authApi";
+import { modifyUser, UserModifyType, withdrawUser } from "@/service/userApi";
 import { ALL_ERRORS } from "@/constants/ErrorConstants";
 import Content from "@/layout/Content";
 import { useAlertStore, useUserStore } from "@/store/store";

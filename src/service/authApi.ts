@@ -1,4 +1,4 @@
-import { instance } from "@api/api";
+import { instance } from "@/service/api";
 
 const PRE_FIX = "/auth";
 

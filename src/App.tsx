@@ -3,7 +3,7 @@ import { ModalsProvider } from "@mantine/modals";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { MotionGlobalConfig } from "framer-motion";
 import { useEffect } from "react";
-import { queryClient } from "../api/queryClent";
+import { queryClient } from "./service/queryClent";
 import { useUserStore } from "./store/store";
 
 import DesktopViewProvider from "./context/DesktopHeaderProvider";

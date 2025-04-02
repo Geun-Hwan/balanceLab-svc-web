@@ -1,4 +1,4 @@
-import { IQuestionResult } from "@api/questionApi";
+import { IQuestionResult } from "@/service/questionApi";
 import dayjs from "dayjs";
 
 const HANGUL_START = 0xac00; // 가

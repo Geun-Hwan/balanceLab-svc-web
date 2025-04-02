@@ -1,5 +1,5 @@
-import { getPublicQuestionList } from "@api/publicApi";
-import { getQuestionKey, IQuestionResult } from "@api/questionApi";
+import { getPublicQuestionList } from "@/service/publicApi";
+import { getQuestionKey, IQuestionResult } from "@/service/questionApi";
 import { useUserStore } from "@/store/store";
 import { SimpleGrid, Skeleton } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";

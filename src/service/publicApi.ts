@@ -1,4 +1,4 @@
-import { instance } from "@api/api";
+import { instance } from "@/service/api";
 import { IQuestionResult } from "./questionApi";
 
 const PRE_FIX = "/public";

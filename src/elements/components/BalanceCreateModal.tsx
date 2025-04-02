@@ -4,8 +4,8 @@ import {
   createQuestion,
   getQuestionKey,
   modifyQuestion,
-} from "@api/questionApi";
-import { getUserKey } from "@api/userApi";
+} from "@/service/questionApi";
+import { getUserKey } from "@/service/userApi";
 import { CATEGORIES } from "@/constants/ServiceConstants";
 import { useAlertStore, useUserStore } from "@/store/store";
 import { Button, Modal, Select, Text, TextInput } from "@mantine/core";

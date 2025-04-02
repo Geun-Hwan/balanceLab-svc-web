@@ -1,6 +1,6 @@
 // menuItems.ts
 
-import { logout } from "@api/authApi";
+import { logout } from "@/service/authApi";
 import { useAlertStore } from "@/store/store";
 import { handleLogoutCallback } from "@/utils/loginUtil";
 import { Button, Menu, NavLink, Text } from "@mantine/core";

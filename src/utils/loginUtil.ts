@@ -1,4 +1,4 @@
-import { ILoginResult } from "../../api/authApi";
+import { ILoginResult } from "../service/authApi";
 import { ACCEES_TOKEN } from "@/constants/ServiceConstants";
 import { useUserStore } from "../store/store";
 import { removeCookie, setAccessToken } from "./cookieUtil";

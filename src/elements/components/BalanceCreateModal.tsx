@@ -6,7 +6,7 @@ import {
   modifyQuestion,
 } from "@/api/questionApi";
 import { getUserKey } from "@/api/userApi";
-import { CATEGORIES } from "@/constants/serviceConstants";
+import { CATEGORIES } from "@/constants/ServiceConstants";
 import { useAlertStore, useUserStore } from "@/store/store";
 import { Button, Modal, Select, Text, TextInput } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";

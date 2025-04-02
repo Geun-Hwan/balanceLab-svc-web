@@ -1,6 +1,6 @@
 // MobileBalanceGameList.jsx - 모바일용 밸런스 게임 리스트 컴포넌트
 
-import { CATEGORIES } from "@/constants/serviceConstants";
+import { CATEGORIES } from "@/constants/ServiceConstants";
 
 import { IUseBalanceGame } from "@/hooks/useBalanceGameList";
 import { useUserStore } from "@/store/store";

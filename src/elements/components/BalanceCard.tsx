@@ -1,4 +1,5 @@
 import { IQuestionResult } from "@/api/questionApi";
+import { QuestionStatusCd } from "@/constants/ServiceConstants";
 import { useUserStore } from "@/store/store";
 import { Badge, Box, Button, Card, Flex, Text } from "@mantine/core";
 import { modals } from "@mantine/modals";
@@ -33,8 +34,15 @@ const BalanceCard = React.memo(
       }
     };
 
-    const { point, participation, strDate, endDate, title, questionId } =
-      data || {};
+    const {
+      point,
+      participation,
+      strDate,
+      endDate,
+      title,
+      questionId,
+      questionStatusCd,
+    } = data || {};
     const [formattedStartDate, formattedEndDate] = [
       strDate ? dayjs(strDate).format("YYYY-MM-DD") : null,
       endDate ? dayjs(endDate).format("YYYY-MM-DD") : null,
@@ -85,12 +93,16 @@ const BalanceCard = React.memo(
           <Button
             mt={"md"}
             fullWidth
-            variant={"filled"}
+            variant={
+              questionStatusCd === QuestionStatusCd.END ? "default" : "filled"
+            }
             value={questionId}
             color={participation ? "cyan" : "yellow"}
             onClick={handleClick}
           >
-            {participation
+            {questionStatusCd === QuestionStatusCd.END
+              ? "마감"
+              : participation
               ? "결과보기"
               : point
               ? `${point}p 획득 가능`

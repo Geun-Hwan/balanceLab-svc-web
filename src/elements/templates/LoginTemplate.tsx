@@ -1,4 +1,5 @@
 import { login, LoginRequestType } from "@/api/authApi";
+import { ALL_ERRORS } from "@/constants/ErrorConstants";
 import Content from "@/layout/Content";
 import { useAlertStore, useUserStore } from "@/store/store";
 import { handleLoginSuccess } from "@/utils/loginUtil";
@@ -35,8 +36,12 @@ const LoginTemplate = () => {
       handleLoginSuccess(data, () => navigate("/", { replace: true }));
     },
     onError: (res: AxiosResponse) => {
-      if (res?.data?.code) {
-        showAlert(res.data?.message, "error");
+      if (Object.values(ALL_ERRORS).includes(res?.data?.code)) {
+        // 에러 코드가 포함되어 있으면
+        showAlert(res?.data.message, "error");
+      } else {
+        // 에러 코드가 포함되지 않으면 다른 처리
+        showAlert("알 수 없는 오류가 발생했습니다.", "error");
       }
     },
   });

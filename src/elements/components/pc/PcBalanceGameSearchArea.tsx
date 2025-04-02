@@ -1,4 +1,4 @@
-import { CATEGORIES } from "@/constants/serviceConstants";
+import { CATEGORIES } from "@/constants/ServiceConstants";
 import { IUseBalanceGame } from "@/hooks/useBalanceGameList";
 import {
   Button,

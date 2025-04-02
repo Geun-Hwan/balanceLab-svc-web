@@ -8,7 +8,7 @@ import {
   modifySelection,
   SelectionCreateType,
 } from "@/api/selectionApi";
-import { CategoryValue, QuestionStatusCd } from "@/constants/serviceConstants";
+import { QuestionStatusCd } from "@/constants/ServiceConstants";
 
 import { useAlertStore, useUserStore } from "@/store/store";
 import {
@@ -209,16 +209,16 @@ const BalanceDetailTemplate = () => {
   }, [questionId]);
 
   if (data?.questionStatusCd === QuestionStatusCd.WAITING) {
-    return BalanceDetailTemplate.NoStart;
+    return <BalanceDetailTemplate.ErrorView message="시작 대기중입니다." />;
   }
 
   if (error) {
-    return <BalanceDetailTemplate.ErrorView error={error} />;
+    return <BalanceDetailTemplate.ErrorView message={error?.data?.message} />;
   }
   if (!questionId?.startsWith("QST")) {
     // 잘못된 questionId를 알림으로 보여줌
 
-    return BalanceDetailTemplate.ParamInvalid;
+    return <BalanceDetailTemplate.ErrorView message="잘못된 접근입니다." />;
   }
 
   const highlightColorA = selectedOption
@@ -244,7 +244,7 @@ const BalanceDetailTemplate = () => {
   // 비율 계산
   return (
     <Content>
-      <Skeleton visible={isLoading} mt={"lg"}>
+      <Skeleton visible={isLoading} mt={"lg"} h={"100%"}>
         <Text
           mt={"xl"}
           h={100}
@@ -259,38 +259,44 @@ const BalanceDetailTemplate = () => {
           {data?.title}
         </Text>
         {isDesktopView ? (
-          <Group justify="center">
-            {!isLoading && (
-              <BalanceDetailTemplate.BalanceImage
-                size={200}
-                type={"A"}
-                imageUrl={data?.imgUrlA}
-              />
-            )}
-            {!isLoading && (
-              <BalanceDetailTemplate.BalanceImage
-                size={200}
-                type={"B"}
-                imageUrl={data?.imgUrlB}
-              />
-            )}
-          </Group>
+          isLoading ? (
+            <Box w={200} h={200} />
+          ) : (
+            <Group justify="center">
+              {
+                <BalanceDetailTemplate.BalanceImage
+                  size={200}
+                  type={"A"}
+                  imageUrl={data?.imgUrlA}
+                />
+              }
+              {
+                <BalanceDetailTemplate.BalanceImage
+                  size={200}
+                  type={"B"}
+                  imageUrl={data?.imgUrlB}
+                />
+              }
+            </Group>
+          )
+        ) : isLoading ? (
+          <Box w={120} h={120} />
         ) : (
           <Group justify="center">
-            {!isLoading && (
+            {
               <BalanceDetailTemplate.BalanceImage
                 size={120}
                 type={"A"}
                 imageUrl={data?.imgUrlA}
               />
-            )}
-            {!isLoading && (
+            }
+            {
               <BalanceDetailTemplate.BalanceImage
                 size={120}
                 type={"B"}
                 imageUrl={data?.imgUrlB}
               />
-            )}
+            }
           </Group>
         )}
         <Stack p="md" mt={"lg"} align="center">
@@ -383,7 +389,7 @@ const BalanceDetailTemplate = () => {
   );
 };
 
-BalanceDetailTemplate.BalanceImage = ({
+const BalanceImage = ({
   imageUrl,
   size,
   type,
@@ -392,49 +398,42 @@ BalanceDetailTemplate.BalanceImage = ({
   size: number;
   type: "A" | "B";
 }) => {
+  const [load, setLoad] = useState(true);
   const defaultImage = type === "A" ? etcA : etcB;
+
+  const handleImageLoad = () => setLoad(false);
+  const handleImageError = () => setLoad(false);
 
   return (
     <Box>
       <Title ta={"center"} mb={"sm"}>
         {type}
       </Title>
+      {load && <Skeleton w={size} h={size} />}
 
       <Image
         loading="eager"
         w={size}
         h={size}
         src={imageUrl}
+        onLoad={handleImageLoad}
+        onError={handleImageError}
         fallbackSrc={defaultImage}
+        style={{ display: load ? "none" : "block" }} // 로딩 중일 때 이미지 숨기기
       />
     </Box>
   );
 };
+BalanceDetailTemplate.BalanceImage = BalanceImage;
 
-BalanceDetailTemplate.ErrorView = ({ error }: any) => {
+BalanceDetailTemplate.ErrorView = ({ message }: { message?: string }) => {
   return (
     <Content>
-      <Title ta="center" order={2} m={"auto"}>
-        {error.data?.message ?? "알 수 없는 오류가 발생했습니다."}
+      <Title ta="center" order={2} mx={"auto"} mt={"xl"}>
+        {message ?? "알 수 없는 오류가 발생했습니다."}
       </Title>
     </Content>
   );
 };
-
-BalanceDetailTemplate.ParamInvalid = (
-  <Content>
-    <Title ta="center" order={2} m={"auto"}>
-      잘못된 경로입니다.
-    </Title>
-  </Content>
-);
-
-BalanceDetailTemplate.NoStart = (
-  <Content>
-    <Title ta="center" order={2} m={"auto"}>
-      시작 대기중입니다.
-    </Title>
-  </Content>
-);
 
 export default BalanceDetailTemplate;

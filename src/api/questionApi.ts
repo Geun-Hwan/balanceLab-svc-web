@@ -1,4 +1,4 @@
-import { QuestionStatusCd } from "../constants/serviceConstants";
+import { QuestionStatusCd } from "@/constants/ServiceConstants";
 import { instance } from "./api";
 
 export type QuestionRequestType = {

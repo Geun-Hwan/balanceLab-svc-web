@@ -58,7 +58,7 @@ const MainHomeTemplate = () => {
     <Content headerProps={{ name: "Home" }} footerProps={{ isVisible: true }}>
       {!isDesktopHeader && <MainHomeTemplate.Mobile />}
 
-      <Flex direction="column" gap={"lg"} pt={"lg"}>
+      <Flex direction="column" gap={"lg"} py={"lg"}>
         <BalanceCardSlider
           sliderKey={"today"}
           title="오늘의 밸런스 게임"

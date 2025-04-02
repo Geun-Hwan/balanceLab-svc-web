@@ -1,9 +1,9 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
-import { CustomError } from "../constants/serviceConstants";
 import { useAlertStore } from "../store/store";
 import { getAccessToken, setAccessToken } from "../utils/cookieUtil";
 import { handleLogoutCallback } from "../utils/loginUtil";
 import { logout, republish } from "./authApi";
+import { AUTH_ERROR } from "@/constants/ErrorConstants";
 
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -35,9 +35,10 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const errorCode = error.response?.data?.code;
+
     const { showAlert } = useAlertStore.getState();
 
-    if (errorCode === CustomError.ACCESS_TOKEN_EXPIRED) {
+    if (errorCode === AUTH_ERROR.ACCESS_TOKEN_EXPIRED) {
       try {
         const newToken = await republish();
 
@@ -61,7 +62,7 @@ axiosInstance.interceptors.response.use(
       }
     }
 
-    if (errorCode === CustomError.SESSION_EXPIRED) {
+    if (errorCode === AUTH_ERROR.SESSION_EXPIRED) {
       await logout();
 
       handleLogoutCallback(() => {

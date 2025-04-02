@@ -10,7 +10,6 @@ import {
   MainHomeTemplate,
   MyGamesTemplate,
   NotFoundTemplate,
-  ParticipationsTemplate,
   SettingTemplate,
 } from "@tmp";
 import { createBrowserRouter, RouteObject } from "react-router-dom";
@@ -59,12 +58,6 @@ const routes: RouteObject[] = [
       {
         path: "mypage",
         element: <MypageTemplate />,
-        children: [],
-      },
-
-      {
-        path: "my-participations",
-        element: <ParticipationsTemplate />,
         children: [],
       },
 

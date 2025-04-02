@@ -17,8 +17,6 @@ import {
   IconMailQuestion,
   IconQuestionMark,
   IconSettings,
-  IconSettings2,
-  IconSettingsCheck,
   IconUserCheck,
   IconUserEdit,
   IconUserPlus,
@@ -142,7 +140,7 @@ export const useGetMenuItems = (
         onClick={() => handleNavigate("/setting")}
         leftSection={<IconSettings />}
       >
-        설정
+        홈페이지 설정
       </Menu.Item>
     ),
     Login: () => (
@@ -258,9 +256,9 @@ export const useGetMenuItems = (
     Setting: () => (
       <NavLink
         key="setting-mobile"
-        leftSection={<IconSettingsCheck size={16} />}
+        leftSection={<IconSettings size={16} />}
         onClick={() => handleNavigate("/setting")}
-        label="설정"
+        label="홈페이지 설정"
       />
     ),
     Login: () => (

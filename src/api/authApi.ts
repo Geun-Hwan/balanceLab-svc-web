@@ -11,7 +11,7 @@ export interface ILoginResult {
   userId: string;
   email: string;
   loginId: string;
-  nickNm: string;
+  nickName: string;
   accessToken: string;
   totalPoint: number;
 }

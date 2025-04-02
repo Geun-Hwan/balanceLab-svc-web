@@ -4,7 +4,7 @@ import {
   PageResponse,
   removeQuestion,
 } from "@/api/questionApi";
-import { CATEGORIES, QuestionStatusCd } from "@/constants/serviceConstants";
+import { CATEGORIES, QuestionStatusCd } from "@/constants/ServiceConstants";
 import { useAlertStore } from "@/store/store";
 import {
   ActionIcon,
@@ -40,9 +40,7 @@ type ScreenType = "manageMent" | "participation";
 const QuestionsList = ({
   result,
   type,
-  children,
 }: {
-  children?: ReactNode;
   type: ScreenType;
   result?: InfiniteQueryObserverBaseResult<
     InfiniteData<PageResponse<IQuestionResult>>
@@ -199,9 +197,12 @@ const QuestionsList = ({
     return buttons;
   };
 
+  if (data?.pages[0].totalElements === 0) {
+    return <QuestionsList.NoData type={type} />;
+  }
+
   return (
     <Stack gap="md" w={"100%"}>
-      {children}
       {data?.pages.map((page, pageIndex) => (
         <React.Fragment key={pageIndex}>
           {page.content.map((question) => (

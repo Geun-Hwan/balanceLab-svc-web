@@ -78,7 +78,7 @@ Header.DeskTop = ({
           <Menu.Label fz={"lg"}>
             <Flex gap={"md"} align={"center"} justify={"center"}>
               <Text fw={900} ta={"left"} flex={1} lineClamp={1}>
-                {userData?.nickNm}
+                {userData?.nickName}
               </Text>
               <Text fw={700} c={"blue"} ta={"right"} lineClamp={1}>
                 {userData?.totalPoint.toLocaleString()}P
@@ -187,7 +187,7 @@ Header.Mobile = ({
                       textOverflow: "ellipsis",
                     }}
                   >
-                    {userData?.nickNm}
+                    {userData?.nickName}
                   </Text>
                   <Flex>
                     <Text

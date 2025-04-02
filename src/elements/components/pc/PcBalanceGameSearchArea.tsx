@@ -20,6 +20,7 @@ const PcBalanceGameSearchArea = ({
   applySearch,
   handleCategoryChange,
   setFilters,
+  isLoading,
 }: IUseBalanceGame) => {
   return (
     <Stack mt={"xl"} miw={700}>
@@ -75,7 +76,6 @@ const PcBalanceGameSearchArea = ({
             onChange={handleCategoryChange}
             value={filters.categories ?? []}
             placeholder={filters.categories.length > 0 ? "" : "전체"}
-            maxValues={3}
             comboboxProps={{
               transitionProps: {
                 transition: "pop",
@@ -108,7 +108,13 @@ const PcBalanceGameSearchArea = ({
               value={filters.search}
               onChange={handleFilterChange}
             />
-            <Button onClick={applySearch} miw={70} maw={250} flex={1}>
+            <Button
+              onClick={applySearch}
+              miw={70}
+              maw={250}
+              flex={1}
+              loading={isLoading}
+            >
               검색
             </Button>
           </Group>

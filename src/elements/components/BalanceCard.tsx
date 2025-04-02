@@ -17,7 +17,7 @@ const BalanceCard = React.memo(
     const handleClick = (
       e: React.MouseEvent<HTMLButtonElement, MouseEvent>
     ) => {
-      if (!isLogin) {
+      if (!isLogin && !data?.isPublic) {
         modals.openConfirmModal({
           modalId: "login_confirm",
           centered: true,
@@ -28,9 +28,14 @@ const BalanceCard = React.memo(
         });
         return;
       }
+
       const { value } = e.currentTarget;
       if (value) {
-        navigate(`/balance/${value}`);
+        if (isLogin) {
+          navigate(`/balance/${value}`);
+        } else {
+          navigate(`/balance/public/${value}`);
+        }
       }
     };
 
@@ -105,7 +110,7 @@ const BalanceCard = React.memo(
               : participation
               ? "결과보기"
               : point
-              ? `${point}p 획득 가능`
+              ? `${isLogin ? point + "p 획득 가능" : "참여하기"}`
               : "참여하기"}
           </Button>
         </Box>

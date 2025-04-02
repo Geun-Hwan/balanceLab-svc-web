@@ -2,7 +2,7 @@ import { useDesktopHeader } from "@/context/headerContext";
 import Content from "@/layout/Content";
 import SubHeader from "@/layout/SubHeader";
 import { useAlertStore, useUserStore } from "@/store/store";
-import { Carousel } from "@mantine/carousel";
+import { Carousel, Embla } from "@mantine/carousel";
 import { Box, Card, Flex, SimpleGrid, Skeleton, Text } from "@mantine/core";
 
 import { getRankList, getTodayQuestion } from "@/api/publicApi";
@@ -10,7 +10,7 @@ import { IQuestionResult } from "@/api/questionApi";
 import useContentType from "@/hooks/useContentType";
 import BalanceCard from "@cmp/BalanceCard";
 import { useQueries, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getDummyData } from "../components/dummy";
 
 const MainHomeTemplate = () => {
@@ -110,6 +110,8 @@ const BalanceCardSlider = ({
   sliderKey: string;
   noDataText?: string;
 }) => {
+  const [emblaApi, setEmblaApi] = useState<Embla | null>(null); // Embla API 인스턴스를 저장할 상태
+
   const { isExtra, isMidium, isSmall } = useContentType();
   const { isLogin } = useUserStore();
   const getSlideSize = () => {
@@ -124,6 +126,22 @@ const BalanceCardSlider = ({
       return "100%";
     }
   };
+
+  useEffect(() => {
+    // 컴포넌트가 마운트된 후 실행
+    if (emblaApi) {
+      const slideNodes = emblaApi.slideNodes();
+      if (slideNodes.length > 0) {
+        const container = emblaApi.containerNode();
+
+        const slideWidth = slideNodes[0].getBoundingClientRect().width; // 첫 번째 슬라이드의 너비를 가져옵니다.
+        const moveAmount = slideWidth / 5; // 슬라이드 너비의 1/5 만큼 이동
+
+        // 초기에 슬라이드를 1/5만큼 밀어주기
+        container.style.transform = `translate3d(-${moveAmount}px, 0, 0)`;
+      }
+    }
+  }, [emblaApi]);
 
   if (isLoading) {
     return (
@@ -183,13 +201,11 @@ const BalanceCardSlider = ({
           align="start"
           slideGap={{ base: "md" }}
           type="container"
-          // controlsOffset="xs"
+          getEmblaApi={setEmblaApi}
           loop
           dragFree
           withControls={false}
           slideSize={getSlideSize()}
-
-          // slideSize={"90%"}
         >
           {data?.map((question, i) => (
             <Carousel.Slide key={`${sliderKey}-${i}`}>

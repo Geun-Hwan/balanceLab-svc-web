@@ -95,10 +95,13 @@ export const getParticipationList = async (
 };
 
 export const getQuestionDetail = async (
-  questionId: string
+  questionId: string,
+  isPublic: boolean
 ): Promise<IQuestionResult> => {
+  const pubicPath = isPublic ? "/public" : PRE_FIX;
+
   return instance
-    .get<IQuestionResult>(PRE_FIX + `/${questionId}`)
+    .get<IQuestionResult>(pubicPath + `/${questionId}`)
     .then((res) => res.data.data);
 };
 

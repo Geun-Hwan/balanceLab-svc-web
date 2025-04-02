@@ -30,8 +30,6 @@ const MyGamesTemplate = () => {
   const [activeTab, setActiveTab] = useState<TabType>(
     (location.hash as TabType) || "#my-rgstr"
   );
-  console.log(activeTab);
-  console.log(location.hash);
 
   const myGames = useInfiniteQuery({
     queryKey: getQuestionKey({ isMine: true }),

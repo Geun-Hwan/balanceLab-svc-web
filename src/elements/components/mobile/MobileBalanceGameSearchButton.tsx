@@ -19,6 +19,7 @@ import {
 import { DatePickerInput } from "@mantine/dates";
 import { useDisclosure } from "@mantine/hooks";
 import { modals } from "@mantine/modals";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 const MobileBalanceGameSearchButton = ({
@@ -50,7 +51,21 @@ const MobileBalanceGameSearchButton = ({
     }
     open();
   };
-  console.log(filters.categories);
+
+  useEffect(() => {
+    if (filters.categories.length > 0) {
+      const pillsList = document.querySelector(
+        ".mantine-MultiSelect-pillsList"
+      );
+
+      if (pillsList) {
+        pillsList.scrollTo({
+          left: pillsList.scrollWidth,
+          behavior: "smooth", // ✅ 부드러운 스크롤 적용
+        });
+      }
+    }
+  }, [filters.categories]);
 
   return (
     <Box my={"md"}>
@@ -131,12 +146,19 @@ const MobileBalanceGameSearchButton = ({
         </Title>
         <MultiSelect
           mt={"md"}
+          styles={{
+            pillsList: {
+              flexWrap: "nowrap",
+              overflowX: "auto",
+              msOverflowStyle: "none", // ✅ IE, Edge에서 스크롤바 숨기기
+              scrollbarWidth: "none",
+            },
+          }}
           withCheckIcon
           data={CATEGORIES}
           onChange={handleCategoryChange}
           value={filters.categories ?? []}
           placeholder={filters.categories.length > 0 ? "" : "전체"}
-          maxValues={3}
           comboboxProps={{
             transitionProps: {
               transition: "pop",

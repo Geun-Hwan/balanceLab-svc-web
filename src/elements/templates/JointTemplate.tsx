@@ -424,6 +424,8 @@ const JointTemplate = () => {
                 onClick={check.loginId}
                 disabled={fieldChecked.loginId || !!errorMessage.loginId}
                 variant="default"
+                loading={idPending}
+                py={0}
               >
                 중복 확인
               </Button>
@@ -511,6 +513,7 @@ const JointTemplate = () => {
             required
             rightSection={
               <Button
+                size="xs"
                 onClick={check.email}
                 disabled={
                   emailSent ||
@@ -522,10 +525,10 @@ const JointTemplate = () => {
                 variant="default"
                 style={{
                   fontSize: 10,
-                  padding: "2px 4px", // 내부 여백 최소화
+                  padding: 0, // 내부 여백 최소화
                   width: "auto", // 텍스트 길이에 맞게 자동 조절
-                  height: 20,
                 }}
+                loading={sendPending}
               >
                 {sendPending ? (
                   <Loader
@@ -591,6 +594,7 @@ const JointTemplate = () => {
                 size="sm"
                 onClick={check.emailCode}
                 disabled={fieldChecked.emailCode || !fieldChecked.email}
+                loading={checkPending}
               >
                 확인
               </Button>
@@ -622,7 +626,13 @@ const JointTemplate = () => {
             required
           />
         </Form>
-        <Button onClick={handleSubmit} fullWidth mt="xl" variant="filled">
+        <Button
+          onClick={handleSubmit}
+          fullWidth
+          mt="xl"
+          variant="filled"
+          loading={joinPending}
+        >
           가입하기
         </Button>
       </Paper>

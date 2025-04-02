@@ -3,11 +3,7 @@ import {
   getQuestionKey,
   IQuestionResult,
 } from "@/api/questionApi";
-import {
-  createSelection,
-  modifySelection,
-  SelectionCreateType,
-} from "@/api/selectionApi";
+import { createSelection, SelectionCreateType } from "@/api/selectionApi";
 import { QuestionStatusCd } from "@/constants/ServiceConstants";
 
 import { useAlertStore, useUserStore } from "@/store/store";
@@ -22,8 +18,8 @@ import {
   Title,
 } from "@mantine/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import SelectAnimation from "../components/SelectAnimation";
 
 import { IAPI_RESPONSE } from "@/api/api";
@@ -32,21 +28,25 @@ import { useDesktopHeader } from "@/context/headerContext";
 import Content from "@/layout/Content";
 
 import { AxiosResponse } from "axios";
-import { debounce } from "lodash";
 
 import etcA from "@asset/images/etcA.png";
 import etcB from "@asset/images/etcB.png";
+import { modals } from "@mantine/modals";
 
-const BalanceDetailTemplate = () => {
+const BalanceDetailTemplate = ({
+  isPublic = false,
+}: {
+  isPublic?: boolean;
+}) => {
   const qc = useQueryClient();
-  const requestTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const navigate = useNavigate();
+
   const isDesktopView = useDesktopHeader();
 
   const { showAlert } = useAlertStore();
   const { isLogin } = useUserStore();
   const { questionId } = useParams();
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const lastSelectedOptionRef = useRef<string | null>(null); // 마지막 선택된 옵션 저장
 
   const [ended, setIsEnded] = useState(false);
   const [count, setCount] = useState<{ a: number; b: number }>({ a: 0, b: 0 });
@@ -56,21 +56,9 @@ const BalanceDetailTemplate = () => {
     AxiosResponse<IAPI_RESPONSE<any>>
   >({
     queryKey: getQuestionKey({ questionId }),
-    queryFn: () => getQuestionDetail(questionId as string),
-    enabled: isLogin && !!questionId?.startsWith("QST"),
+    queryFn: () => getQuestionDetail(questionId as string, isPublic),
+    enabled: (isLogin || isPublic) && !!questionId?.startsWith("QST"),
   });
-
-  const debouncedModifySelect = useCallback(
-    debounce((id) => {
-      if (data?.choiceType !== id) {
-        modifySelect({
-          choiceType: id as "A" | "B",
-          questionId: data?.questionId as string,
-        });
-      }
-    }, 500), // 500ms 후에 호출
-    [data]
-  );
 
   const { mutate: createSelect } = useMutation({
     mutationFn: (params: SelectionCreateType) => createSelection(params),
@@ -99,33 +87,7 @@ const BalanceDetailTemplate = () => {
     },
   });
 
-  const { mutate: modifySelect } = useMutation({
-    mutationFn: (params: SelectionCreateType) => modifySelection(params),
-    onMutate: () => {
-      const previousState: IQuestionResult = qc.getQueryData(
-        getQuestionKey({ questionId })
-      ) as IQuestionResult;
-
-      return { previousState };
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: getQuestionKey({ questionId }) });
-    },
-    onError: (_error, _variables, context) => {
-      // 에러가 발생하면, 이전 상태로 되돌립니다.
-
-      showAlert("오류 반복시 문의해주세요.", "error");
-      if (context?.previousState) {
-        const { choiceType, selectA: a, selectB: b } = context.previousState;
-        setSelectedOption(choiceType);
-        setCount({ a, b });
-      }
-
-      // 에러 처리 (로그 등)
-    },
-  });
-
-  const handleOptionClick = async (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleOptionClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     if (data?.questionStatusCd === QuestionStatusCd.WAITING) {
       return;
     }
@@ -139,29 +101,51 @@ const BalanceDetailTemplate = () => {
     if (selectedOption === id) {
       return;
     }
+
+    if (!isLogin) {
+      modals.openConfirmModal({
+        modalId: "login_confirm",
+        centered: true,
+        title: "알림",
+        children: <Text>로그인 후에 이용 가능합니다.</Text>,
+        labels: { confirm: "로그인하기", cancel: "취소" },
+        onConfirm: () => navigate("/login"),
+      });
+      return;
+    }
+
     let { a, b } = count;
 
-    if (!selectedOption && !data?.choiceType) {
-      a += id === "A" ? 1 : 0;
-      b += id === "B" ? 1 : 0;
-      createSelect({
-        rewardPoint: data?.point as number,
-        choiceType: id as "A" | "B",
-        questionId: data?.questionId as string,
-      });
-    } else {
-      // 응답 수정 연속 호출 막기 연속으로 3회? 정도 안하면 됨
+    modals.openConfirmModal({
+      modalId: "already_selected",
+      centered: true,
+      title: "알림",
+      children: (
+        <Text>
+          선택 후에는 수정이 불가능합니다.
+          <br /> 선택 항목: <strong>{id}</strong>
+        </Text>
+      ),
+      labels: { confirm: `선택하기`, cancel: "취소" },
+      closeOnConfirm: true,
 
-      a += id === "A" ? 1 : -1;
-      b += id === "B" ? 1 : -1;
+      onConfirm: () => {
+        // 확인 버튼 클릭 후 처리할 내용
+        // 예를 들어, 아무 작업도 하지 않거나 상태를 리셋하는 등 추가적인 로직을 넣을 수 있음
 
-      setSelectedOption(id);
-
-      debouncedModifySelect(id);
-    }
-    lastSelectedOptionRef.current = id;
-    setSelectedOption(id);
-    setCount({ a, b });
+        if (!selectedOption && !data?.choiceType) {
+          a += id === "A" ? 1 : 0;
+          b += id === "B" ? 1 : 0;
+          createSelect({
+            rewardPoint: data?.point as number,
+            choiceType: id as "A" | "B",
+            questionId: data?.questionId as string,
+          });
+        }
+        setSelectedOption(id);
+        setCount({ a, b });
+      },
+    });
   };
 
   const getPercent = (target: number): number => {
@@ -186,27 +170,10 @@ const BalanceDetailTemplate = () => {
   }, [data]);
 
   useEffect(() => {
-    const timeoutId = requestTimeout.current; // 지역 변수에 저장
-
     return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId); // 타이머 취소
-
-        // 선택된 옵션과 data의 choiceType이 다르면 강제로 요청 실행
-        if (
-          data?.choiceType !== lastSelectedOptionRef.current &&
-          !!lastSelectedOptionRef.current
-        ) {
-          modifySelect({
-            choiceType: lastSelectedOptionRef.current as "A" | "B",
-            questionId: questionId as string,
-          });
-        }
-      }
-      lastSelectedOptionRef.current = null;
       qc.invalidateQueries({ queryKey: getQuestionKey() });
     };
-  }, [questionId]);
+  }, []);
 
   if (data?.questionStatusCd === QuestionStatusCd.WAITING) {
     return <BalanceDetailTemplate.ErrorView message="시작 대기중입니다." />;
@@ -301,6 +268,7 @@ const BalanceDetailTemplate = () => {
         )}
         <Stack p="md" mt={"lg"} align="center">
           <Card
+            component="button"
             h={100}
             style={{
               cursor:
@@ -314,6 +282,7 @@ const BalanceDetailTemplate = () => {
             maw={600}
             w={"100%"}
             id={"A"}
+            disabled={ended || !!data?.choiceType}
           >
             <SelectAnimation
               isSelect={!!selectedOption || ended}
@@ -340,6 +309,7 @@ const BalanceDetailTemplate = () => {
           </Card>
 
           <Card
+            component="button"
             id={"B"}
             h={100}
             style={{
@@ -351,6 +321,7 @@ const BalanceDetailTemplate = () => {
             withBorder
             role="button"
             onClick={handleOptionClick}
+            disabled={ended || !!data?.choiceType}
             maw={600}
             w={"100%"}
           >

@@ -76,7 +76,7 @@ const BalanceCreateModal = ({
         : dayjs().add(3, "day").endOf("day"),
     });
   };
-  const { mutate: createMutate } = useMutation({
+  const { mutate: createMutate, isPending: createPending } = useMutation({
     mutationFn: (params: QuestionCreateType) => createQuestion(params),
     onMutate: (_variables) => {},
     onSuccess: () => {
@@ -95,7 +95,7 @@ const BalanceCreateModal = ({
     },
   });
 
-  const { mutate: modifyMutate } = useMutation({
+  const { mutate: modifyMutate, isPending: modifyPending } = useMutation({
     mutationFn: (params: QuestionCreateType) => modifyQuestion(params),
     onMutate: (_variables) => {},
     onSuccess: (data) => {
@@ -339,7 +339,12 @@ const BalanceCreateModal = ({
         required
         mt="md" // Adds margin-top for spacing
       />
-      <Button fullWidth mt="md" onClick={handleCreate}>
+      <Button
+        fullWidth
+        mt="md"
+        onClick={handleCreate}
+        loading={createPending || modifyPending}
+      >
         {calculatePoints >= 0
           ? `필요 포인트 ${calculatePoints}p`
           : `환급 포인트 ${Math.abs(calculatePoints)}p`}

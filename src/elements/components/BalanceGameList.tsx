@@ -122,6 +122,7 @@ const BalanceGameList = () => {
           applySearch={handleSearch}
           handleCategoryChange={handleCategoryChange}
           setFilters={setFilters}
+          isLoading={isLoading}
         />
       )}
 

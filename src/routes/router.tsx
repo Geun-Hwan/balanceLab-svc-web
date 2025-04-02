@@ -46,6 +46,12 @@ const routes: RouteObject[] = [
         path: "balance",
         element: <BalanceTemplate />, // 로그인한 사용자만 접근
       },
+
+      {
+        path: "balance/public/:questionId",
+        element: <BalanceDetailTemplate isPublic={true} />,
+      },
+
       {
         path: "predict",
         element: <PredictTemplate />, // 로그인한 사용자만 접근
@@ -60,15 +66,13 @@ const routes: RouteObject[] = [
         element: <MypageTemplate />,
         children: [],
       },
-
-      {
-        path: "my-games",
-        element: <MyGamesTemplate />,
-        children: [],
-      },
       {
         path: "balance/:questionId",
         element: <BalanceDetailTemplate />,
+      },
+      {
+        path: "my-games",
+        element: <MyGamesTemplate />,
         children: [],
       },
     ],

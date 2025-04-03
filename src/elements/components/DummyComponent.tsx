@@ -13,60 +13,44 @@ import BalanceCard from "./BalanceCard";
 import PredictCard from "./PredictCard";
 
 const DummyComponent = ({
-  repeat = 9,
-  cols = 3,
+  cols,
   spacing = 50,
   type = "balance",
+  isLoading,
 }: {
-  repeat?: number;
-  cols?: number;
+  cols: number;
   spacing?: number;
   type?: dummyType;
+  isLoading: boolean;
 }) => {
-  const { isLogin } = useUserStore();
-
-  const { data: publicData, isLoading: publicLoading } = useQuery({
-    queryKey: getQuestionKey({ public: true }),
-    queryFn: () => getPublicQuestionList(),
-    enabled: !isLogin && type === "balance",
-  });
-
   const publicBalanceData =
     useMemo(() => {
-      if (!publicLoading) {
-        const data = publicData ?? [];
-        const dummyList = Array.from(
-          { length: repeat + (data.length % 3) },
-          () => getBalanceDummyData()
-        );
+      const dummyList = Array.from({ length: 6 }, () => getBalanceDummyData());
 
-        return data.concat(dummyList);
-      }
-    }, [publicLoading, publicData]) ?? [];
+      return dummyList;
+    }, [type]) ?? [];
 
   const publicPredictData =
     useMemo(() => {
-      const dummyList = Array.from({ length: repeat + 3 }, () =>
-        getPredictDummyData()
-      );
+      const dummyList = Array.from({ length: 6 }, () => getPredictDummyData());
 
       return dummyList;
-    }, []) ?? [];
+    }, [type]) ?? [];
 
   return (
-    <SimpleGrid cols={cols} spacing={spacing} w={"100%"}>
+    <SimpleGrid cols={cols} spacing={spacing}>
       {/* 비로그인 사용자도 볼수있음 */}
       {type === "balance" &&
         publicBalanceData.map((item: IQuestionResult, index) => (
-          <Skeleton visible={publicLoading} key={`b_dummy_item-${index}`}>
-            <BalanceCard data={item} isBlur={item.isPublic !== true} />
+          <Skeleton visible={isLoading} key={`b_dummy_item-${index}`}>
+            <BalanceCard data={item} isBlur />
           </Skeleton>
         ))}
 
       {type === "predict" &&
         publicPredictData.map((item: any, index) => (
-          <Skeleton visible={publicLoading} key={`p_dummy_item-${index}`}>
-            <PredictCard data={item} isBlur={item.isPublic !== true} />
+          <Skeleton visible={isLoading} key={`p_dummy_item-${index}`}>
+            <PredictCard data={item} isBlur />
           </Skeleton>
         ))}
     </SimpleGrid>

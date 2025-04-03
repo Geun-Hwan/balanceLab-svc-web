@@ -7,6 +7,7 @@ export enum CategoryValue {
   SELF_IMPROVEMENT = "30000003",
   RELATIONSHIPS = "30000004",
   MISC = "30000005",
+  ADULT = "30000006",
 }
 
 interface Category {
@@ -20,6 +21,7 @@ export const CATEGORIES: Category[] = [
   { value: CategoryValue.SELF_IMPROVEMENT, label: "자기계발" },
   { value: CategoryValue.RELATIONSHIPS, label: "인간관계" },
   { value: CategoryValue.MISC, label: "기타" },
+  { value: CategoryValue.ADULT, label: "19금" },
 ];
 
 export enum QuestionStatusCd {

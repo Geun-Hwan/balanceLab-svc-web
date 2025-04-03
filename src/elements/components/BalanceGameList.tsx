@@ -36,18 +36,16 @@ const BalanceGameList = () => {
     defaultValue,
     setFilters,
     isLoading,
-  } = useBalanceGameList(isLogin, 30);
+  } = useBalanceGameList(isLogin, 18);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
   const observerRef = useRef<HTMLDivElement | null>(null);
 
-  const [colSize, setColsize] = useState(3);
+  const [colSize, setColsize] = useState(0);
 
   // ✅ IntersectionObserver를 사용한 자동 로딩
   useEffect(() => {
-    if (!observerRef.current) return;
     if (isFetchingNextPage) return;
-    const currentRef = observerRef.current; // ref 값을 변수에 저장
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
@@ -64,6 +62,9 @@ const BalanceGameList = () => {
         setIsInitialLoading(false);
       }
     }
+    if (!observerRef.current) return;
+    const currentRef = observerRef.current; // ref 값을 변수에 저장
+
     observer.observe(currentRef);
 
     return () => {
@@ -93,12 +94,22 @@ const BalanceGameList = () => {
         children: <Text>로그인 후에 이용 가능합니다.</Text>,
         labels: { confirm: "로그인하기", cancel: "취소" },
         onConfirm: () => navigate("/login"),
+        lockScroll: false,
       });
+      if (setFilters) {
+        if (defaultValue) {
+          setFilters(defaultValue);
+        }
+      }
       return;
     }
 
     applySearch();
   };
+
+  if (colSize === 0) {
+    return;
+  }
 
   return (
     <Flex w={"100%"} direction={"column"}>
@@ -111,7 +122,6 @@ const BalanceGameList = () => {
           handleFilterChange={handleFilterChange}
           applySearch={handleSearch}
           handleCategoryChange={handleCategoryChange}
-          defaultValue={defaultValue}
           setFilters={setFilters}
         />
       ) : (
@@ -132,27 +142,16 @@ const BalanceGameList = () => {
         </Title>
       )}
       <Box mt={"xl"}>
-        {isLogin ? (
-          <SimpleGrid cols={colSize} spacing={50}>
-            {isInitialLoading
-              ? Array.from({ length: colSize * 3 }).map((_, index) => {
-                  return (
-                    <Skeleton
-                      visible={isInitialLoading}
-                      key={`'skel'-${index}`}
-                    >
-                      <BalanceCard key={index} isBlur />
-                    </Skeleton>
-                  );
-                })
-              : data?.pages?.map((page) =>
-                  page.content.map((item) => (
-                    <BalanceCard key={item.questionId} data={item} />
-                  ))
-                )}
-          </SimpleGrid>
+        {isInitialLoading ? (
+          <DummyComponent cols={colSize} isLoading={true} />
         ) : (
-          <DummyComponent cols={colSize} />
+          <SimpleGrid cols={colSize} spacing={50}>
+            {data?.pages?.map((page) =>
+              page.content.map((item) => (
+                <BalanceCard key={item.questionId} data={item} />
+              ))
+            )}
+          </SimpleGrid>
         )}
       </Box>
       <Box ref={observerRef} bg={"transparent"} h={30} />

@@ -46,6 +46,7 @@ const MobileBalanceGameSearchButton = ({
         children: <Text>로그인 후에 이용 가능합니다.</Text>,
         labels: { confirm: "로그인하기", cancel: "취소" },
         onConfirm: () => navigate("/login"),
+        lockScroll: false,
       });
       return;
     }
@@ -107,7 +108,7 @@ const MobileBalanceGameSearchButton = ({
 
         {/* 종료 여부 */}
         <Title size="sm" mt={20}>
-          마감일
+          시작일
         </Title>
         <Group mt={"md"} mb={10}>
           <DatePickerInput
@@ -119,6 +120,7 @@ const MobileBalanceGameSearchButton = ({
             onChange={(v: any) => handleDateChange(v, "startDate")}
             locale="ko"
             flex={1}
+            modalProps={{ lockScroll: false }}
           />
           <Text>~</Text>
           <DatePickerInput
@@ -130,6 +132,7 @@ const MobileBalanceGameSearchButton = ({
             onChange={(v: any) => handleDateChange(v, "endDate")}
             locale="ko"
             flex={1}
+            modalProps={{ lockScroll: false }}
           />
         </Group>
         <Checkbox

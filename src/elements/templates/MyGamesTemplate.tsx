@@ -92,13 +92,13 @@ const MyGamesTemplate = () => {
       >
         <Tabs.List mb={"md"}>
           <Tabs.Tab value={validTabs[0]} leftSection={<IconGoGame size={14} />}>
-            밸런스게임
+            내 게임
           </Tabs.Tab>
           <Tabs.Tab
             value={validTabs[1]}
             leftSection={<IconListCheck size={14} />}
           >
-            참여 밸런스게임
+            포인트 내역
           </Tabs.Tab>
         </Tabs.List>
 
@@ -107,6 +107,7 @@ const MyGamesTemplate = () => {
         </Tabs.Panel>
         <Tabs.Panel value={validTabs[1]}>
           <QuestionsList result={myParticipation} type="participation" />
+          <></>
         </Tabs.Panel>
       </Tabs>
 
@@ -123,7 +124,8 @@ MyGamesTemplate.ManagementHeader = (
 
 MyGamesTemplate.ParticipationHeader = (
   <Text size="sm" c="dimmed">
-    최근 참여한 목록이 최상단에 나타납니다.
+    게임 참여로 획득한 포인트는 최초 1회만 지급되며, 최근 내역이 최상단에
+    표시됩니다.
   </Text>
 );
 

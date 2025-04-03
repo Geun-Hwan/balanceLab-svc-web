@@ -1,10 +1,6 @@
-import {
-  getQuestionDetail,
-  getQuestionKey,
-  IQuestionResult,
-} from "@/service/questionApi";
-import { createSelection, SelectionCreateType } from "@/service/selectionApi";
 import { QuestionStatusCd } from "@/constants/ServiceConstants";
+import { getQuestionKey, IQuestionResult } from "@/service/questionApi";
+import { createSelection, SelectionCreateType } from "@/service/selectionApi";
 
 import { useAlertStore, useUserStore } from "@/store/store";
 import {
@@ -18,37 +14,35 @@ import {
   Title,
 } from "@mantine/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
 import SelectAnimation from "../components/SelectAnimation";
 
-import { IAPI_RESPONSE } from "@/service/api";
-import { getUserKey } from "@/service/userApi";
 import { useDesktopHeader } from "@/context/headerContext";
 import Content from "@/layout/Content";
+import { IAPI_RESPONSE } from "@/service/api";
+import { getUserKey } from "@/service/userApi";
 
 import { AxiosResponse } from "axios";
 
+import { getQuestionDetail, updateQuestionTotal } from "@/service/publicApi";
 import etcA from "@asset/images/etcA.png";
 import etcB from "@asset/images/etcB.png";
 import { modals } from "@mantine/modals";
 
-const BalanceDetailTemplate = ({
-  isPublic = false,
-}: {
-  isPublic?: boolean;
-}) => {
+const BalanceDetailTemplate = () => {
   const qc = useQueryClient();
-  const navigate = useNavigate();
 
   const isDesktopView = useDesktopHeader();
 
   const { showAlert } = useAlertStore();
   const { isLogin } = useUserStore();
   const { questionId } = useParams();
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
   const [ended, setIsEnded] = useState(false);
+  const isSelect = useRef<boolean>(false);
+  const selectedOption = useRef<string | null>(null);
+
   const [count, setCount] = useState<{ a: number; b: number }>({ a: 0, b: 0 });
 
   const { data, isLoading, error } = useQuery<
@@ -56,8 +50,8 @@ const BalanceDetailTemplate = ({
     AxiosResponse<IAPI_RESPONSE<any>>
   >({
     queryKey: getQuestionKey({ questionId }),
-    queryFn: () => getQuestionDetail(questionId as string, isPublic),
-    enabled: (isLogin || isPublic) && !!questionId?.startsWith("QST"),
+    queryFn: () => getQuestionDetail(questionId as string),
+    enabled: !!questionId?.startsWith("QST"),
   });
 
   const { mutate: createSelect } = useMutation({
@@ -76,12 +70,41 @@ const BalanceDetailTemplate = ({
     },
     onError: (_error, _variables, context) => {
       // 에러가 발생하면, 이전 상태로 되돌립니다.
+
       showAlert("오류가 발생했습니다.\n잠시후 다시 시도해주세요.", "error");
 
       if (context?.previousState) {
         const { selectA: a, selectB: b } = context.previousState;
-        setSelectedOption(null);
+        selectedOption.current = null;
         setCount({ a, b });
+        isSelect.current = false;
+      }
+
+      // 에러 처리 (로그 등)
+    },
+  });
+  const { mutate: addSelect } = useMutation({
+    mutationFn: (params: SelectionCreateType) => updateQuestionTotal(params),
+    onMutate: () => {
+      const previousState: IQuestionResult = qc.getQueryData(
+        getQuestionKey({ questionId })
+      ) as IQuestionResult;
+
+      return { previousState };
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: getQuestionKey({ questionId }) });
+      qc.invalidateQueries({ queryKey: ["public"] });
+    },
+    onError: (_error, _variables, context) => {
+      // 에러가 발생하면, 이전 상태로 되돌립니다.
+      showAlert("오류가 발생했습니다.\n잠시후 다시 시도해주세요.", "error");
+
+      if (context?.previousState) {
+        const { selectA: a, selectB: b } = context.previousState;
+        selectedOption.current = null;
+        setCount({ a, b });
+        isSelect.current = false;
       }
 
       // 에러 처리 (로그 등)
@@ -99,19 +122,7 @@ const BalanceDetailTemplate = ({
       return;
     }
 
-    if (selectedOption === id) {
-      return;
-    }
-
-    if (!isLogin) {
-      modals.openConfirmModal({
-        modalId: "login_confirm",
-        centered: true,
-        title: "알림",
-        children: <Text>로그인 후에 이용 가능합니다.</Text>,
-        labels: { confirm: "로그인하기", cancel: "취소" },
-        onConfirm: () => navigate("/login"),
-      });
+    if (isSelect.current || !!selectedOption.current) {
       return;
     }
 
@@ -129,22 +140,29 @@ const BalanceDetailTemplate = ({
       ),
       labels: { confirm: `선택하기`, cancel: "취소" },
       closeOnConfirm: true,
-
+      lockScroll: false,
       onConfirm: () => {
         // 확인 버튼 클릭 후 처리할 내용
         // 예를 들어, 아무 작업도 하지 않거나 상태를 리셋하는 등 추가적인 로직을 넣을 수 있음
 
-        if (!selectedOption && !data?.choiceType) {
-          a += id === "A" ? 1 : 0;
-          b += id === "B" ? 1 : 0;
+        a += id === "A" ? 1 : 0;
+        b += id === "B" ? 1 : 0;
+
+        if (isLogin && !data?.participation) {
           createSelect({
             rewardPoint: data?.point as number,
             choiceType: id as "A" | "B",
             questionId: data?.questionId as string,
           });
+        } else {
+          addSelect({
+            choiceType: id as "A" | "B",
+            questionId: data?.questionId as string,
+          });
         }
-        setSelectedOption(id);
+        selectedOption.current = id;
         setCount({ a, b });
+        isSelect.current = true;
       },
     });
   };
@@ -166,7 +184,6 @@ const BalanceDetailTemplate = ({
       }
 
       setCount({ a: data.selectA, b: data.selectB });
-      setSelectedOption(data.choiceType);
     }
   }, [data]);
 
@@ -188,26 +205,6 @@ const BalanceDetailTemplate = ({
 
     return <BalanceDetailTemplate.ErrorView message="잘못된 접근입니다." />;
   }
-
-  const highlightColorA = selectedOption
-    ? selectedOption === "A"
-      ? "cyan"
-      : "gray"
-    : ended
-    ? count.a > count.b
-      ? "cyan"
-      : "gray" // 종료 후 A가 더 크면 cyan
-    : "gray";
-
-  const highlightColorB = selectedOption
-    ? selectedOption === "B"
-      ? "cyan"
-      : "gray"
-    : ended
-    ? count.b > count.a
-      ? "cyan"
-      : "gray" // 종료 후 B가 더 크면 cyan
-    : "gray";
 
   // 비율 계산
   return (
@@ -283,12 +280,18 @@ const BalanceDetailTemplate = ({
             maw={600}
             w={"100%"}
             id={"A"}
-            disabled={ended || !!data?.choiceType}
+            disabled={ended || isSelect.current}
           >
             <SelectAnimation
-              isSelect={!!selectedOption || ended}
+              isSelect={isSelect.current || ended}
               percent={getPercent(count.a)}
-              color={highlightColorA}
+              color={
+                ended
+                  ? "gray"
+                  : selectedOption.current === "A"
+                  ? "cyan"
+                  : "gray"
+              }
             />
             <Title ta="center" order={4} style={{ zIndex: 3 }}>
               A
@@ -322,14 +325,20 @@ const BalanceDetailTemplate = ({
             withBorder
             role="button"
             onClick={handleOptionClick}
-            disabled={ended || !!data?.choiceType}
+            disabled={ended || isSelect.current}
             maw={600}
             w={"100%"}
           >
             <SelectAnimation
-              isSelect={!!selectedOption || ended}
+              isSelect={isSelect.current || ended}
               percent={getPercent(count.b)}
-              color={highlightColorB}
+              color={
+                ended
+                  ? "gray"
+                  : selectedOption.current === "B"
+                  ? "cyan"
+                  : "gray"
+              }
             />
             <Title ta="center" order={4} style={{ zIndex: 3 }}>
               B

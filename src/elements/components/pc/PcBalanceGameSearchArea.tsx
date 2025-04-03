@@ -26,7 +26,7 @@ const PcBalanceGameSearchArea = ({
     <Stack mt={"xl"} miw={700}>
       <Group grow>
         <Stack maw={800}>
-          <Title size="sm">마감일</Title>
+          <Title size="sm">시작일</Title>
           <Group>
             <DatePickerInput
               maxLevel="month"
@@ -38,6 +38,7 @@ const PcBalanceGameSearchArea = ({
               miw={150}
               onChange={(v: any) => handleDateChange(v, "startDate")}
               locale="ko"
+              modalProps={{ lockScroll: false }}
             />
             <Text>~</Text>
             <DatePickerInput
@@ -50,6 +51,7 @@ const PcBalanceGameSearchArea = ({
               value={filters.endDate.toDate()}
               onChange={(v: any) => handleDateChange(v, "endDate")}
               locale="ko"
+              modalProps={{ lockScroll: false }}
             />
             <Checkbox
               flex={1}

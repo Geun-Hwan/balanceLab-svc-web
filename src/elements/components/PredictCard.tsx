@@ -1,4 +1,5 @@
-import { Badge, Button, Card, Progress } from "@mantine/core";
+import { QuestionStatusCd } from "@/constants/ServiceConstants";
+import { Badge, Box, Button, Card, Flex, Progress, Text } from "@mantine/core";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -25,27 +26,24 @@ const PredictCard = React.memo(
         withBorder
         variant="light"
         p="md"
+        h={220}
+        mah={220}
       >
-        <h2 className="text-lg font-semibold text-center break-words line-clamp-2">
+        <Text
+          h={100}
+          mih={100}
+          size="xl"
+          ta="center"
+          style={{
+            fontWeight: "900",
+            wordBreak: "break-word",
+          }}
+          lineClamp={3}
+        >
           {data.title}
-        </h2>
-        <div className="text-sm flex flex-col gap-2">
-          <div className="flex justify-between items-center">
-            <span>{data.choiceA}</span>
-            <Progress value={data.percentageA} className="w-2/3" />
-            <span>
-              {data.percentageA}% ({payoutA}배)
-            </span>
-          </div>
-          <div className="flex justify-between items-center">
-            <span>{data.choiceB}</span>
-            <Progress value={data.percentageB} className="w-2/3" />
-            <span>
-              {data.percentageB}% ({payoutB}배)
-            </span>
-          </div>
-        </div>
-        <div className="flex justify-between items-center mt-2">
+        </Text>
+
+        <Box>
           <Badge color={data.status === "진행 중" ? "cyan" : "gray"}>
             {data.status}
           </Badge>
@@ -54,7 +52,7 @@ const PredictCard = React.memo(
               참여하기
             </Button>
           )}
-        </div>
+        </Box>
       </Card>
     );
   }

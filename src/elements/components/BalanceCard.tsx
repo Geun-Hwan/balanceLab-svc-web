@@ -1,8 +1,7 @@
-import { IQuestionResult } from "@/service/questionApi";
 import { QuestionStatusCd } from "@/constants/ServiceConstants";
+import { IQuestionResult } from "@/service/questionApi";
 import { useUserStore } from "@/store/store";
 import { Badge, Box, Button, Card, Flex, Text } from "@mantine/core";
-import { modals } from "@mantine/modals";
 import dayjs from "dayjs";
 import React from "react";
 
@@ -17,25 +16,9 @@ const BalanceCard = React.memo(
     const handleClick = (
       e: React.MouseEvent<HTMLButtonElement, MouseEvent>
     ) => {
-      if (!isLogin && !data?.isPublic) {
-        modals.openConfirmModal({
-          modalId: "login_confirm",
-          centered: true,
-          title: "알림",
-          children: <Text>로그인 후에 이용 가능합니다.</Text>,
-          labels: { confirm: "로그인하기", cancel: "취소" },
-          onConfirm: () => navigate("/login"),
-        });
-        return;
-      }
-
       const { value } = e.currentTarget;
       if (value) {
-        if (isLogin) {
-          navigate(`/balance/${value}`);
-        } else {
-          navigate(`/balance/public/${value}`);
-        }
+        navigate(`/balance/${value}`);
       }
     };
 
@@ -70,6 +53,7 @@ const BalanceCard = React.memo(
         {/* <Flex direction="column" h="100%" mb={"md"}> */}
         <Text
           h={100}
+          mih={100}
           size="xl"
           ta="center"
           style={{
@@ -91,7 +75,7 @@ const BalanceCard = React.memo(
             </Text>
             {isLogin && (
               <Badge color={participation ? "cyan" : "yellow"}>
-                {participation ? "참여 완료" : "미참여"}
+                {participation ? "획득완료" : "미참여"}
               </Badge>
             )}{" "}
           </Flex>
@@ -108,11 +92,9 @@ const BalanceCard = React.memo(
           >
             {questionStatusCd === QuestionStatusCd.END
               ? "마감 결과확인"
-              : participation
-              ? "상세보기"
-              : point
-              ? `${isLogin ? point + "p 획득 가능" : "진행중"}`
-              : "진행중"}
+              : `${
+                  isLogin && !participation ? point + "p 획득 가능" : "진행중"
+                }`}
           </Button>
         </Box>
       </Card>

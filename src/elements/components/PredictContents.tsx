@@ -1,24 +1,10 @@
 import { useDesktopHeader } from "@/context/headerContext";
 import useContentType from "@/hooks/useContentType";
-import Content from "@/layout/Content";
-import SubHeader from "@/layout/SubHeader";
 import { useUserStore } from "@/store/store";
-import BalanceCard from "@cmp/BalanceCard";
 import DummyComponent from "@cmp/DummyComponent";
 import PredictCard from "@cmp/PredictCard";
-import {
-  Badge,
-  Box,
-  Button,
-  Card,
-  Flex,
-  Loader,
-  Progress,
-  SimpleGrid,
-  Skeleton,
-} from "@mantine/core";
+import { Box, Flex, Loader, SimpleGrid } from "@mantine/core";
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 const mockGames = [
   {
@@ -56,10 +42,10 @@ const mockGames = [
   },
 ];
 
-const PredictTemplate = () => {
+const PredictContents = () => {
   const isDesktopHeader = useDesktopHeader();
   const [colSize, setColsize] = useState(3);
-  const loading = false;
+  const [loading, setLoading] = useState(false);
   const { isLogin } = useUserStore();
   const { isExtra, isMidium, isSmall } = useContentType();
   const observerRef = useRef<HTMLDivElement | null>(null);
@@ -77,35 +63,32 @@ const PredictTemplate = () => {
     }
   }, [isSmall, isMidium, isExtra]);
 
-  return (
-    <Content headerProps={{ name: "Prediction" }}>
-      {!isDesktopHeader && <SubHeader menuNames={["Balance", "Prediction"]} />}
-      <Flex w={"100%"} direction={"column"}>
-        <Box mt={"xl"}>
-          {isLogin ? (
-            <SimpleGrid cols={colSize} spacing={50}>
-              {loading
-                ? Array.from({ length: colSize * 3 }).map((_, index) => {
-                    return (
-                      <Skeleton visible={loading} key={`'skel'-${index}`}>
-                        <PredictCard key={index} isBlur />
-                      </Skeleton>
-                    );
-                  })
-                : mockGames.map((game) => {
-                    return <PredictCard data={game} />;
-                  })}
-            </SimpleGrid>
-          ) : (
-            <DummyComponent cols={colSize} type="predict" />
-          )}
-        </Box>
-        <Box ref={observerRef} bg={"transparent"} h={30} />
+  useEffect(() => {
+    setLoading(true);
 
-        <Flex justify={"center"}>{false && <Loader size={"xl"} />}</Flex>
-      </Flex>
-    </Content>
+    setTimeout(() => {
+      setLoading(false);
+    }, 1500);
+  }, []);
+
+  return (
+    <Flex w={"100%"} direction={"column"}>
+      <Box mt={"xl"}>
+        {loading ? (
+          <DummyComponent cols={colSize} type="predict" isLoading={true} />
+        ) : (
+          <SimpleGrid cols={colSize} spacing={50}>
+            {mockGames.map((game, i) => {
+              return <PredictCard data={game} key={i} />;
+            })}
+          </SimpleGrid>
+        )}
+      </Box>
+      <Box ref={observerRef} bg={"transparent"} h={30} />
+
+      <Flex justify={"center"}>{false && <Loader size={"xl"} />}</Flex>
+    </Flex>
   );
 };
 
-export default PredictTemplate;
+export default PredictContents;

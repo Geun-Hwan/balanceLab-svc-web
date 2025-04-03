@@ -3,6 +3,7 @@ import { ReactNode } from "react";
 import { MenuName } from "../hooks/useGetMenuItems";
 import Footer from "./Footer";
 import Header from "./Header";
+import { useDesktopHeader } from "@/context/headerContext";
 
 type HeaderProps = {
   name?: MenuName;
@@ -21,8 +22,15 @@ const Content = ({
   headerProps?: HeaderProps;
   footerProps?: FooterProps;
 }) => {
+  const isDesktopView = useDesktopHeader();
   return (
-    <Flex direction={"column"} flex={1} mx={"auto"} w={"100%"}>
+    <Flex
+      direction={"column"}
+      flex={1}
+      mx={"auto"}
+      w={"100%"}
+      maw={isDesktopView ? "70%" : "100%"}
+    >
       <Content.Header {...headerProps} />
 
       {children}

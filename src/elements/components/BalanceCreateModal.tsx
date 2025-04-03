@@ -14,6 +14,7 @@ import { modals } from "@mantine/modals";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import dayjs, { Dayjs } from "dayjs";
 import React, { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const BalanceCreateModal = ({
   data,
@@ -27,6 +28,8 @@ const BalanceCreateModal = ({
   isModify?: boolean;
 }) => {
   const { userData } = useUserStore();
+  const navigate = useNavigate();
+
   const qc = useQueryClient();
   const {
     title,
@@ -87,6 +90,7 @@ const BalanceCreateModal = ({
       close();
 
       showAlert("성공적으로 생성되었습니다.", "success");
+      navigate("/my-games#my-rgstr-balance");
     },
     onError: (_error, _variables, _context) => {
       // 에러가 발생하면, 이전 상태로 되돌립니다.
@@ -158,6 +162,7 @@ const BalanceCreateModal = ({
     console.log(date.strDate);
     modals.openConfirmModal({
       modalId: "create_confirm",
+      lockScroll: false,
       centered: true,
       title: "알림",
 
@@ -172,7 +177,7 @@ const BalanceCreateModal = ({
         formData.questionStatusCd = isToday ? "20000001" : "20000003";
         formData.strDate = date.strDate.format("YYYY-MM-DD");
         formData.endDate = date.endDate.format("YYYY-MM-DD");
-
+        formData.point = 10;
         if (isModify) {
           formData.questionId = questionId;
           modifyMutate(formData);
@@ -235,6 +240,7 @@ const BalanceCreateModal = ({
       onClose={close}
       title="밸런스 게임 설정"
       centered
+      lockScroll={false}
     >
       <TextInput
         label="타이틀"

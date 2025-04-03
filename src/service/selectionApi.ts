@@ -18,12 +18,6 @@ export const createSelection = async (
   return instance.post<any>(`/selection`, param).then((res) => res.data.data);
 };
 
-export const modifySelection = async (
-  param: SelectionCreateType
-): Promise<any> => {
-  return instance.put<any>(`/selection`, param).then((res) => res.data.data);
-};
-
 export const getSelectionList = async (
   param: SelectionReqeustType
 ): Promise<Array<any>> => {

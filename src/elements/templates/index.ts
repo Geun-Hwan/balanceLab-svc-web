@@ -6,5 +6,5 @@ export { default as LoginTemplate } from "./LoginTemplate";
 export { default as MyGamesTemplate } from "./MyGamesTemplate";
 
 export { default as SettingTemplate } from "./SettingTemplate";
-export { default as BalanceTemplate } from "./BalanceTemplate";
+
 export { default as NotFoundTemplate } from "./NotFoundTemplate";

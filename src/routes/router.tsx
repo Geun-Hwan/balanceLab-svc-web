@@ -1,9 +1,8 @@
 import MypageTemplate from "@/elements/templates/MypageTemplate";
-import PredictTemplate from "@/elements/templates/PredictTemplate";
+import PredictTemplate from "@cmp/PredictContents";
 import PageLayout from "@/layout/PageLayout";
 import {
   BalanceDetailTemplate,
-  BalanceTemplate,
   ContactTemplate,
   JointTemplate,
   LoginTemplate,
@@ -14,6 +13,9 @@ import {
 } from "@tmp";
 import { createBrowserRouter, RouteObject } from "react-router-dom";
 import AuthRoute from "./AuthRoute";
+import MainContents from "@cmp/MainContents";
+import PredictContents from "@cmp/PredictContents";
+import BalanceGameList from "@cmp/BalanceGameList";
 
 const routes: RouteObject[] = [
   {
@@ -23,6 +25,21 @@ const routes: RouteObject[] = [
       {
         path: "",
         element: <MainHomeTemplate />,
+        children: [
+          {
+            path: "",
+            element: <MainContents />,
+          },
+          {
+            path: "balance",
+            element: <BalanceGameList />,
+          },
+
+          {
+            path: "predict",
+            element: <PredictContents />,
+          },
+        ],
       },
 
       {
@@ -43,19 +60,10 @@ const routes: RouteObject[] = [
         path: "setting",
         element: <SettingTemplate />,
       },
-      {
-        path: "balance",
-        element: <BalanceTemplate />,
-      },
 
       {
-        path: "balance/public/:questionId",
-        element: <BalanceDetailTemplate isPublic={true} />,
-      },
-
-      {
-        path: "predict",
-        element: <PredictTemplate />,
+        path: "balance/:questionId",
+        element: <BalanceDetailTemplate />,
       },
     ],
   },
@@ -67,10 +75,7 @@ const routes: RouteObject[] = [
         element: <MypageTemplate />,
         children: [],
       },
-      {
-        path: "balance/:questionId",
-        element: <BalanceDetailTemplate />,
-      },
+
       {
         path: "my-games",
         element: <MyGamesTemplate />,

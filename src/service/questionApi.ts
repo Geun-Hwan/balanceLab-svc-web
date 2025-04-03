@@ -43,7 +43,6 @@ export interface IQuestionResult {
   categoryCd: string;
   imgUrlA: string | null;
   imgUrlB: string | null;
-  isPublic: boolean;
   delYn: boolean; //삭제여부
   questionStatusCd: QuestionStatusCd; // 선택지상태
   participation: boolean;
@@ -70,13 +69,6 @@ export const getQuestionKey = (params: QuestionRequestType = {}) => {
     ? ["question", JSON.stringify(Object.entries(params).sort())]
     : ["question"];
 };
-export const getQuestionList = async (
-  param: QuestionRequestType
-): Promise<PageResponse<IQuestionResult>> => {
-  return instance
-    .get<PageResponse<IQuestionResult>>(PRE_FIX, param)
-    .then((res) => res.data.data);
-};
 
 export const getMyQuestionList = async (
   param: QuestionRequestType
@@ -91,17 +83,6 @@ export const getParticipationList = async (
 ): Promise<PageResponse<IQuestionResult>> => {
   return instance
     .get<PageResponse<IQuestionResult>>(PRE_FIX + `/participation`, param)
-    .then((res) => res.data.data);
-};
-
-export const getQuestionDetail = async (
-  questionId: string,
-  isPublic: boolean
-): Promise<IQuestionResult> => {
-  const pubicPath = isPublic ? "/public" : PRE_FIX;
-
-  return instance
-    .get<IQuestionResult>(pubicPath + `/${questionId}`)
     .then((res) => res.data.data);
 };
 

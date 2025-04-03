@@ -139,6 +139,7 @@ const QuestionsList = ({
       labels: { confirm: "삭제", cancel: "취소" },
       confirmProps: { color: "red", disabled: isPending },
       onConfirm: () => remove(questionId),
+      lockScroll: false,
     });
   };
 
@@ -341,53 +342,6 @@ QuestionsList.Content = ({
     );
   }
 
-  if (type === "participation") {
-    return (
-      <Flex mt={"lg"} gap={"sm"}>
-        <Card
-          flex={1}
-          radius={4}
-          withBorder
-          p="xs"
-          pos={"relative"}
-          bg={item.choiceType === "A" ? "cyan" : undefined}
-        >
-          <Text
-            pos={"relative"}
-            fw={500}
-            size="sm"
-            style={{
-              wordBreak: "break-word",
-            }}
-            lineClamp={1}
-          >
-            {item.choiceA}
-          </Text>
-        </Card>
-        <Card
-          flex={1}
-          radius={4}
-          p="xs"
-          pos={"relative"}
-          withBorder
-          bg={item.choiceType === "B" ? "cyan" : undefined}
-        >
-          <Text
-            fw={500}
-            size="sm"
-            style={{
-              wordBreak: "break-word",
-            }}
-            lineClamp={1}
-            pos={"relative"}
-          >
-            {item.choiceB}
-          </Text>
-        </Card>
-      </Flex>
-    );
-  }
-
   return <Flex mt={"lg"} gap={"sm"}></Flex>;
 };
 
@@ -409,7 +363,7 @@ QuestionsList.Footer = ({
   }
 
   if (type === "participation") {
-    timeFomrat = `참여일: ${dayjs(item.participationDtm).format(
+    timeFomrat = `획득일: ${dayjs(item.participationDtm).format(
       "YYYY-MM-DD hh:mm"
     )}`;
   }
@@ -431,7 +385,7 @@ QuestionsList.NoData = ({ type }: { type: ScreenType }) => {
   }
 
   if (type === "participation") {
-    text = "참여한 밸런스 게임이 없습니다.";
+    text = "포인트를 획득한 기록이 없습니다.";
   }
 
   return (

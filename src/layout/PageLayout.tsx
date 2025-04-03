@@ -12,7 +12,6 @@ const PageLayout = () => {
       fluid
       px={isDesktopView ? "xl" : "md"}
       miw={isDesktopView ? 1440 : undefined}
-      maw={isDesktopView ? "70%" : "100%"}
     >
       <Outlet />
     </Container>

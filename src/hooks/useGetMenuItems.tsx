@@ -92,6 +92,7 @@ export const useGetMenuItems = (
       children: <Text>로그아웃</Text>,
       labels: { confirm: "확인", cancel: "취소" },
       onConfirm: () => logoutMutate(),
+      lockScroll: false,
     });
   };
 

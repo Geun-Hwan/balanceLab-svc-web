@@ -36,7 +36,7 @@ function App() {
           <ModalsProvider labels={{ confirm: "확인", cancel: "취소" }}>
             <AlertComponent />
             <RouterFactory />
-            <AdsenseAd />
+            {/* <AdsenseAd /> */}
           </ModalsProvider>
         </MantineProvider>
       </QueryClientProvider>

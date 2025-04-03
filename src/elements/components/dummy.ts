@@ -34,7 +34,6 @@ export const getBalanceDummyData = () => {
     strDate: dayjs(),
     endDate: dayjs(),
     title: randomTitle,
-    isPublic: false,
   } as IQuestionResult;
 
   return dummyData;
@@ -47,7 +46,6 @@ export const getPredictDummyData = () => {
     strDate: dayjs(),
     endDate: dayjs(),
     title: randomTitle,
-    isPublic: false,
   };
 
   return dummyData;

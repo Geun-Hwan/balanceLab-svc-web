@@ -1,6 +1,6 @@
+import { getQuestionList } from "@/service/publicApi";
 import {
   getQuestionKey,
-  getQuestionList,
   IQuestionResult,
   PageResponse,
 } from "@/service/questionApi";
@@ -54,9 +54,11 @@ export interface IUseBalanceGame {
   defaultValue?: FilterType;
 }
 
+const MAX_PAGE_FOR_GUEST = 3;
+
 export const useBalanceGameList = (
   isLogin: boolean,
-  pageSize: number = 30
+  pageSize: number = 18
 ): IUseBalanceGame => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [InfiniteData, setInfiniteData] = useState<
@@ -68,8 +70,8 @@ export const useBalanceGameList = (
   const defaultValue = {
     search: "",
     categories: [],
-    startDate: dayjs(),
-    endDate: dayjs().add(1, "month"),
+    startDate: dayjs().subtract(1, "month"),
+    endDate: dayjs(),
     showEnded: false,
   };
 
@@ -92,20 +94,28 @@ export const useBalanceGameList = (
     queryFn: ({ pageParam }) =>
       getQuestionList({
         page: pageParam,
-        pageSize,
+        pageSize: isLogin ? pageSize : 9,
         search: memoParams.search || "", // null인 경우 빈 문자열로 처리
         categories: memoParams.categories || "", // null인 경우 빈 문자열로 처리
-        startDate: memoParams.startDate || dayjs().format("YYYY-MM-DD"),
+        startDate:
+          memoParams.startDate || defaultValue.startDate.format("YYYY-MM-DD"),
         endDate:
-          memoParams.endDate || dayjs().add(1, "month").format("YYYY-MM-DD"),
+          memoParams.endDate || defaultValue.endDate.format("YYYY-MM-DD"),
         showEnded: memoParams.showEnded === "true",
       }),
     initialPageParam: 0,
 
     getNextPageParam: (lastPage, _allPages) => {
-      return !lastPage.last ? lastPage.number + 1 : undefined;
+      if (!lastPage.last) {
+        const nextPage = lastPage.number + 1;
+        if (!isLogin && nextPage >= MAX_PAGE_FOR_GUEST) {
+          return undefined;
+        }
+        return nextPage;
+      }
+
+      return undefined;
     },
-    enabled: isLogin,
   });
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -152,6 +162,12 @@ export const useBalanceGameList = (
       // 시작일을 종료일로 조정 (원하는 방식에 따라 선택)
       filters.startDate = end;
       setFilters(filters); // 상태 업데이트
+      return;
+    }
+    if (end.isAfter(dayjs())) {
+      showAlert("종료일은 오늘 이전 날짜까지만 선택할 수 있습니다.", "warning");
+      filters.endDate = dayjs(); // 종료일을 오늘로 설정
+      setFilters({ ...filters });
       return;
     }
 

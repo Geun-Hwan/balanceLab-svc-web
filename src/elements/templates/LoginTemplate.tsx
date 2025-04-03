@@ -15,13 +15,14 @@ import {
   TextInput,
   Title,
 } from "@mantine/core";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosResponse } from "axios";
 import { ChangeEvent, useEffect, useState } from "react";
 import { Form, useNavigate } from "react-router-dom";
 
 const LoginTemplate = () => {
   const { showAlert, alertVisible } = useAlertStore();
+  const qc = useQueryClient();
   const { isLogin, setIdSaveCheck, idSaveCheck, rememberId, setRememberId } =
     useUserStore();
   const navigate = useNavigate();
@@ -33,7 +34,10 @@ const LoginTemplate = () => {
   const { mutate: loginMutate, isPending } = useMutation({
     mutationFn: (params: LoginRequestType) => login(params),
     onSuccess: (data) => {
-      handleLoginSuccess(data, () => navigate("/", { replace: true }));
+      handleLoginSuccess(data, () => {
+        qc.clear();
+        navigate("/", { replace: true });
+      });
     },
     onError: (res: AxiosResponse) => {
       if (Object.values(ALL_ERRORS).includes(res?.data?.code)) {

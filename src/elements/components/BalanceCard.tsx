@@ -89,10 +89,11 @@ const BalanceCard = React.memo(
                 ? "기간 제한없음"
                 : `${formattedStartDate} ~ ${formattedEndDate}`}
             </Text>
-
-            <Badge color={participation ? "cyan" : "yellow"}>
-              {participation ? "참여 완료" : "미참여"}
-            </Badge>
+            {isLogin && (
+              <Badge color={participation ? "cyan" : "yellow"}>
+                {participation ? "참여 완료" : "미참여"}
+              </Badge>
+            )}{" "}
           </Flex>
 
           <Button
@@ -106,12 +107,12 @@ const BalanceCard = React.memo(
             onClick={handleClick}
           >
             {questionStatusCd === QuestionStatusCd.END
-              ? "마감"
+              ? "마감 결과확인"
               : participation
-              ? "결과보기"
+              ? "상세보기"
               : point
-              ? `${isLogin ? point + "p 획득 가능" : "참여하기"}`
-              : "참여하기"}
+              ? `${isLogin ? point + "p 획득 가능" : "진행중"}`
+              : "진행중"}
           </Button>
         </Box>
       </Card>

@@ -118,7 +118,7 @@ MyGamesTemplate.ManagementHeader = (
 
 MyGamesTemplate.ParticipationHeader = (
   <Text size="sm" c="dimmed">
-    최신 참여한 목록이 최상단에 나타납니다.
+    최근 참여한 목록이 최상단에 나타납니다.
   </Text>
 );
 

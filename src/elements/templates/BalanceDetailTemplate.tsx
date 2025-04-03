@@ -72,6 +72,7 @@ const BalanceDetailTemplate = ({
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: getUserKey({ totalPoint: true }) });
       qc.invalidateQueries({ queryKey: getQuestionKey({ questionId }) });
+      qc.invalidateQueries({ queryKey: ["public"] });
     },
     onError: (_error, _variables, context) => {
       // 에러가 발생하면, 이전 상태로 되돌립니다.

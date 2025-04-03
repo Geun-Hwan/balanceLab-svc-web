@@ -30,6 +30,7 @@ export default async function handler(req: any, res: any) {
     "/predict",
     "/mypage",
     "/my-games",
+    "/my-games#my-participations",
   ];
 
   // 동적 페이지 URL 생성 (balance/public/:questionId)

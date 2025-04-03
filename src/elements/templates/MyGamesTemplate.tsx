@@ -9,22 +9,28 @@ import { Button, Group, Tabs, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconGoGame, IconListCheck, IconPlus } from "@tabler/icons-react";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import BalanceCreateModal from "../components/BalanceCreateModal";
 import QuestionsList from "../components/QuestionList";
 
-type TabType = "#my-rgstr" | "#my-participations";
+const validTabs = ["#my-rgstr-balance", "#my-participations"] as const;
 
 const MyGamesTemplate = () => {
   const { isLogin } = useUserStore();
   const location = useLocation();
+  const getValidHash = () =>
+    (location.hash || "#my-rgstr-balance") as (typeof validTabs)[number];
   const navigate = useNavigate();
 
   const [opened, { open, close }] = useDisclosure(false);
-  const [activeTab, setActiveTab] = useState<TabType>(
-    (location.hash as TabType) || "#my-rgstr"
+  const [activeTab, setActiveTab] = useState<(typeof validTabs)[number]>(
+    getValidHash()
   );
+
+  useEffect(() => {
+    setActiveTab(getValidHash()); // location.hash 변경 감지 후 상태 업데이트
+  }, [location.hash]);
 
   const myGames = useInfiniteQuery({
     queryKey: getQuestionKey({ isMine: true }),
@@ -37,7 +43,7 @@ const MyGamesTemplate = () => {
     getNextPageParam: (lastPage, _allPages) => {
       return !lastPage.last ? lastPage.number + 1 : undefined;
     },
-    enabled: isLogin && activeTab === "#my-rgstr",
+    enabled: isLogin && activeTab === validTabs[0],
   });
 
   const myParticipation = useInfiniteQuery({
@@ -51,11 +57,11 @@ const MyGamesTemplate = () => {
     getNextPageParam: (lastPage, _allPages) => {
       return !lastPage.last ? lastPage.number + 1 : undefined;
     },
-    enabled: isLogin && activeTab === "#my-participations",
+    enabled: isLogin && activeTab === validTabs[1],
   });
 
   const handleTapChange = (value: string | null) => {
-    setActiveTab(value as TabType);
+    setActiveTab(value as (typeof validTabs)[number]);
 
     navigate(`${value}`, { replace: true });
   };
@@ -71,9 +77,8 @@ const MyGamesTemplate = () => {
         wrap="nowrap"
         align="flex-start"
       >
-        {activeTab === "#my-rgstr" && MyGamesTemplate.ManagementHeader}
-        {activeTab === "#my-participations" &&
-          MyGamesTemplate.ParticipationHeader}
+        {activeTab === validTabs[0] && MyGamesTemplate.ManagementHeader}
+        {activeTab === validTabs[1] && MyGamesTemplate.ParticipationHeader}
         <Button leftSection={<IconPlus size={16} />} onClick={open} miw={110}>
           게임 생성
         </Button>
@@ -86,21 +91,21 @@ const MyGamesTemplate = () => {
         activateTabWithKeyboard={false}
       >
         <Tabs.List mb={"md"}>
-          <Tabs.Tab value="#my-rgstr" leftSection={<IconGoGame size={14} />}>
-            내 게임
+          <Tabs.Tab value={validTabs[0]} leftSection={<IconGoGame size={14} />}>
+            밸런스게임
           </Tabs.Tab>
           <Tabs.Tab
-            value="#my-participations"
+            value={validTabs[1]}
             leftSection={<IconListCheck size={14} />}
           >
-            참여목록
+            참여 밸런스게임
           </Tabs.Tab>
         </Tabs.List>
 
-        <Tabs.Panel value="#my-rgstr">
+        <Tabs.Panel value={validTabs[0]}>
           <QuestionsList result={myGames} type="manageMent" />
         </Tabs.Panel>
-        <Tabs.Panel value="#my-participations">
+        <Tabs.Panel value={validTabs[1]}>
           <QuestionsList result={myParticipation} type="participation" />
         </Tabs.Panel>
       </Tabs>

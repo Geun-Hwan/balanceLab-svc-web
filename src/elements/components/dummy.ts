@@ -4,6 +4,8 @@ import dayjs from "dayjs";
 const HANGUL_START = 0xac00; // 가
 const HANGUL_END = 0xd7a3; // 힣
 
+export type dummyType = "balance" | "predict";
+
 const generateRandomHangulWithSpaces = (
   minLength: number,
   maxLength: number
@@ -25,14 +27,28 @@ const generateRandomHangulWithSpaces = (
   return result;
 };
 
-export const getDummyData = () => {
+export const getBalanceDummyData = () => {
   const randomTitle = generateRandomHangulWithSpaces(10, 35);
+
   const dummyData = {
     strDate: dayjs(),
     endDate: dayjs(),
     title: randomTitle,
     isPublic: false,
   } as IQuestionResult;
+
+  return dummyData;
+};
+
+export const getPredictDummyData = () => {
+  const randomTitle = generateRandomHangulWithSpaces(10, 35);
+
+  const dummyData = {
+    strDate: dayjs(),
+    endDate: dayjs(),
+    title: randomTitle,
+    isPublic: false,
+  };
 
   return dummyData;
 };

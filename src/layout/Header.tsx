@@ -85,10 +85,10 @@ Header.DeskTop = ({
               </Text>
             </Flex>
           </Menu.Label>
+          <MenuItems.MyGames />
 
           <MenuItems.MyPage />
 
-          <MenuItems.MyGames />
           <Menu.Divider />
           <MenuItems.Logout />
         </Menu.Dropdown>

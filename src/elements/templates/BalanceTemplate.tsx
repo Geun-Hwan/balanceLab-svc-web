@@ -10,7 +10,7 @@ const BalanceTemplate = () => {
   return (
     <Content headerProps={{ name: "Balance" }}>
       {!isDesktopHeader && <SubHeader menuNames={["Balance", "Prediction"]} />}
-      <BalanceGameList />
+      {<BalanceGameList />}
       <FloatingButton />
     </Content>
   );

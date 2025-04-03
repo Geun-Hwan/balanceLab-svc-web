@@ -1,4 +1,3 @@
-import useContentType from "@/hooks/useContentType";
 import { Flex } from "@mantine/core";
 import { ReactNode } from "react";
 import { MenuName } from "../hooks/useGetMenuItems";
@@ -22,14 +21,8 @@ const Content = ({
   headerProps?: HeaderProps;
   footerProps?: FooterProps;
 }) => {
-  const { isExtra, isMidium } = useContentType();
   return (
-    <Flex
-      direction={"column"}
-      flex={1}
-      maw={isExtra ? "70%" : isMidium ? "90%" : "100%"}
-      mx={"auto"}
-    >
+    <Flex direction={"column"} flex={1} mx={"auto"} w={"100%"}>
       <Content.Header {...headerProps} />
 
       {children}

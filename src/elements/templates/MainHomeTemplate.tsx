@@ -5,13 +5,13 @@ import { useAlertStore, useUserStore } from "@/store/store";
 import { Carousel, Embla } from "@mantine/carousel";
 import { Box, Card, Flex, SimpleGrid, Skeleton, Text } from "@mantine/core";
 
+import useContentType from "@/hooks/useContentType";
 import { getRankList, getTodayQuestion } from "@/service/publicApi";
 import { IQuestionResult } from "@/service/questionApi";
-import useContentType from "@/hooks/useContentType";
 import BalanceCard from "@cmp/BalanceCard";
 import { useQueries, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { getDummyData } from "../components/dummy";
+import { getBalanceDummyData } from "@cmp/dummy";
 
 const MainHomeTemplate = () => {
   // };
@@ -151,7 +151,7 @@ const BalanceCardSlider = ({
         </Text>
 
         <Skeleton>
-          <BalanceCard data={getDummyData()} isBlur />
+          <BalanceCard data={getBalanceDummyData()} isBlur />
         </Skeleton>
       </Box>
     );

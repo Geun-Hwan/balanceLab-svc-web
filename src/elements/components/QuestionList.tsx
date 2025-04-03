@@ -427,11 +427,11 @@ QuestionsList.NoData = ({ type }: { type: ScreenType }) => {
   let text = "데이터가 없습니다.";
 
   if (type === "manageMent") {
-    text = "생성한 질문이 없습니다.";
+    text = "생성한 밸런스 게임이 없습니다.";
   }
 
   if (type === "participation") {
-    text = "참여한 목록이 없습니다.";
+    text = "참여한 밸런스 게임이 없습니다.";
   }
 
   return (

@@ -6,14 +6,13 @@ import { useEffect } from "react";
 import { queryClient } from "./service/queryClent";
 import { useUserStore } from "./store/store";
 
+import dayjs from "dayjs";
 import DesktopViewProvider from "./context/DesktopHeaderProvider";
 import AlertComponent from "./elements/components/AlertComponent";
 import RouterFactory from "./routes/RouterFactory";
-import dayjs from "dayjs";
 
-import "./App.css";
 import "dayjs/locale/ko"; // 한국어 로케일 가져오기
-import AdsenseAd from "./elements/ads/AdsenseAd";
+import "./App.css";
 
 dayjs.locale("ko");
 

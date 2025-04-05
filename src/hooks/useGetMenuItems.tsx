@@ -10,6 +10,7 @@ import {
   IconCat,
   IconChartBar,
   IconDeviceGamepad2,
+  IconHandClick,
   IconHomeBolt,
   IconList,
   IconLogin,
@@ -352,15 +353,14 @@ export const useGetMenuItems = (
     ),
     DrawerLogin: () => (
       <Menu.Item
-        mt={"lg"}
         key={"mobile-drawerLogin"}
         onClick={() => handleNavigate("/login")}
-        leftSection={<IconUserCheck size={isSmall ? 50 : 70} />}
-        fz={isSmall ? "h3" : "h2"}
+        leftSection={<IconHandClick size={isSmall ? 35 : 50} />}
+        fz={isSmall ? "h3" : "h1"}
         fw={"900"}
-        style={{}}
+        p={"xs"}
       >
-        로그인후 이용하세요!
+        로그인하고 포인트 받기
       </Menu.Item>
     ),
   };

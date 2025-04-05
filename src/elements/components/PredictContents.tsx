@@ -10,7 +10,7 @@ const mockGames = [
   {
     id: 1,
     title: "2026년 월드컵 우승국가는?",
-    status: "진행 중",
+    status: "진행중",
     choiceA: "브라질",
     choiceB: "프랑스",
     percentageA: 60,
@@ -32,7 +32,7 @@ const mockGames = [
   {
     id: 3,
     title: "2025년 가장 많이 팔린 자동차 브랜드는?",
-    status: "진행 중",
+    status: "진행중",
     choiceA: "현대",
     choiceB: "테슬라",
     percentageA: 70,

@@ -79,6 +79,10 @@ const BalanceCreateModal = ({
         : dayjs().add(3, "day").endOf("day"),
     });
   };
+  const handleClose = () => {
+    resetForm();
+    close();
+  };
   const { mutate: createMutate, isPending: createPending } = useMutation({
     mutationFn: (params: QuestionCreateType) => createQuestion(params),
     onMutate: (_variables) => {},
@@ -132,6 +136,22 @@ const BalanceCreateModal = ({
   };
   const handleCreate = () => {
     // close();
+    const currentTime = dayjs();
+
+    const startRestrictedTime = dayjs().hour(23).minute(50).second(0);
+    const endRestrictedTime = dayjs()
+      .hour(0)
+      .minute(10)
+      .second(0)
+      .add(1, "day");
+
+    if (
+      currentTime.isAfter(startRestrictedTime) &&
+      currentTime.isBefore(endRestrictedTime)
+    ) {
+      showAlert("23:50 ~ 00:10 사이에는 등록할 수 없습니다.");
+      return;
+    }
 
     if ((userData?.totalPoint as number) < calculatePoints) {
       showAlert("포인트가 부족합니다.");
@@ -214,6 +234,9 @@ const BalanceCreateModal = ({
   const calculatePoints = useMemo(() => {
     // 기본 포인트 100p (2일 기준)
     // strDate ,endDate
+    if (userData?.userId === "SYSTEM") {
+      return 0;
+    }
 
     // 날짜 차이에 따라 포인트 계산 (2일 초과 시 30p 추가)
     const daysDifference = date.endDate.diff(date.strDate, "day");
@@ -237,7 +260,7 @@ const BalanceCreateModal = ({
       closeOnEscape={false}
       styles={{ title: { fontSize: 20 } }}
       opened={opened}
-      onClose={close}
+      onClose={handleClose}
       title="밸런스 게임 설정"
       centered
       lockScroll={false}

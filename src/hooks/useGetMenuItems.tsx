@@ -252,7 +252,7 @@ export const useGetMenuItems = (
         key="contact-mobile"
         leftSection={<IconMailQuestion size={16} />}
         onClick={() => handleNavigate("/contact")}
-        label="문의"
+        label="문의하기"
       />
     ),
     Setting: () => (

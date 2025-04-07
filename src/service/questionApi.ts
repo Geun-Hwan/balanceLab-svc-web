@@ -1,5 +1,6 @@
 import { QuestionStatusCd } from "@/constants/ServiceConstants";
 import { instance } from "@/service/api";
+import { PageResponse } from "./publicApi";
 
 export type QuestionRequestType = {
   page?: number | string;
@@ -51,15 +52,6 @@ export interface IQuestionResult {
   selectA: number; // A 총 선택인원
   selectB: number; // B 총 선택인원
   participationDtm: string | Date;
-}
-
-export interface PageResponse<T> {
-  content: T[];
-  totalElements: number;
-  totalPages: number;
-  size: number;
-  number: number;
-  last: boolean;
 }
 
 const PRE_FIX = "/question";

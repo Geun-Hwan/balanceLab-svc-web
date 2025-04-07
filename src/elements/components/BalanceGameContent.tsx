@@ -19,7 +19,7 @@ import DummyComponent from "./DummyComponent";
 import MobileBalanceGameSearchButton from "./mobile/MobileBalanceGameSearchButton";
 import PcBalanceGameSearchArea from "./pc/PcBalanceGameSearchArea";
 
-const BalanceGameList = () => {
+const BalanceGameContent = () => {
   const { isLogin } = useUserStore();
   const navigate = useNavigate();
   const { isSmall, isMidium, isExtra } = useContentType();
@@ -163,4 +163,4 @@ const BalanceGameList = () => {
   );
 };
 
-export default BalanceGameList;
+export default BalanceGameContent;

@@ -1,5 +1,5 @@
-import { ILoginResult } from "../service/authApi";
 import { ACCEES_TOKEN } from "@/constants/ServiceConstants";
+import { ILoginResult } from "../service/authApi";
 import { useUserStore } from "../store/store";
 import { removeCookie, setAccessToken } from "./cookieUtil";
 
@@ -19,7 +19,7 @@ export const handleLoginSuccess = (
   setIsLogin(true);
 
   setRememberId(idSaveCheck ? rest.loginId : null);
-
+  // useGuestStore.getState().resetVotes();
   if (callback) {
     callback();
   } else {

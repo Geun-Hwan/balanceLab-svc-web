@@ -1,6 +1,8 @@
 import MypageTemplate from "@/elements/templates/MypageTemplate";
-import PredictTemplate from "@cmp/PredictContents";
 import PageLayout from "@/layout/PageLayout";
+import BalanceGameContent from "@cmp/BalanceGameContent";
+import MainContents from "@cmp/MainContents";
+import PredictContents from "@cmp/PredictContents";
 import {
   BalanceDetailTemplate,
   ContactTemplate,
@@ -13,9 +15,7 @@ import {
 } from "@tmp";
 import { createBrowserRouter, RouteObject } from "react-router-dom";
 import AuthRoute from "./AuthRoute";
-import MainContents from "@cmp/MainContents";
-import PredictContents from "@cmp/PredictContents";
-import BalanceGameList from "@cmp/BalanceGameList";
+import PredictDetailTemplate from "@/elements/templates/PredictDetailTemplate";
 
 const routes: RouteObject[] = [
   {
@@ -32,7 +32,7 @@ const routes: RouteObject[] = [
           },
           {
             path: "balance",
-            element: <BalanceGameList />,
+            element: <BalanceGameContent />,
           },
 
           {
@@ -73,13 +73,15 @@ const routes: RouteObject[] = [
       {
         path: "mypage",
         element: <MypageTemplate />,
-        children: [],
       },
 
       {
         path: "my-games",
         element: <MyGamesTemplate />,
-        children: [],
+      },
+      {
+        path: "predict/:predictId",
+        element: <PredictDetailTemplate />,
       },
     ],
   },

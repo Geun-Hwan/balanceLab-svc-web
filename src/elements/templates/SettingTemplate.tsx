@@ -1,6 +1,7 @@
 import Content from "@/layout/Content";
-import { useUserStore } from "@/store/store";
+import { useGuestStore, useUserStore } from "@/store/store";
 import {
+  Button,
   Flex,
   Group,
   Paper,
@@ -9,16 +10,35 @@ import {
   Title,
   useMantineColorScheme,
 } from "@mantine/core";
+import { modals } from "@mantine/modals";
 
 const SettingTemplate = () => {
-  const { animationEnable, toggleAnimation } = useUserStore();
-  const { setThemeColor, themeColor } = useUserStore();
+  const {
+    animationEnable,
+    toggleAnimation,
+    isLogin,
+    setThemeColor,
+    themeColor,
+  } = useUserStore();
+  const { resetVotes } = useGuestStore();
   const { toggleColorScheme } = useMantineColorScheme();
 
   const handleToggleTheme = () => {
     toggleColorScheme();
     setThemeColor(themeColor === "dark" ? "light" : "dark");
   };
+  const handleConfirmReset = () => {
+    modals.openConfirmModal({
+      title: "참여 내역 초기화",
+      children: "게스트 참여 내역을 모두 초기화하시겠습니까?",
+      labels: { confirm: "초기화", cancel: "취소" },
+      confirmProps: { color: "red", variant: "filled" },
+      onConfirm: () => {
+        resetVotes();
+      },
+    });
+  };
+
   return (
     <Content>
       <Paper
@@ -55,6 +75,17 @@ const SettingTemplate = () => {
               onChange={handleToggleTheme}
             />
           </Group>
+          {!isLogin && (
+            <Button
+              variant="outline"
+              color="red"
+              fullWidth
+              mt="auto"
+              onClick={handleConfirmReset}
+            >
+              게스트 참여 내역 초기화
+            </Button>
+          )}
         </Flex>
       </Paper>
     </Content>

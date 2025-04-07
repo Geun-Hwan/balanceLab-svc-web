@@ -1,27 +1,49 @@
+import { QuestionStatusCd } from "@/constants/ServiceConstants";
+import { IPredictResult } from "@/service/predictApi";
+import { useAlertStore, useUserStore } from "@/store/store";
 import { Badge, Button, Card, Flex, Group, Stack, Text } from "@mantine/core";
 import dayjs from "dayjs";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
 const PredictCard = React.memo(
-  ({ data, isBlur = false }: { data?: any; isBlur?: boolean }) => {
+  ({ data, isBlur = false }: { data?: IPredictResult; isBlur?: boolean }) => {
     const navigate = useNavigate();
+    const { isLogin } = useUserStore();
+    const { showAlert } = useAlertStore();
+    const {
+      predictId,
+      title,
+      optionA,
+      optionB,
+      optionC,
+      payoutA = "2.0",
+      payoutB = "2.0",
+      payoutC = "2.0",
+      endDtm,
+      questionStatusCd,
+      participation,
+    } = data || {};
 
-    const calculatePayout = (total: number, bet: number) => {
-      const adjustedTotal = total * 0.95; // 전체 금액에서 5% 차감
-      return bet > 0 ? (adjustedTotal / bet).toFixed(2) : "-";
+    const handleClick = (
+      e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+    ) => {
+      const { value } = e.currentTarget;
+
+      if (!isLogin) {
+        showAlert("로그인 후에 이용 가능합니다.");
+        return;
+      }
+
+      if (value) {
+        navigate(`/predict/${predictId}`);
+      }
     };
-
-    console.log(data);
-    const totalPoints = data.pointsA + data.pointsB + data?.pointC || 0;
-    const payoutA = calculatePayout(totalPoints, data.pointsA);
-    const payoutB = calculatePayout(totalPoints, data.pointsB);
-    const payoutC = calculatePayout(totalPoints, data.pointsC);
 
     return (
       <Card
         className={isBlur ? "no-drag blur" : "no-drag"}
-        key={data.id}
+        key={predictId}
         shadow="sm"
         padding="lg"
         radius={8}
@@ -34,8 +56,7 @@ const PredictCard = React.memo(
         style={{ flexDirection: "column" }}
       >
         <Text
-          h={65}
-          mih={65}
+          mih={70}
           size="xl"
           ta="center"
           style={{
@@ -44,7 +65,7 @@ const PredictCard = React.memo(
           }}
           lineClamp={2}
         >
-          {data.title}
+          {title}
         </Text>
 
         <Flex
@@ -55,17 +76,19 @@ const PredictCard = React.memo(
           flex={1}
         >
           <Flex direction="row" justify="space-between">
-            <Text>optin 1</Text>
+            <Text>{optionA}</Text>
             <Text fw={"bold"}>{payoutA}</Text>
           </Flex>
           <Flex direction="row" justify="space-between">
-            <Text>optin 2</Text>
+            <Text>{optionB}</Text>
             <Text fw={"bold"}>{payoutB}</Text>
           </Flex>
-          <Flex direction="row" justify="space-between">
-            <Text>optin 3</Text>
-            <Text fw={"bold"}>{payoutC}</Text>
-          </Flex>
+          {optionC && (
+            <Flex direction="row" justify="space-between">
+              <Text>{optionC}</Text>
+              <Text fw={"bold"}>{payoutC}</Text>
+            </Flex>
+          )}
         </Flex>
 
         <Stack mt={"auto"} gap={"xs"}>
@@ -74,15 +97,43 @@ const PredictCard = React.memo(
               <Text size="sm" fw={"bold"}>
                 마감시간
               </Text>
-              <Text fw={"bolder"}>{dayjs().format("YYYY-MM-DD HH:mm")}</Text>
+              <Text fw={"bolder"}>
+                {dayjs(endDtm).format("YYYY-MM-DD HH:mm")}
+              </Text>
             </Group>
-            <Badge color={data.status === "" ? "cyan" : "gray"} miw={50}>
-              {data.status}
+            <Badge
+              miw={60}
+              color={
+                questionStatusCd === QuestionStatusCd.PROGRESS
+                  ? "blue" // 진행중: 눈에 띄게
+                  : questionStatusCd === QuestionStatusCd.END
+                  ? "yellow"
+                  : "gray" //
+              }
+            >
+              {questionStatusCd === QuestionStatusCd.PROGRESS
+                ? "진행중"
+                : questionStatusCd === QuestionStatusCd.END
+                ? "결산중"
+                : "결산완료"}
             </Badge>
           </Group>
           {
-            <Button onClick={() => navigate(`/predict/${data.id}`)}>
-              참여하기 ? 참여완료 ? 결과확인
+            <Button
+              onClick={handleClick}
+              value={predictId}
+              variant={
+                questionStatusCd === QuestionStatusCd.PROGRESS
+                  ? "filled"
+                  : "default"
+              }
+              color={participation ? "cyan" : "yellow"}
+            >
+              {questionStatusCd === QuestionStatusCd.PROGRESS
+                ? participation
+                  ? "참여완료"
+                  : "참여하기"
+                : "결과보기"}
             </Button>
           }
         </Stack>

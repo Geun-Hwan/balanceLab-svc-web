@@ -1,11 +1,11 @@
+import { CATEGORIES, QuestionStatusCd } from "@/constants/ServiceConstants";
 import {
+  getMyQuestionList,
   getQuestionKey,
   IQuestionResult,
-  PageResponse,
   removeQuestion,
 } from "@/service/questionApi";
-import { CATEGORIES, QuestionStatusCd } from "@/constants/ServiceConstants";
-import { useAlertStore } from "@/store/store";
+import { useAlertStore, useUserStore } from "@/store/store";
 import {
   ActionIcon,
   Badge,
@@ -22,8 +22,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { modals } from "@mantine/modals";
 import { IconEdit, IconEye, IconTrash } from "@tabler/icons-react";
 import {
-  InfiniteData,
-  InfiniteQueryObserverBaseResult,
+  useInfiniteQuery,
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
@@ -35,25 +34,33 @@ import { JSX } from "react/jsx-runtime";
 import BalanceCreateModal from "./BalanceCreateModal";
 import SelectAnimation from "./SelectAnimation";
 
-type ScreenType = "manageMent" | "participation";
-
-const QuestionsList = ({
-  result,
-  type,
+const BalanceRgstrList = ({
+  getStatusBadge,
 }: {
-  type: ScreenType;
-  result?: InfiniteQueryObserverBaseResult<
-    InfiniteData<PageResponse<IQuestionResult>>
-  >;
+  getStatusBadge: (stusCd: string) => any;
 }) => {
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    result || {};
+  const { isLogin } = useUserStore();
   const { showAlert } = useAlertStore();
   const [modalData, setModalData] = useState<IQuestionResult | undefined>(
     undefined
   );
   const qc = useQueryClient();
   const navigate = useNavigate();
+
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+    useInfiniteQuery({
+      queryKey: getQuestionKey({ isMine: true }),
+      queryFn: ({ pageParam }) =>
+        getMyQuestionList({
+          page: pageParam,
+          pageSize: 10,
+        }),
+      initialPageParam: 0,
+      getNextPageParam: (lastPage, _allPages) => {
+        return !lastPage.last ? lastPage.number + 1 : undefined;
+      },
+      enabled: isLogin,
+    });
 
   const { mutate: remove, isPending } = useMutation({
     mutationFn: (questionId: string) => removeQuestion(questionId),
@@ -97,18 +104,6 @@ const QuestionsList = ({
       if (currentRef) observer.unobserve(currentRef);
     };
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
-  const getStatusBadge = (statusCd: string) => {
-    switch (statusCd) {
-      case "20000001":
-        return <Badge color="green">진행 중</Badge>;
-      case "20000002":
-        return <Badge color="blue">완료됨</Badge>;
-      case "20000003":
-        return <Badge color="yellow">대기 중</Badge>;
-      default:
-        return <Badge color="gray">알 수 없음</Badge>;
-    }
-  };
 
   const getCategoryName = (categoryCd: string) => {
     const category = CATEGORIES.find((cat) => cat.value === categoryCd);
@@ -163,7 +158,7 @@ const QuestionsList = ({
       </ActionIcon>
     );
 
-    if (delYn || type === "participation") {
+    if (delYn) {
       return buttons;
     }
 
@@ -199,7 +194,7 @@ const QuestionsList = ({
   };
 
   if (data?.pages[0].totalElements === 0) {
-    return <QuestionsList.NoData type={type} />;
+    return <BalanceRgstrList.NoData />;
   }
 
   return (
@@ -218,9 +213,7 @@ const QuestionsList = ({
               <Card.Section p="md" withBorder>
                 <Group justify="space-between">
                   <Group>
-                    {question.delYn && type === "manageMent" && (
-                      <Badge color="red">삭제됨</Badge>
-                    )}
+                    {question.delYn && <Badge color="red">삭제됨</Badge>}
 
                     {getStatusBadge(question.questionStatusCd)}
                   </Group>
@@ -244,11 +237,11 @@ const QuestionsList = ({
                 )}
               </Group>
 
-              <QuestionsList.Content type={type} item={question} />
+              <BalanceRgstrList.Content item={question} />
 
-              <QuestionsList.Footer type={type} item={question}>
+              <BalanceRgstrList.Footer item={question}>
                 {renderActionIcons(question)}
-              </QuestionsList.Footer>
+              </BalanceRgstrList.Footer>
             </Card>
           ))}
         </React.Fragment>
@@ -260,7 +253,7 @@ const QuestionsList = ({
           <Loader size={"xl"} />
         </Flex>
       )}
-      {opened && type === "manageMent" && (
+      {opened && (
         <BalanceCreateModal
           opened={opened}
           close={handleClose}
@@ -272,13 +265,7 @@ const QuestionsList = ({
   );
 };
 
-QuestionsList.Content = ({
-  type,
-  item,
-}: {
-  type: ScreenType;
-  item: IQuestionResult;
-}) => {
+BalanceRgstrList.Content = ({ item }: { item: IQuestionResult }) => {
   const getPercent = (question: IQuestionResult, target: "A" | "B"): number => {
     const { selectA, selectB } = question;
     const total = selectA + selectB;
@@ -290,83 +277,68 @@ QuestionsList.Content = ({
     return ((target === "A" ? selectA : selectB) / total) * 100;
   };
 
-  if (type === "manageMent") {
-    return (
-      <Flex mt={"lg"} gap={"sm"}>
-        <Card flex={1} radius={4} withBorder p="xs" pos={"relative"}>
-          <SelectAnimation
-            duration={0.1}
-            isSelect={true}
-            color="red"
-            percent={getPercent(item, "A")}
-          />
-          <Text
-            pos={"relative"}
-            fw={500}
-            size="sm"
-            style={{
-              wordBreak: "break-word",
-            }}
-            lineClamp={1}
-          >
-            A: {item.choiceA}
-          </Text>
-          <Text size="xs" mt={5} pos={"relative"}>
-            {item.selectA}명 선택
-          </Text>
-        </Card>
-        <Card flex={1} radius={4} p="xs" pos={"relative"} withBorder>
-          <SelectAnimation
-            duration={0.1}
-            isSelect={true}
-            color="blue"
-            percent={getPercent(item, "B")}
-          />
+  return (
+    <Flex mt={"lg"} gap={"sm"}>
+      <Card flex={1} radius={4} withBorder p="xs" pos={"relative"}>
+        <SelectAnimation
+          duration={0.1}
+          isSelect={true}
+          color="red"
+          percent={getPercent(item, "A")}
+        />
+        <Text
+          pos={"relative"}
+          fw={500}
+          size="sm"
+          style={{
+            wordBreak: "break-word",
+          }}
+          lineClamp={1}
+        >
+          A: {item.choiceA}
+        </Text>
+        <Text size="xs" mt={5} pos={"relative"}>
+          {item.selectA}명 선택
+        </Text>
+      </Card>
+      <Card flex={1} radius={4} p="xs" pos={"relative"} withBorder>
+        <SelectAnimation
+          duration={0.1}
+          isSelect={true}
+          color="blue"
+          percent={getPercent(item, "B")}
+        />
 
-          <Text
-            fw={500}
-            size="sm"
-            style={{
-              wordBreak: "break-word",
-            }}
-            lineClamp={1}
-            pos={"relative"}
-          >
-            B: {item.choiceB}
-          </Text>
-          <Text size="xs" mt={5} pos={"relative"}>
-            {item.selectB}명 선택
-          </Text>
-        </Card>
-      </Flex>
-    );
-  }
-
-  return <Flex mt={"lg"} gap={"sm"}></Flex>;
+        <Text
+          fw={500}
+          size="sm"
+          style={{
+            wordBreak: "break-word",
+          }}
+          lineClamp={1}
+          pos={"relative"}
+        >
+          B: {item.choiceB}
+        </Text>
+        <Text size="xs" mt={5} pos={"relative"}>
+          {item.selectB}명 선택
+        </Text>
+      </Card>
+    </Flex>
+  );
 };
 
-QuestionsList.Footer = ({
-  type,
+BalanceRgstrList.Footer = ({
   item,
   children,
 }: {
-  type: ScreenType;
   item: IQuestionResult;
   children: ReactNode;
 }) => {
-  let timeFomrat = "-";
+  const timeFomrat = `${dayjs(item.strDate).format("YYYY-MM-DD")} ~ ${dayjs(
+    item.endDate
+  ).format("YYYY-MM-DD")}`;
 
-  if (type === "manageMent") {
-    timeFomrat = `${dayjs(item.strDate).format("YYYY-MM-DD")} ~ ${dayjs(
-      item.endDate
-    ).format("YYYY-MM-DD")}`;
-  }
-
-  if (type === "participation") {
-    timeFomrat = `획득일: ${dayjs(item.participationDtm).format(
-      "YYYY-MM-DD hh:mm"
-    )}`;
-  }
   return (
     <Flex justify="space-between" align="center" mt={"lg"}>
       <Text size="xs" c="dimmed">
@@ -377,24 +349,16 @@ QuestionsList.Footer = ({
     </Flex>
   );
 };
-QuestionsList.NoData = ({ type }: { type: ScreenType }) => {
-  let text = "데이터가 없습니다.";
-
-  if (type === "manageMent") {
-    text = "생성한 밸런스 게임이 없습니다.";
-  }
-
-  if (type === "participation") {
-    text = "포인트를 획득한 기록이 없습니다.";
-  }
+BalanceRgstrList.NoData = () => {
+  const text = "생성한 밸런스 게임이 없습니다.";
 
   return (
     <Box p="md">
       <Title ta="center" fw={500} mt="xl" c="dimmed" order={3}>
-        {text}{" "}
+        {text}
       </Title>
     </Box>
   );
 };
 
-export default QuestionsList;
+export default BalanceRgstrList;

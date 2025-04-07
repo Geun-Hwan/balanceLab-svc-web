@@ -1,13 +1,10 @@
-import { getPublicQuestionList } from "@/service/publicApi";
-import { getQuestionKey, IQuestionResult } from "@/service/questionApi";
-import { useUserStore } from "@/store/store";
+import { IQuestionResult } from "@/service/questionApi";
 import {
   dummyType,
   getBalanceDummyData,
   getPredictDummyData,
 } from "@cmp/dummy";
 import { SimpleGrid, Skeleton } from "@mantine/core";
-import { useQuery } from "@tanstack/react-query";
 import React, { useMemo } from "react";
 import BalanceCard from "./BalanceCard";
 import PredictCard from "./PredictCard";

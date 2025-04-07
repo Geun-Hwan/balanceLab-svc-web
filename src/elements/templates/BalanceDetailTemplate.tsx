@@ -2,7 +2,7 @@ import { QuestionStatusCd } from "@/constants/ServiceConstants";
 import { getQuestionKey, IQuestionResult } from "@/service/questionApi";
 import { createSelection, SelectionCreateType } from "@/service/selectionApi";
 
-import { useAlertStore, useUserStore } from "@/store/store";
+import { useAlertStore, useGuestStore, useUserStore } from "@/store/store";
 import {
   Box,
   Card,
@@ -37,11 +37,12 @@ const BalanceDetailTemplate = () => {
 
   const { showAlert } = useAlertStore();
   const { isLogin } = useUserStore();
+  const { getVoteChoice, addVote } = useGuestStore();
   const { questionId } = useParams();
 
   const [ended, setIsEnded] = useState(false);
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const isSelect = useRef<boolean>(false);
-  const selectedOption = useRef<string | null>(null);
 
   const [count, setCount] = useState<{ a: number; b: number }>({ a: 0, b: 0 });
 
@@ -75,9 +76,9 @@ const BalanceDetailTemplate = () => {
 
       if (context?.previousState) {
         const { selectA: a, selectB: b } = context.previousState;
-        selectedOption.current = null;
         setCount({ a, b });
         isSelect.current = false;
+        setSelectedOption(null);
       }
 
       // 에러 처리 (로그 등)
@@ -93,6 +94,10 @@ const BalanceDetailTemplate = () => {
       return { previousState };
     },
     onSuccess: () => {
+      addVote({
+        questionId: questionId as string,
+        choiceType: selectedOption as "A" | "B",
+      });
       qc.invalidateQueries({ queryKey: getQuestionKey({ questionId }) });
       qc.invalidateQueries({ queryKey: ["public"] });
     },
@@ -102,9 +107,9 @@ const BalanceDetailTemplate = () => {
 
       if (context?.previousState) {
         const { selectA: a, selectB: b } = context.previousState;
-        selectedOption.current = null;
         setCount({ a, b });
         isSelect.current = false;
+        setSelectedOption(null);
       }
 
       // 에러 처리 (로그 등)
@@ -122,7 +127,7 @@ const BalanceDetailTemplate = () => {
       return;
     }
 
-    if (isSelect.current || !!selectedOption.current) {
+    if (isSelect.current) {
       return;
     }
 
@@ -148,7 +153,7 @@ const BalanceDetailTemplate = () => {
         a += id === "A" ? 1 : 0;
         b += id === "B" ? 1 : 0;
 
-        if (isLogin && !data?.participation) {
+        if (isLogin && !data?.choiceType) {
           createSelect({
             rewardPoint: data?.point as number,
             choiceType: id as "A" | "B",
@@ -160,7 +165,7 @@ const BalanceDetailTemplate = () => {
             questionId: data?.questionId as string,
           });
         }
-        selectedOption.current = id;
+        setSelectedOption(id);
         setCount({ a, b });
         isSelect.current = true;
       },
@@ -183,12 +188,23 @@ const BalanceDetailTemplate = () => {
         setIsEnded(true);
       }
 
+      const isGuest = !isLogin;
+      const selectOption = isGuest
+        ? getVoteChoice(questionId as string)
+        : data?.choiceType;
+
+      if (selectOption) {
+        isSelect.current = true;
+      }
+      setSelectedOption(selectOption);
+
       setCount({ a: data.selectA, b: data.selectB });
     }
   }, [data]);
 
   useEffect(() => {
     return () => {
+      modals.closeAll();
       qc.invalidateQueries({ queryKey: getQuestionKey() });
     };
   }, []);
@@ -212,11 +228,11 @@ const BalanceDetailTemplate = () => {
       <Skeleton visible={isLoading} mt={"lg"} h={"100%"}>
         <Text
           mt={"xl"}
-          h={100}
           size="xl"
           ta="center"
+          mih={100}
+          fw={900}
           style={{
-            fontWeight: "900",
             wordBreak: "break-word",
           }}
           lineClamp={3}
@@ -281,24 +297,24 @@ const BalanceDetailTemplate = () => {
             w={"100%"}
             id={"A"}
             disabled={ended || isSelect.current}
+            pos={"relative"}
           >
             <SelectAnimation
               isSelect={isSelect.current || ended}
               percent={getPercent(count.a)}
-              color={
-                ended
-                  ? "gray"
-                  : selectedOption.current === "A"
-                  ? "cyan"
-                  : "gray"
-              }
+              color={ended ? "gray" : selectedOption === "A" ? "cyan" : "gray"}
             />
-            <Title ta="center" order={4} style={{ zIndex: 3 }}>
+            <Text
+              ta="center"
+              fz={"h4"}
+              style={{ zIndex: 3 }}
+              fw={"bolder"}
+              mb={"auto"}
+            >
               A
-            </Title>
+            </Text>
 
             <Text
-              m={"auto"}
               size="sm"
               ta="center"
               style={{
@@ -309,6 +325,21 @@ const BalanceDetailTemplate = () => {
               lineClamp={2}
             >
               {data?.choiceA}
+            </Text>
+            <Text
+              size="md"
+              pos={"absolute"}
+              ta="center"
+              top={"50%"}
+              left={"50%"}
+              fw={"bolder"}
+              fz={"h3"}
+              c={"black"}
+              style={{
+                transform: "translate(-50%, -50%)", // 정확히 중앙에 위치시키기 위한 트릭
+              }}
+            >
+              {count.a}명이 선택했습니다.
             </Text>
           </Card>
 
@@ -328,24 +359,24 @@ const BalanceDetailTemplate = () => {
             disabled={ended || isSelect.current}
             maw={600}
             w={"100%"}
+            pos={"relative"}
           >
             <SelectAnimation
               isSelect={isSelect.current || ended}
               percent={getPercent(count.b)}
-              color={
-                ended
-                  ? "gray"
-                  : selectedOption.current === "B"
-                  ? "cyan"
-                  : "gray"
-              }
+              color={ended ? "gray" : selectedOption === "B" ? "cyan" : "gray"}
             />
-            <Title ta="center" order={4} style={{ zIndex: 3 }}>
+            <Text
+              ta="center"
+              fz={"h4"}
+              style={{ zIndex: 3 }}
+              fw={"bolder"}
+              mb={"auto"}
+            >
               B
-            </Title>
+            </Text>
 
             <Text
-              m={"auto"}
               size="sm"
               ta="center"
               style={{
@@ -358,6 +389,23 @@ const BalanceDetailTemplate = () => {
             >
               {data?.choiceB}
             </Text>
+            {(ended || isSelect.current) && (
+              <Text
+                size="md"
+                pos={"absolute"}
+                ta="center"
+                top={"50%"}
+                left={"50%"}
+                fw={"bolder"}
+                fz={"h3"}
+                c={"black"}
+                style={{
+                  transform: "translate(-50%, -50%)", // 정확히 중앙에 위치시키기 위한 트릭
+                }}
+              >
+                {count.b}명이 선택했습니다.
+              </Text>
+            )}
           </Card>
         </Stack>
         {ended && (

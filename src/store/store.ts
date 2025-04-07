@@ -89,3 +89,50 @@ export const useUserStore = create<UserStore>()(
     }
   )
 );
+
+type GuestVote = {
+  questionId: string;
+  choiceType: "A" | "B";
+};
+
+interface GuestStore {
+  votes: GuestVote[];
+  addVote: (vote: GuestVote) => void;
+  hasVoted: (questionId: string) => boolean;
+  getVoteChoice: (questionId: string) => "A" | "B" | null;
+  resetVotes: () => void;
+}
+
+export const useGuestStore = create<GuestStore>()(
+  persist(
+    (set, get) => ({
+      votes: [],
+
+      addVote: (vote: GuestVote) => {
+        const existing = get().votes.find(
+          (v) => v.questionId === vote.questionId
+        );
+        const updatedVotes = existing
+          ? get().votes.map((v) =>
+              v.questionId === vote.questionId ? vote : v
+            )
+          : [...get().votes, vote];
+
+        set({ votes: updatedVotes });
+      },
+
+      hasVoted: (questionId: string) =>
+        get().votes.some((v) => v.questionId === questionId),
+
+      getVoteChoice: (questionId: string) => {
+        const found = get().votes.find((v) => v.questionId === questionId);
+        return found ? found.choiceType : null;
+      },
+
+      resetVotes: () => set({ votes: [] }),
+    }),
+    {
+      name: "guest-votes-storage", // localStorage key
+    }
+  )
+);

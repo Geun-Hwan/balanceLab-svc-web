@@ -1,6 +1,6 @@
 import { QuestionStatusCd } from "@/constants/ServiceConstants";
 import { IQuestionResult } from "@/service/questionApi";
-import { useUserStore } from "@/store/store";
+import { useGuestStore, useUserStore } from "@/store/store";
 import { Badge, Box, Button, Card, Flex, Text } from "@mantine/core";
 import dayjs from "dayjs";
 import React from "react";
@@ -11,6 +11,7 @@ const BalanceCard = React.memo(
   ({ data, isBlur = false }: { data?: IQuestionResult; isBlur?: boolean }) => {
     const navigate = useNavigate();
     // const { showAlert } = useAlertStore();
+    const { hasVoted } = useGuestStore();
 
     const { isLogin } = useUserStore();
     const handleClick = (
@@ -36,6 +37,11 @@ const BalanceCard = React.memo(
       endDate ? dayjs(endDate).format("YYYY-MM-DD") : null,
     ];
 
+    const isGuest = !isLogin;
+    const isParticipated = isGuest
+      ? hasVoted(questionId ?? "")
+      : participation === true;
+
     return (
       <Card
         shadow="sm"
@@ -44,20 +50,18 @@ const BalanceCard = React.memo(
         mb={20}
         withBorder
         variant="light"
-        h={220}
-        mah={220}
+        h={240}
         p="md"
         style={{ flexDirection: "column", justifyContent: "space-between" }}
         className={isBlur ? "no-drag blur" : "no-drag"}
       >
         {/* <Flex direction="column" h="100%" mb={"md"}> */}
         <Text
-          h={100}
           mih={100}
           size="xl"
           ta="center"
+          fw={900}
           style={{
-            fontWeight: "900",
             wordBreak: "break-word",
           }}
           lineClamp={3}
@@ -66,18 +70,18 @@ const BalanceCard = React.memo(
         </Text>
 
         {/* 참여 여부 및 포인트 */}
-        <Box>
+        <Box mt={"sm"}>
           <Flex justify={"space-between"} align={"center"}>
             <Text size="sm">
               {!formattedStartDate && !formattedEndDate
                 ? "기간 제한없음"
                 : `${formattedStartDate} ~ ${formattedEndDate}`}
             </Text>
-            {isLogin && (
-              <Badge color={participation ? "cyan" : "yellow"}>
-                {participation ? "획득완료" : "미참여"}
+            {
+              <Badge color={isParticipated ? "cyan" : "yellow"}>
+                {isParticipated ? "참여완료" : "미참여"}
               </Badge>
-            )}{" "}
+            }{" "}
           </Flex>
 
           <Button
@@ -87,7 +91,9 @@ const BalanceCard = React.memo(
               questionStatusCd === QuestionStatusCd.END ? "default" : "filled"
             }
             value={questionId}
-            color={participation ? "cyan" : "yellow"}
+            color={
+              questionStatusCd === QuestionStatusCd.END ? "cyan" : "yellow"
+            }
             onClick={handleClick}
           >
             {questionStatusCd === QuestionStatusCd.END

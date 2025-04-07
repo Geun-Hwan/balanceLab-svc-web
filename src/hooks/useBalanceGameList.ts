@@ -1,11 +1,7 @@
-import { getQuestionList } from "@/service/publicApi";
-import {
-  getQuestionKey,
-  IQuestionResult,
-  PageResponse,
-} from "@/service/questionApi";
+import { MAX_PAGE_FOR_GUEST } from "@/constants/ServiceConstants";
+import { getQuestionList, PageResponse } from "@/service/publicApi";
+import { getQuestionKey, IQuestionResult } from "@/service/questionApi";
 import { useAlertStore } from "@/store/store";
-import { getAccessToken } from "@/utils/cookieUtil";
 import {
   FetchNextPageOptions,
   InfiniteData,
@@ -54,8 +50,6 @@ export interface IUseBalanceGame {
   defaultValue?: FilterType;
 }
 
-const MAX_PAGE_FOR_GUEST = 3;
-
 export const useBalanceGameList = (
   isLogin: boolean,
   pageSize: number = 18
@@ -94,7 +88,7 @@ export const useBalanceGameList = (
     queryFn: ({ pageParam }) =>
       getQuestionList({
         page: pageParam,
-        pageSize: isLogin ? pageSize : 9,
+        pageSize: isLogin ? pageSize : 12,
         search: memoParams.search || "", // null인 경우 빈 문자열로 처리
         categories: memoParams.categories || "", // null인 경우 빈 문자열로 처리
         startDate:
@@ -106,6 +100,7 @@ export const useBalanceGameList = (
     initialPageParam: 0,
 
     getNextPageParam: (lastPage, _allPages) => {
+      console.log("lastPage", lastPage);
       if (!lastPage.last) {
         const nextPage = lastPage.number + 1;
         if (!isLogin && nextPage >= MAX_PAGE_FOR_GUEST) {

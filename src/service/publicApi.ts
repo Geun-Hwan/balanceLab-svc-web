@@ -1,20 +1,28 @@
 import { instance } from "@/service/api";
-import {
-  IQuestionResult,
-  PageResponse,
-  QuestionRequestType,
-} from "./questionApi";
+import { IQuestionResult, QuestionRequestType } from "./questionApi";
 import { SelectionCreateType } from "./selectionApi";
+import { IPredictResult, PredictRequestType } from "./predictApi";
 
 const PRE_FIX = "/public";
 
 const RANK = "/rank";
 
+export interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+  last: boolean;
+}
+
 export type RankType = "daily" | "weekly" | "monthly";
 
-export const getPublicQuestionList = async (): Promise<IQuestionResult[]> => {
+export const getPublicPredictList = async (
+  param: PredictRequestType
+): Promise<PageResponse<IPredictResult>> => {
   return instance
-    .get<IQuestionResult[]>(PRE_FIX + "/question")
+    .get<PageResponse<IPredictResult>>(PRE_FIX + "/predict", param)
     .then((res) => res.data.data);
 };
 

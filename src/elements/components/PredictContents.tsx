@@ -1,54 +1,80 @@
-import { useDesktopHeader } from "@/context/headerContext";
+import { MAX_PAGE_FOR_GUEST } from "@/constants/ServiceConstants";
 import useContentType from "@/hooks/useContentType";
+import { getPredictionKey } from "@/service/predictApi";
+import { getPublicPredictList } from "@/service/publicApi";
 import { useUserStore } from "@/store/store";
 import DummyComponent from "@cmp/DummyComponent";
-import PredictCard from "@cmp/PredictCard";
 import { Box, Flex, Loader, SimpleGrid } from "@mantine/core";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-
-const mockGames = [
-  {
-    id: 1,
-    title: "2026년 월드컵 우승국가는?",
-    status: "진행중",
-    choiceA: "브라질",
-    choiceB: "프랑스",
-    percentageA: 60,
-    percentageB: 40,
-    pointsA: 600,
-    pointsB: 400,
-  },
-  {
-    id: 2,
-    title: "2024년 마감 기준 비트코인 가격",
-    status: "종료됨",
-    choiceA: "100000$ up",
-    choiceB: "100000$ down",
-    percentageA: 10,
-    percentageB: 90,
-    pointsA: 100,
-    pointsB: 450,
-  },
-  {
-    id: 3,
-    title: "2025년 가장 많이 팔린 자동차 브랜드는?",
-    status: "진행중",
-    choiceA: "현대",
-    choiceB: "테슬라",
-    percentageA: 70,
-    percentageB: 30,
-    pointsA: 700,
-    pointsB: 300,
-  },
-];
+import PredictCard from "./PredictCard";
 
 const PredictContents = () => {
-  const isDesktopHeader = useDesktopHeader();
-  const [colSize, setColsize] = useState(3);
-  const [loading, setLoading] = useState(false);
   const { isLogin } = useUserStore();
   const { isExtra, isMidium, isSmall } = useContentType();
+
+  const {
+    data,
+    isLoading,
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+  } = useInfiniteQuery({
+    queryKey: getPredictionKey(),
+    queryFn: ({ pageParam }) =>
+      getPublicPredictList({
+        page: pageParam,
+        pageSize: isLogin ? 18 : 9,
+      }),
+    initialPageParam: 0,
+
+    getNextPageParam: (lastPage, _allPages) => {
+      if (!lastPage?.last) {
+        const nextPage = lastPage.number + 1;
+        if (!isLogin && nextPage >= MAX_PAGE_FOR_GUEST) {
+          return undefined;
+        }
+        return nextPage;
+      }
+
+      return undefined;
+    },
+  });
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+
   const observerRef = useRef<HTMLDivElement | null>(null);
+
+  const [colSize, setColsize] = useState(0);
+
+  // ✅ IntersectionObserver를 사용한 자동 로딩
+  useEffect(() => {
+    if (isFetchingNextPage) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          if (fetchNextPage) {
+            fetchNextPage();
+          }
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    if (!isLoading) {
+      if (isInitialLoading) {
+        setIsInitialLoading(false);
+      }
+    }
+    if (!observerRef.current) return;
+    const currentRef = observerRef.current; // ref 값을 변수에 저장
+
+    observer.observe(currentRef);
+
+    return () => {
+      if (currentRef) observer.unobserve(currentRef);
+    };
+  }, [isFetchingNextPage, hasNextPage, fetchNextPage, isLoading]);
 
   useEffect(() => {
     if (isExtra) {
@@ -63,30 +89,26 @@ const PredictContents = () => {
     }
   }, [isSmall, isMidium, isExtra]);
 
-  useEffect(() => {
-    setLoading(true);
-
-    setTimeout(() => {
-      setLoading(false);
-    }, 1500);
-  }, []);
-
   return (
     <Flex w={"100%"} direction={"column"}>
       <Box mt={"xl"}>
-        {loading ? (
+        {isInitialLoading ? (
           <DummyComponent cols={colSize} type="predict" isLoading={true} />
         ) : (
           <SimpleGrid cols={colSize} spacing={50}>
-            {mockGames.map((game, i) => {
-              return <PredictCard data={game} key={i} />;
-            })}
+            {data?.pages?.map((page) =>
+              page.content.map((item) => (
+                <PredictCard key={item.predictId} data={item} />
+              ))
+            )}
           </SimpleGrid>
         )}
       </Box>
       <Box ref={observerRef} bg={"transparent"} h={30} />
 
-      <Flex justify={"center"}>{false && <Loader size={"xl"} />}</Flex>
+      <Flex justify={"center"}>
+        {isFetchingNextPage && <Loader size={"xl"} />}
+      </Flex>
     </Flex>
   );
 };

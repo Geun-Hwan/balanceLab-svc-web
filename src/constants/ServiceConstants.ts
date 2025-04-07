@@ -28,4 +28,7 @@ export enum QuestionStatusCd {
   PROGRESS = "20000001",
   END = "20000002",
   WAITING = "20000003",
+  COMPLETE = "20000004",
 }
+
+export const MAX_PAGE_FOR_GUEST = 3;

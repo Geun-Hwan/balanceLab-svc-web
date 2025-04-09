@@ -12,7 +12,7 @@ import { useBalanceGameList } from "@/hooks/useBalanceGameList";
 import useContentType from "@/hooks/useContentType";
 import { useUserStore } from "@/store/store";
 import { modals } from "@mantine/modals";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BalanceCard from "./BalanceCard";
 import DummyComponent from "./DummyComponent";
@@ -39,38 +39,34 @@ const BalanceGameContent = () => {
   } = useBalanceGameList(isLogin, 18);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-  const observerRef = useRef<HTMLDivElement | null>(null);
-
   const [colSize, setColsize] = useState(0);
 
   // ✅ IntersectionObserver를 사용한 자동 로딩
+
   useEffect(() => {
-    if (isFetchingNextPage) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-          if (fetchNextPage) {
-            fetchNextPage();
-          }
-        }
-      },
-      { threshold: 0.5 }
-    );
-
-    if (!isLoading) {
-      if (isInitialLoading) {
-        setIsInitialLoading(false);
-      }
+    if (!isLoading && isInitialLoading) {
+      setIsInitialLoading(false); // 데이터 한번 불러오면 false
     }
-    if (!observerRef.current) return;
-    const currentRef = observerRef.current; // ref 값을 변수에 저장
+  }, [isLoading, isInitialLoading]);
 
-    observer.observe(currentRef);
+  const setObserverRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (!node) return; // 초기 null 처리 (unmount 등)
 
-    return () => {
-      if (currentRef) observer.unobserve(currentRef);
-    };
-  }, [isFetchingNextPage, hasNextPage, fetchNextPage, isLoading]);
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage)
+            if (fetchNextPage) {
+              fetchNextPage();
+            }
+        },
+        { threshold: 0.5 }
+      );
+
+      observer.observe(node);
+    },
+    [hasNextPage, isFetchingNextPage, fetchNextPage]
+  );
 
   useEffect(() => {
     if (isExtra) {
@@ -94,7 +90,6 @@ const BalanceGameContent = () => {
         children: <Text>로그인 후에 이용 가능합니다.</Text>,
         labels: { confirm: "로그인하기", cancel: "취소" },
         onConfirm: () => navigate("/login"),
-        lockScroll: false,
       });
       if (setFilters) {
         if (defaultValue) {
@@ -154,7 +149,7 @@ const BalanceGameContent = () => {
           </SimpleGrid>
         )}
       </Box>
-      <Box ref={observerRef} bg={"transparent"} h={30} />
+      <Box ref={setObserverRef} bg={"transparent"} h={30} />
 
       <Flex justify={"center"}>
         {isFetchingNextPage && <Loader size={"xl"} />}

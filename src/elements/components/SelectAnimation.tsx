@@ -1,7 +1,13 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
-const SelectAnimation = ({ isSelect, percent, color, duration = 1 }: any) => {
+const SelectAnimation = ({
+  isSelect,
+  percent,
+  color,
+  duration = 1,
+  children,
+}: any) => {
   const [isAnimate, setIsAnimate] = useState(false);
 
   useEffect(() => {
@@ -18,6 +24,7 @@ const SelectAnimation = ({ isSelect, percent, color, duration = 1 }: any) => {
       animate={{ width: isAnimate ? `${percent}%` : 0 }}
       transition={{ duration, ease: "easeInOut" }} // 애니메이션 지속 시간
       style={{
+        opacity: 0.8,
         backgroundColor: color,
         height: "100%",
         position: "absolute",

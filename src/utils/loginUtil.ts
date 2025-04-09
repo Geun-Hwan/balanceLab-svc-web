@@ -22,20 +22,15 @@ export const handleLoginSuccess = (
   useGuestStore.getState().resetVotes();
   if (callback) {
     callback();
-  } else {
-    window.location.replace("/");
   }
 };
 
 export const handleLogoutCallback = (callback?: () => void) => {
   const { resetStore } = useUserStore.getState();
-  resetStore();
-
   removeCookie(ACCEES_TOKEN);
 
   if (callback) {
     callback();
-  } else {
-    window.location.replace("/");
   }
+  resetStore();
 };

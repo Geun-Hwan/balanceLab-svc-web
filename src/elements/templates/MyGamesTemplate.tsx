@@ -1,12 +1,8 @@
-import {
-  CATEGORIES,
-  CategoryValue,
-  QuestionStatusCd,
-} from "@/constants/ServiceConstants";
+import { QuestionStatusCd } from "@/constants/ServiceConstants";
 import Content from "@/layout/Content";
-import { useUserStore } from "@/store/store";
 import BalancePointAcumList from "@cmp/BalancePointAcumList";
 import PredictCreateModal from "@cmp/PredictCreateModal";
+import PredictParticipationList from "@cmp/PredictParticipationList";
 import PredictRgstrList from "@cmp/PredictRgstrList";
 import {
   ActionIcon,
@@ -37,7 +33,6 @@ import { ReactNode, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import BalanceCreateModal from "../components/BalanceCreateModal";
 import BalanceRgstrList from "../components/BalanceRgstrList";
-import PredictParticipationList from "@cmp/PredictParticipationList";
 
 const validTabs = {
   myRgstrBalance: "#my-rgstr-balance",
@@ -208,7 +203,7 @@ MyGamesTemplate.CardHeaderSection = ({
 
   return (
     <Card.Section p="md" withBorder>
-      <Group justify="space-between">
+      <Group justify="space-between" mih={30}>
         <Group>
           {delYn && <Badge color="red">삭제됨</Badge>}
           {statusMap[statusCd]}

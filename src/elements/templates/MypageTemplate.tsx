@@ -360,7 +360,6 @@ const WithdrawConfirmModal = () => {
           </Text>
         </Stack>
       ),
-      lockScroll: false,
       labels: { confirm: "탈퇴하기", cancel: "취소" },
       confirmProps: { color: "red" },
       onConfirm: () => withdraw(),

@@ -3,20 +3,28 @@ import {
   getPredictionKey,
   getPredictParticipationList,
   IPredictResult,
+  removePredictParticipation,
 } from "@/service/predictApi";
-import { useUserStore } from "@/store/store";
+import { useAlertStore, useUserStore } from "@/store/store";
 import { Box, Card, Flex, Loader, Stack, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { MyGamesTemplate } from "@tmp";
 import dayjs from "dayjs";
 import React, { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import PredictBetMadal from "./PredictBetMadal";
+import { modals } from "@mantine/modals";
 
 const PredictParticipationList = () => {
-  const { isLogin } = useUserStore();
+  const { isLogin, userData } = useUserStore();
+  const { showAlert } = useAlertStore();
 
+  const qc = useQueryClient();
   const [modalData, setModalData] = useState<IPredictResult | undefined>(
     undefined
   );
@@ -35,6 +43,26 @@ const PredictParticipationList = () => {
       },
       enabled: isLogin,
     });
+
+  const { mutate: remove, isPending } = useMutation({
+    mutationFn: (questionId: string) => removePredictParticipation(questionId),
+    onMutate: () => {},
+    onSuccess: (data) => {
+      if (data > 0) {
+        qc.invalidateQueries({
+          queryKey: getPredictionKey({ isParticipation: true }),
+        });
+        showAlert("성공적으로 삭제되었습니다.", "success");
+      } else {
+        showAlert("삭제 가능한 기간이 아닙니다.", "warning");
+      }
+    },
+    onError: () => {
+      showAlert("오류가 발생했습니다.\n잠시후 다시 시도해주세요.", "error");
+
+      // 에러 처리 (로그 등)
+    },
+  });
 
   const [opened, { open, close }] = useDisclosure(false);
 
@@ -77,6 +105,24 @@ const PredictParticipationList = () => {
     return <MyGamesTemplate.Nodata text="예측 내역이 존재하지 않습니다." />;
   }
 
+  const handleDelete =
+    userData?.userId === "SYSTEM"
+      ? (data: IPredictResult) => {
+          modals.openConfirmModal({
+            title: "게임 삭제",
+            centered: true,
+            children: (
+              <Text>
+                삭제된 항목은 복구할 수 없습니다. 계속 진행하시겠습니까?
+              </Text>
+            ),
+            labels: { confirm: "삭제", cancel: "취소" },
+            confirmProps: { color: "red", disabled: isPending },
+            onConfirm: () => remove(data.predictId),
+          });
+        }
+      : undefined;
+
   return (
     <Stack w={"100%"}>
       {data?.pages.map((page, pageIndex) => (
@@ -118,6 +164,7 @@ const PredictParticipationList = () => {
                 id={predict.predictId}
                 data={predict}
                 onView={handleView}
+                onDelete={handleDelete}
                 leftSlot={
                   <PredictParticipationList.TimeForamt item={predict} />
                 }

@@ -16,11 +16,12 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import { AxiosResponse } from "axios";
 import { ChangeEvent, useEffect, useState } from "react";
-import { Form } from "react-router-dom";
+import { Form, useNavigate } from "react-router-dom";
 
 const JointTemplate = () => {
   const { showAlert } = useAlertStore();
   const { isLogin } = useUserStore();
+  const navigate = useNavigate();
 
   const { mutate: idCheckMutate, isPending: idPending } = useMutation({
     mutationFn: (params: string) => idDuplicationCheck(params),
@@ -104,9 +105,11 @@ const JointTemplate = () => {
 
     onSuccess: (data) => {
       if (!isLogin) {
-        handleLoginSuccess(data);
+        handleLoginSuccess(data, () => {
+          navigate("/");
+          showAlert("가입이 완료되었습니다.", "success");
+        });
       }
-      showAlert("가입이 완료되었습니다.", "success");
     },
     onError: (res: AxiosResponse) => {
       showAlert(res?.data?.message, "error");

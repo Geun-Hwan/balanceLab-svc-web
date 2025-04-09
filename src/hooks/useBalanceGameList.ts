@@ -61,20 +61,22 @@ export const useBalanceGameList = (
 
   const { showAlert } = useAlertStore();
 
-  const defaultValue = {
-    search: "",
-    categories: [],
-    startDate: dayjs().subtract(1, "month"),
-    endDate: dayjs(),
-    showEnded: false,
-  };
-
-  const [filters, setFilters] = useState<FilterType>(defaultValue);
-
   const memoParams = useMemo(
     () => searchParamsToObject(searchParams),
     [searchParams]
   );
+  const defaultValue = {
+    search: memoParams.search || "", // null인 경우 빈 문자열로 처리
+    categories:
+      (memoParams.categories && memoParams.categories.split(",")) || [], // null인 경우 빈 문자열로 처리
+    startDate:
+      (memoParams.startDate && dayjs(memoParams.startDate)) ||
+      dayjs().subtract(1, "month"),
+    endDate: (memoParams.endDate && dayjs(memoParams.endDate)) || dayjs(),
+    showEnded: memoParams.showEnded === "true",
+  };
+
+  const [filters, setFilters] = useState<FilterType>(defaultValue);
 
   const {
     data,

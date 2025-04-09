@@ -38,7 +38,6 @@ const PcBalanceGameSearchArea = ({
               miw={150}
               onChange={(v: any) => handleDateChange(v, "startDate")}
               locale="ko"
-              modalProps={{ lockScroll: false }}
             />
             <Text>~</Text>
             <DatePickerInput
@@ -51,7 +50,6 @@ const PcBalanceGameSearchArea = ({
               value={filters.endDate.toDate()}
               onChange={(v: any) => handleDateChange(v, "endDate")}
               locale="ko"
-              modalProps={{ lockScroll: false }}
             />
             <Checkbox
               flex={1}

@@ -7,6 +7,9 @@ import { logout, republish } from "./authApi";
 
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
+let isRefreshing = false; // 토큰 갱신 상태 추적
+let failedQueue: Array<(data?: any) => any> = []; // 실패한 요청들을 저장하는 큐
+let isLoggingOut = false;
 const axiosInstance = axios.create({
   baseURL: apiUrl,
   withCredentials: false,
@@ -39,39 +42,68 @@ axiosInstance.interceptors.response.use(
     const { showAlert } = useAlertStore.getState();
 
     if (errorCode === AUTH_ERROR.ACCESS_TOKEN_EXPIRED) {
-      try {
-        const newToken = await republish();
+      const originalRequest = error.config;
 
-        setAccessToken(newToken);
+      if (!isRefreshing) {
+        isRefreshing = true;
+        try {
+          const newToken = await republish();
 
-        error.config.headers["Authorization"] = `Bearer ${newToken}`;
+          setAccessToken(newToken);
 
-        return axiosInstance.request(error.config);
+          originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
+          failedQueue.forEach((callback) => callback(newToken));
+          failedQueue = [];
+          return axiosInstance.request(originalRequest);
 
-        // 예: 토큰 만료 시 로그아웃 처리
-      } catch (refreshError: any) {
-        await logout();
-        handleLogoutCallback(() => {
-          const message = refreshError.response?.data?.message;
-          if (message) {
-            localStorage.setItem("showPopup", message);
-          }
-          window.location.replace("/");
+          // 예: 토큰 만료 시 로그아웃 처리
+        } catch (response: any) {
+          isLoggingOut = true;
+          await logout();
+          failedQueue = []; // 큐 초기화
+
+          handleLogoutCallback(() => {
+            const message = response?.data?.message;
+            if (message) {
+              localStorage.setItem("showPopup", message);
+            }
+            window.location.replace("/");
+          });
+          return Promise.reject(response);
+        } finally {
+          isRefreshing = false; // 갱신 완료
+          isLoggingOut = false;
+        }
+      } else {
+        return new Promise((resolve) => {
+          failedQueue.push((newToken) => {
+            originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
+            resolve(axiosInstance.request(originalRequest));
+          });
         });
-        return Promise.reject(refreshError);
       }
     }
 
-    if (errorCode === AUTH_ERROR.SESSION_EXPIRED) {
-      await logout();
+    if (
+      errorCode === AUTH_ERROR.SESSION_EXPIRED &&
+      !isLoggingOut &&
+      !isRefreshing
+    ) {
+      isLoggingOut = true;
 
-      handleLogoutCallback(() => {
-        const message = error.response?.data?.message;
-        if (message) {
-          localStorage.setItem("showPopup", message);
-        }
-        window.location.replace("/");
-      });
+      try {
+        await logout(); // 로그아웃 처리
+
+        handleLogoutCallback(() => {
+          const message = error.response?.data?.message;
+          if (message) {
+            localStorage.setItem("showPopup", message); // 팝업 메시지 저장
+          }
+          window.location.replace("/"); // 홈 페이지로 리다이렉트
+        });
+      } finally {
+        isLoggingOut = false; // 로그아웃 처리 완료 후 플래그 리셋
+      }
 
       return Promise.reject(
         error.response as AxiosResponse<IAPI_RESPONSE<any>>

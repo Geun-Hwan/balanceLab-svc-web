@@ -178,7 +178,7 @@ const PredictCreateModal = ({
 
     modals.openConfirmModal({
       modalId: "create_confirm",
-      lockScroll: false,
+
       centered: true,
       title: "알림",
 

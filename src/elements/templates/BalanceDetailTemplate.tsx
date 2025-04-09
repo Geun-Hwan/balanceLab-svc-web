@@ -11,6 +11,7 @@ import {
 import {
   Box,
   Card,
+  Flex,
   Group,
   Image,
   Skeleton,
@@ -151,7 +152,6 @@ const BalanceDetailTemplate = () => {
       ),
       labels: { confirm: `선택하기`, cancel: "취소" },
       closeOnConfirm: true,
-      lockScroll: false,
       onConfirm: () => {
         // 확인 버튼 클릭 후 처리할 내용
         // 예를 들어, 아무 작업도 하지 않거나 상태를 리셋하는 등 추가적인 로직을 넣을 수 있음
@@ -291,6 +291,7 @@ const BalanceDetailTemplate = () => {
             component="button"
             h={100}
             style={{
+              justifyContent: "center",
               cursor:
                 data?.questionStatusCd === QuestionStatusCd.END
                   ? "not-allowed"
@@ -303,20 +304,23 @@ const BalanceDetailTemplate = () => {
             w={"100%"}
             id={"A"}
             disabled={ended || isSelect.current}
-            pos={"relative"}
+            p={0}
           >
             <SelectAnimation
               isSelect={isSelect.current || ended}
               percent={getPercent(count.a)}
-              color={ended ? "gray" : selectedOption === "A" ? "cyan" : "gray"}
+              color={ended ? "gray" : selectedOption === "A" ? "teal" : "gray"}
             />
+
             <Text
               ta="center"
               fz={"h4"}
               style={{ zIndex: 3 }}
               fw={"bolder"}
-              mb={"auto"}
-              mx={"auto"}
+              pos={"absolute"}
+              top={"0%"}
+              pt={5}
+              w={"100%"}
             >
               A
             </Text>
@@ -324,11 +328,14 @@ const BalanceDetailTemplate = () => {
             <Text
               size="sm"
               ta="center"
+              my={"xs"}
               style={{
-                fontWeight: "600",
                 wordBreak: "break-word",
+                fontWeight: "600",
+
                 zIndex: 3,
               }}
+              w={"100%"}
               lineClamp={2}
             >
               {language === "ko"
@@ -337,16 +344,16 @@ const BalanceDetailTemplate = () => {
             </Text>
             {(ended || isSelect.current) && (
               <Text
+                w={"100%"}
                 size="md"
                 pos={"absolute"}
                 ta="center"
-                top={"50%"}
-                left={"50%"}
                 fw={"bolder"}
-                fz={"h3"}
-                c={"black"}
+                fz={"xl"}
+                bottom={"0%"}
+                c={"dark"}
                 style={{
-                  transform: "translate(-50%, -50%)", // 정확히 중앙에 위치시키기 위한 트릭
+                  zIndex: 1,
                 }}
               >
                 {count.a}명이 선택했습니다.
@@ -359,6 +366,7 @@ const BalanceDetailTemplate = () => {
             id={"B"}
             h={100}
             style={{
+              justifyContent: "center",
               cursor:
                 data?.questionStatusCd === QuestionStatusCd.END
                   ? "not-allowed"
@@ -370,33 +378,39 @@ const BalanceDetailTemplate = () => {
             disabled={ended || isSelect.current}
             maw={600}
             w={"100%"}
-            pos={"relative"}
+            p={0}
           >
             <SelectAnimation
               isSelect={isSelect.current || ended}
               percent={getPercent(count.b)}
-              color={ended ? "gray" : selectedOption === "B" ? "cyan" : "gray"}
+              color={ended ? "gray" : selectedOption === "B" ? "teal" : "gray"}
             />
+
             <Text
+              pos={"absolute"}
+              w={"100%"}
+              top={"0%"}
               ta="center"
               fz={"h4"}
-              style={{ zIndex: 3 }}
               fw={"bolder"}
-              mb={"auto"}
-              mx={"auto"}
+              pt={5}
+              style={{
+                zIndex: 3,
+              }}
             >
               B
             </Text>
-
             <Text
               size="sm"
               ta="center"
+              my={"xs"}
               style={{
                 wordBreak: "break-word",
                 fontWeight: "600",
 
                 zIndex: 3,
               }}
+              w={"100%"}
               lineClamp={2}
             >
               {language === "ko"
@@ -405,16 +419,15 @@ const BalanceDetailTemplate = () => {
             </Text>
             {(ended || isSelect.current) && (
               <Text
-                size="md"
+                w={"100%"}
                 pos={"absolute"}
-                ta="center"
-                top={"50%"}
-                left={"50%"}
+                bottom={"0%"}
+                size="md"
                 fw={"bolder"}
-                fz={"h3"}
-                c={"black"}
+                fz={"xl"}
+                c={"dark"}
                 style={{
-                  transform: "translate(-50%, -50%)", // 정확히 중앙에 위치시키기 위한 트릭
+                  zIndex: 1,
                 }}
               >
                 {count.b}명이 선택했습니다.
@@ -423,7 +436,7 @@ const BalanceDetailTemplate = () => {
           </Card>
         </Stack>
         {ended && (
-          <Title ta="center" order={1}>
+          <Title ta="center" order={1} mb={"xl"}>
             종료되었습니다.
           </Title>
         )}

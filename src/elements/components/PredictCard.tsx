@@ -69,7 +69,7 @@ const PredictCard = React.memo(
             <Flex direction="row" justify="space-between">
               <Text>{optionA}</Text>
               <Text fw={"bold"}>
-                {!isBlur ? `${calculatePercentage(data, countB)}%` : "N/A"}
+                {!isBlur ? `${calculatePercentage(data, countA)}%` : "N/A"}
               </Text>
             </Flex>
             <Flex direction="row" justify="space-between">

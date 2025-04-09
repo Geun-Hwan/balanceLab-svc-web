@@ -103,3 +103,20 @@ export const removePredict = async (predictId: string): Promise<number> => {
     .delete<number>(PRE_FIX + `/${predictId}`)
     .then((res) => res.data.data);
 };
+
+export const modifyPredictTotal = async (param: {
+  winner: "A" | "B" | "C";
+  predictId: string;
+}): Promise<number> => {
+  return instance
+    .put<number>(PRE_FIX + "/result", param)
+    .then((res) => res.data.data);
+};
+
+export const removePredictParticipation = async (
+  predictId: string
+): Promise<number> => {
+  return instance
+    .delete<number>(PRE_FIX + `/participation/${predictId}`)
+    .then((res) => res.data.data);
+};

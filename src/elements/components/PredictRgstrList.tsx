@@ -7,15 +7,16 @@ import {
 } from "@/service/predictApi";
 import { getQuestionKey } from "@/service/questionApi";
 import { useAlertStore, useUserStore } from "@/store/store";
+import { calculatePercentage } from "@/utils/predict";
 import {
   Box,
   Card,
   Flex,
+  Group,
   Loader,
   Progress,
   Stack,
   Text,
-  Title,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { modals } from "@mantine/modals";
@@ -24,20 +25,24 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
+import { MyGamesTemplate } from "@tmp";
 import dayjs from "dayjs";
 import React, { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import PredictCreateModal from "./PredictCreateModal";
-import { MyGamesTemplate } from "@tmp";
-import useContentType from "@/hooks/useContentType";
-import { calculatePercentage } from "@/utils/predict";
+import PredictResultSelectModal from "./PredictResultSelectModal";
+import PredictBetMadal from "./PredictBetMadal";
 const PredictRgstrList = () => {
   const { isLogin } = useUserStore();
   const { showAlert } = useAlertStore();
   const [modalData, setModalData] = useState<IPredictResult | undefined>(
     undefined
   );
+
+  const [viewModalData, setViewModalData] = useState<
+    IPredictResult | undefined
+  >(undefined);
   const qc = useQueryClient();
   const navigate = useNavigate();
 
@@ -74,6 +79,20 @@ const PredictRgstrList = () => {
     },
   });
   const [opened, { open, close }] = useDisclosure(false);
+
+  const [viewOpened, { open: viewOpen, close: viewClose }] =
+    useDisclosure(false);
+
+  const handleViewClose = () => {
+    setViewModalData(undefined);
+    viewClose();
+  };
+  const handleView = (data: IPredictResult) => {
+    flushSync(() => {
+      setViewModalData(data); // 상태 업데이트를 동기적으로 처리
+      viewOpen();
+    });
+  };
 
   const observerRef = useRef(null);
 
@@ -150,7 +169,6 @@ const PredictRgstrList = () => {
       labels: { confirm: "삭제", cancel: "취소" },
       confirmProps: { color: "red", disabled: isPending },
       onConfirm: () => remove(predictId),
-      lockScroll: false,
     });
   };
 
@@ -168,18 +186,20 @@ const PredictRgstrList = () => {
               shadow="sm"
               withBorder
               w={"100%"}
-              mih={400}
-              mah={400}
+              mih={420}
             >
               <MyGamesTemplate.CardHeaderSection
                 statusCd={predcit.questionStatusCd}
                 delYn={predcit.delYn}
               >
-                {predcit.winner && (
-                  <Text fz="sm" fw={"bolder"}>
-                    예측결과 :{predcit.winner}
-                  </Text>
-                )}
+                <Group mah={"100$"}>
+                  <PredictResultSelectModal data={predcit} />
+                  {predcit.winner && (
+                    <Text fz="sm" fw={"bolder"}>
+                      예측결과 :{predcit.winner}
+                    </Text>
+                  )}
+                </Group>
               </MyGamesTemplate.CardHeaderSection>
 
               <Text
@@ -199,6 +219,7 @@ const PredictRgstrList = () => {
                 data={predcit}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                onView={handleView}
                 leftSlot={<PredictRgstrList.TimeForamt item={predcit} />}
               />
             </Card>
@@ -216,8 +237,15 @@ const PredictRgstrList = () => {
         <PredictCreateModal
           opened={opened}
           close={handleClose}
-          data={modalData}
+          data={modalData as IPredictResult}
           isModify={true}
+        />
+      )}
+      {viewOpened && (
+        <PredictBetMadal
+          opened={viewOpened}
+          close={handleViewClose}
+          data={viewModalData as IPredictResult}
         />
       )}
     </Stack>
@@ -274,7 +302,7 @@ PredictRgstrList.Content = ({ item }: { item: IPredictResult }) => {
   } = item;
 
   return (
-    <Flex direction={"column"} my={"auto"} gap={3}>
+    <Flex direction={"column"} my={"auto"} gap={optionC ? 3 : "lg"}>
       <OptionProgress
         key={`${predictId}_A`}
         label={optionA}

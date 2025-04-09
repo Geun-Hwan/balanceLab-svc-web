@@ -22,7 +22,7 @@ const BalanceCreateModal = ({
   close,
   isModify = false,
 }: {
-  data?: IQuestionResult | null;
+  data?: IQuestionResult;
   opened: boolean;
   close: () => void;
   isModify?: boolean;
@@ -185,7 +185,7 @@ const BalanceCreateModal = ({
 
     modals.openConfirmModal({
       modalId: "create_confirm",
-      lockScroll: false,
+
       centered: true,
       title: "알림",
 

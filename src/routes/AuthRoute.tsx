@@ -8,12 +8,12 @@ const AuthRoute = () => {
   const { showAlert, alertVisible } = useAlertStore();
 
   useEffect(() => {
-    if (!isLogin) {
+    if (!isLogin && !alertVisible && !localStorage.getItem("showPopup")) {
       showAlert("로그인이 필요한 화면입니다.", "info");
     }
   }, []);
 
-  if (!isLogin && !alertVisible) {
+  if (!isLogin && !alertVisible && !localStorage.getItem("showPopup")) {
     return <Navigate to="/login" replace />;
   }
 

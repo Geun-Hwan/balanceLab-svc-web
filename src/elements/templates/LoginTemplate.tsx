@@ -138,8 +138,8 @@ const LoginTemplate = () => {
           />
         </Form>
 
-        <Stack justify="flex-end" flex={1} gap={"md"}>
-          <Flex gap={"sm"}>
+        <Stack justify="flex-end" my={"auto"} flex={1} gap={"md"}>
+          <Flex gap={"sm"} align={"center"}>
             <Checkbox checked={idSaveCheck} onChange={handleCheckId} />
             아이디 저장
           </Flex>

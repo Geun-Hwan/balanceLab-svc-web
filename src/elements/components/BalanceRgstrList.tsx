@@ -34,7 +34,7 @@ import SelectAnimation from "./SelectAnimation";
 import { getCategoryName } from "@/utils/balance";
 
 const BalanceRgstrList = () => {
-  const { isLogin } = useUserStore();
+  const { isLogin, userData } = useUserStore();
   const { showAlert } = useAlertStore();
   const [modalData, setModalData] = useState<IQuestionResult | undefined>(
     undefined
@@ -131,9 +131,12 @@ const BalanceRgstrList = () => {
       showAlert("삭제 가능한 기간이 아닙니다.", "warning");
       return;
     }
+
     if (delYn) {
-      showAlert("이미 삭제된 항목입니다.", "warning");
-      return;
+      if (userData?.userId !== "SYSTEM") {
+        showAlert("이미 삭제된 항목입니다.", "warning");
+        return;
+      }
     }
 
     modals.openConfirmModal({
@@ -145,7 +148,6 @@ const BalanceRgstrList = () => {
       labels: { confirm: "삭제", cancel: "취소" },
       confirmProps: { color: "red", disabled: isPending },
       onConfirm: () => remove(questionId),
-      lockScroll: false,
     });
   };
 

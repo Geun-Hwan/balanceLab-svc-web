@@ -40,12 +40,12 @@ const PredictBetMadal = ({
     countA = 0,
     countB = 0,
     countC = 0,
-    choiceType: choice,
-    participation,
+    choiceType: choice = null,
+    participation = false,
     questionStatusCd,
     betPoint: bet,
     winner,
-  } = data;
+  } = data || {};
   const qc = useQueryClient();
   const { userData } = useUserStore();
   const { showAlert } = useAlertStore();
@@ -55,7 +55,7 @@ const PredictBetMadal = ({
   const disabled =
     participation || questionStatusCd !== QuestionStatusCd.PROGRESS;
 
-  const { mutate: createSelect } = useMutation({
+  const { mutate: createSelect, isPending } = useMutation({
     mutationFn: (params: BettingCreateType) => createBetting(params),
 
     onSuccess: () => {
@@ -127,6 +127,7 @@ const PredictBetMadal = ({
 
   return (
     <Modal
+      display={!data ? "none" : undefined}
       opened={opened}
       onClose={close}
       title="예측하기"
@@ -151,10 +152,10 @@ const PredictBetMadal = ({
         readOnly={disabled}
         value={winner || choiceType}
         onChange={setChoiceType}
-        mih={180}
-        display={"flex"}
         style={{ flexDirection: "column", justifyContent: "center" }}
         withAsterisk
+        display={"flex"}
+        mih={250}
       >
         <PredictBetMadal.RadioOption
           value="A"
@@ -209,7 +210,7 @@ const PredictBetMadal = ({
             마감시간
           </Text>
           <Text fw="bolder">
-            {dayjs(data.endDtm).format("YYYY-MM-DD HH:mm")}
+            {dayjs(data?.endDtm).format("YYYY-MM-DD HH:mm")}
           </Text>
         </Group>
       </Group>
@@ -221,11 +222,14 @@ const PredictBetMadal = ({
         disabled={disabled || !choiceType}
         variant="filled"
         color={participation ? "cyan" : "yellow"}
+        loading={isPending}
       >
         {questionStatusCd === QuestionStatusCd.PROGRESS
           ? participation
             ? "참여완료"
             : "참여하기"
+          : questionStatusCd === QuestionStatusCd.WAITING
+          ? "대기중"
           : "종료됨"}
       </Button>
     </Modal>
@@ -271,6 +275,7 @@ PredictBetMadal.RadioOption = ({
         body: { alignItems: "center" },
         labelWrapper: { flex: 1 },
       }}
+      mih={70}
       my={"xs"}
       label={
         <Flex direction="column" gap={5}>

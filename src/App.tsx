@@ -4,7 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { MotionGlobalConfig } from "framer-motion";
 import { useEffect } from "react";
 import { queryClient } from "./service/queryClent";
-import { useUserStore } from "./store/store";
+import { useSettingStore } from "./store/store";
 
 import dayjs from "dayjs";
 import DesktopViewProvider from "./context/DesktopHeaderProvider";
@@ -17,7 +17,7 @@ import "./App.css";
 dayjs.locale("ko");
 
 function App() {
-  const { themeColor, animationEnable } = useUserStore();
+  const { themeColor, animationEnable } = useSettingStore();
 
   useEffect(() => {
     MotionGlobalConfig.skipAnimations = !animationEnable; // 애니메이션 비활성화

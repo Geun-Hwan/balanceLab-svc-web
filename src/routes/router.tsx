@@ -15,7 +15,6 @@ import {
 } from "@tmp";
 import { createBrowserRouter, RouteObject } from "react-router-dom";
 import AuthRoute from "./AuthRoute";
-import PredictDetailTemplate from "@/elements/templates/PredictDetailTemplate";
 
 const routes: RouteObject[] = [
   {
@@ -78,10 +77,6 @@ const routes: RouteObject[] = [
       {
         path: "my-games",
         element: <MyGamesTemplate />,
-      },
-      {
-        path: "predict/:predictId",
-        element: <PredictDetailTemplate />,
       },
     ],
   },

@@ -3,7 +3,7 @@ import {
   dummyType,
   getBalanceDummyData,
   getPredictDummyData,
-} from "@cmp/dummy";
+} from "@/utils/dummy";
 import { SimpleGrid, Skeleton } from "@mantine/core";
 import React, { useMemo } from "react";
 import BalanceCard from "./BalanceCard";
@@ -11,12 +11,12 @@ import PredictCard from "./PredictCard";
 
 const DummyComponent = ({
   cols,
-  spacing = 50,
+  spacing = "xl",
   type = "balance",
   isLoading,
 }: {
   cols: number;
-  spacing?: number;
+  spacing?: number | string;
   type?: dummyType;
   isLoading: boolean;
 }) => {

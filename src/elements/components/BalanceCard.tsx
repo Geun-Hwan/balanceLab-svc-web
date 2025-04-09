@@ -1,6 +1,6 @@
 import { QuestionStatusCd } from "@/constants/ServiceConstants";
 import { IQuestionResult } from "@/service/questionApi";
-import { useGuestStore, useUserStore } from "@/store/store";
+import { useGuestStore, useSettingStore, useUserStore } from "@/store/store";
 import { Badge, Box, Button, Card, Flex, Text } from "@mantine/core";
 import dayjs from "dayjs";
 import React from "react";
@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 const BalanceCard = React.memo(
   ({ data, isBlur = false }: { data?: IQuestionResult; isBlur?: boolean }) => {
     const navigate = useNavigate();
+    const { language } = useSettingStore();
     // const { showAlert } = useAlertStore();
     const { hasVoted } = useGuestStore();
 
@@ -29,6 +30,7 @@ const BalanceCard = React.memo(
       strDate,
       endDate,
       title,
+      enTitle,
       questionId,
       questionStatusCd,
     } = data || {};
@@ -66,7 +68,7 @@ const BalanceCard = React.memo(
           }}
           lineClamp={3}
         >
-          {title}
+          {language === "ko" ? title : enTitle ?? title}
         </Text>
 
         {/* 참여 여부 및 포인트 */}

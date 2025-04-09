@@ -11,7 +11,7 @@ import { Button, Modal, Text, TextInput } from "@mantine/core";
 import { DatePickerInput, DateTimePicker } from "@mantine/dates";
 import { modals } from "@mantine/modals";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -51,9 +51,9 @@ const PredictCreateModal = ({
 
     questionStatusCd: questionStatusCd ?? "20000003",
   });
-  const [dateTime, setDateTime] = useState({
-    strDtm: strDtm ?? today.add(1, "day").startOf("day"),
-    endDtm: endDtm ?? today.add(7, "day").endOf("day"),
+  const [dateTime, setDateTime] = useState<{ strDtm: Dayjs; endDtm: Dayjs }>({
+    strDtm: strDtm ? dayjs(strDtm) : today.add(1, "day").startOf("day"),
+    endDtm: endDtm ? dayjs(endDtm) : today.add(7, "day").endOf("day"),
   });
 
   const resetForm = () => {
@@ -65,8 +65,8 @@ const PredictCreateModal = ({
       questionStatusCd: questionStatusCd ?? "20000003",
     });
     setDateTime({
-      strDtm: strDtm ?? today.add(1, "day").startOf("day"),
-      endDtm: endDtm ?? today.add(7, "day").endOf("day"),
+      strDtm: strDtm ? dayjs(strDtm) : today.add(1, "day").startOf("day"),
+      endDtm: endDtm ? dayjs(endDtm) : today.add(7, "day").endOf("day"),
     });
   };
 
@@ -166,6 +166,16 @@ const PredictCreateModal = ({
       return;
     }
 
+    if (dateTime.strDtm.isBefore(today, "day")) {
+      showAlert("시작일은 오늘 이후로 선택해야 합니다.", "warning");
+      return;
+    }
+
+    if (dateTime.strDtm.isAfter(dateTime.endDtm, "day")) {
+      showAlert("시작일은 종료일보다 이전이어야 합니다.", "warning");
+      return;
+    }
+
     modals.openConfirmModal({
       modalId: "create_confirm",
       lockScroll: false,
@@ -181,6 +191,7 @@ const PredictCreateModal = ({
       onConfirm: () => {
         formData.strDtm = dateTime.strDtm.format("YYYY-MM-DDTHH:mm:ss");
         formData.endDtm = dateTime.endDtm.format("YYYY-MM-DDTHH:mm:ss");
+        formData.usedPoint = calculatePoints;
         if (isModify) {
           formData.predictId = predictId;
           modifyMutate(formData);
@@ -211,11 +222,14 @@ const PredictCreateModal = ({
     name: "strDtm" | "endDtm"
   ) => {
     if (value) {
-      value.setMinutes(0); // 분을 0으로 설정
-      value.setSeconds(0); // 초를 0으로 설정
+      const convertValue =
+        name === "strDtm"
+          ? dayjs(value).startOf("day")
+          : dayjs(value).endOf("day");
+
       setDateTime((prevData) => ({
         ...prevData,
-        [name]: dayjs(value),
+        [name]: convertValue,
       }));
     }
   };
@@ -278,7 +292,7 @@ const PredictCreateModal = ({
       />
       <DatePickerInput
         label="시작 날짜 선택"
-        value={dateTime.strDtm}
+        value={dateTime.strDtm.toDate()}
         onChange={(value) => {
           handleDateTimeChange(value, "strDtm");
         }}
@@ -291,17 +305,17 @@ const PredictCreateModal = ({
       />
       <DatePickerInput
         label="종료 날짜 선택"
-        value={dateTime.endDtm}
+        value={dateTime.endDtm.toDate()}
         onChange={(value) => {
-          handleDateTimeChange(value, "strDtm");
+          handleDateTimeChange(value, "endDtm");
         }}
         valueFormat="YYYY-MM-DD HH:mm"
         required
         mt="md"
         inputWrapperOrder={["label", "input", "description", "error"]}
         description="종료일을 선택해주세요."
-        minDate={dayjs(dateTime.strDtm).add(6, "day").toDate()}
-        maxDate={dayjs(dateTime.strDtm).add(1, "year").toDate()}
+        minDate={dateTime.strDtm.toDate()}
+        maxDate={dateTime.strDtm.add(1, "year").toDate()}
       />
       <Button
         fullWidth

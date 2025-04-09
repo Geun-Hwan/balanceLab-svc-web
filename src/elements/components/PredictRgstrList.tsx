@@ -1,18 +1,16 @@
-import { CATEGORIES, QuestionStatusCd } from "@/constants/ServiceConstants";
+import { QuestionStatusCd } from "@/constants/ServiceConstants";
 import {
-  getMyQuestionList,
-  getQuestionKey,
-  IQuestionResult,
-  removeQuestion,
-} from "@/service/questionApi";
+  getMyPredictionList,
+  getPredictionKey,
+  IPredictResult,
+  removePredict,
+} from "@/service/predictApi";
+import { getQuestionKey } from "@/service/questionApi";
 import { useAlertStore, useUserStore } from "@/store/store";
 import {
-  ActionIcon,
-  Badge,
   Box,
   Card,
   Flex,
-  Group,
   Loader,
   Progress,
   Stack,
@@ -21,32 +19,20 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { modals } from "@mantine/modals";
-import { IconEdit, IconEye, IconTrash } from "@tabler/icons-react";
 import {
   useInfiniteQuery,
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
 import dayjs from "dayjs";
-import React, { ReactNode, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { useNavigate } from "react-router-dom";
-import { JSX } from "react/jsx-runtime";
-import BalanceCreateModal from "./BalanceCreateModal";
-import SelectAnimation from "./SelectAnimation";
-import {
-  getMyPredictionList,
-  getPredictionKey,
-  IPredictResult,
-  removePredict,
-} from "@/service/predictApi";
 import PredictCreateModal from "./PredictCreateModal";
-
-const PredictRgstrList = ({
-  getStatusBadge,
-}: {
-  getStatusBadge: (stusCd: string, predict?: boolean) => any;
-}) => {
+import { MyGamesTemplate } from "@tmp";
+import useContentType from "@/hooks/useContentType";
+import { calculatePercentage } from "@/utils/predict";
+const PredictRgstrList = () => {
   const { isLogin } = useUserStore();
   const { showAlert } = useAlertStore();
   const [modalData, setModalData] = useState<IPredictResult | undefined>(
@@ -115,6 +101,20 @@ const PredictRgstrList = ({
 
   const handleEdit = (predict: IPredictResult) => {
     // 수정 기능 구현
+    const { questionStatusCd, delYn } = predict;
+
+    if (
+      questionStatusCd === QuestionStatusCd.PROGRESS ||
+      questionStatusCd === QuestionStatusCd.END
+    ) {
+      showAlert("수정 가능한 기간이 아닙니다.", "warning");
+      return;
+    }
+    if (delYn) {
+      showAlert("이미 삭제된 항목입니다.", "warning");
+      return;
+    }
+
     flushSync(() => {
       setModalData(predict); // 상태 업데이트를 동기적으로 처리
       open();
@@ -126,8 +126,21 @@ const PredictRgstrList = ({
     close();
   };
 
-  const handleDelete = (predictId: string) => {
+  const handleDelete = (predict: IPredictResult) => {
     // 삭제 기능 구현
+    const { questionStatusCd, delYn, predictId } = predict;
+    if (
+      questionStatusCd === QuestionStatusCd.PROGRESS ||
+      questionStatusCd === QuestionStatusCd.END
+    ) {
+      showAlert("삭제 가능한 기간이 아닙니다.", "warning");
+      return;
+    }
+    if (delYn) {
+      showAlert("이미 삭제된 항목입니다.", "warning");
+      return;
+    }
+
     modals.openConfirmModal({
       title: "게임 삭제",
       centered: true,
@@ -141,63 +154,8 @@ const PredictRgstrList = ({
     });
   };
 
-  const handleView = (predictId: string) => {
-    // 상세보기
-    navigate(`/predict/${predictId}`);
-  };
-
-  const renderActionIcons = (predict: IPredictResult) => {
-    const buttons: JSX.Element[] = [];
-
-    const { predictId, questionStatusCd, delYn } = predict;
-
-    buttons.push(
-      <ActionIcon
-        variant="light"
-        onClick={() => handleView(predictId)}
-        key={`view-${predictId}`}
-      >
-        <IconEye size={16} />
-      </ActionIcon>
-    );
-
-    if (delYn) {
-      return buttons;
-    }
-
-    if (questionStatusCd === QuestionStatusCd.WAITING) {
-      buttons.push(
-        <ActionIcon
-          variant="light"
-          color="blue"
-          onClick={() => handleEdit(predict)}
-          key={`edit-${predictId}`}
-        >
-          <IconEdit size={16} />
-        </ActionIcon>
-      );
-    }
-
-    if (
-      questionStatusCd === QuestionStatusCd.WAITING ||
-      questionStatusCd === QuestionStatusCd.END
-    ) {
-      buttons.push(
-        <ActionIcon
-          variant="light"
-          color="red"
-          onClick={() => handleDelete(predictId)}
-          key={`delete-${predictId}`}
-        >
-          <IconTrash size={16} />
-        </ActionIcon>
-      );
-    }
-    return buttons;
-  };
-
   if (data?.pages[0].totalElements === 0) {
-    return <PredictRgstrList.NoData />;
+    return <MyGamesTemplate.Nodata text="생성한 예측 게임이 없습니다." />;
   }
 
   return (
@@ -213,15 +171,16 @@ const PredictRgstrList = ({
               mih={400}
               mah={400}
             >
-              <Card.Section p="md" withBorder>
-                <Group justify="space-between">
-                  <Group>
-                    {predcit.delYn && <Badge color="red">삭제됨</Badge>}
-
-                    {getStatusBadge(predcit.questionStatusCd, true)}
-                  </Group>
-                </Group>
-              </Card.Section>
+              <MyGamesTemplate.CardHeaderSection
+                statusCd={predcit.questionStatusCd}
+                delYn={predcit.delYn}
+              >
+                {predcit.winner && (
+                  <Text fz="sm" fw={"bolder"}>
+                    예측결과 :{predcit.winner}
+                  </Text>
+                )}
+              </MyGamesTemplate.CardHeaderSection>
 
               <Text
                 my={"sm"}
@@ -235,9 +194,13 @@ const PredictRgstrList = ({
 
               <PredictRgstrList.Content item={predcit} />
 
-              <PredictRgstrList.Footer item={predcit}>
-                {renderActionIcons(predcit)}
-              </PredictRgstrList.Footer>
+              <MyGamesTemplate.CardFooter
+                id={predcit.predictId}
+                data={predcit}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                leftSlot={<PredictRgstrList.TimeForamt item={predcit} />}
+              />
             </Card>
           ))}
         </React.Fragment>
@@ -261,6 +224,41 @@ const PredictRgstrList = ({
   );
 };
 
+interface OptionProgressProps {
+  label: string;
+  count: number;
+  sumPoint: number;
+  percentage: number;
+}
+
+const OptionProgress = ({
+  label,
+  count,
+  sumPoint,
+  percentage,
+}: OptionProgressProps) => {
+  return (
+    <Box>
+      <Text fw={900} ta="left" flex={1} lineClamp={1}>
+        {label}
+      </Text>
+      <Progress value={percentage} animated h="lg" />
+
+      <Flex direction="row" align="center" justify={"space-between"}>
+        <Flex>
+          <Text fw={700} ta="right" c="blue">
+            {count}명
+          </Text>
+          {<Text>({percentage}%)</Text>}
+        </Flex>
+        <Text ml="sm" fw={700} ta="right">
+          {sumPoint.toLocaleString()}P
+        </Text>
+      </Flex>
+    </Box>
+  );
+};
+
 PredictRgstrList.Content = ({ item }: { item: IPredictResult }) => {
   const {
     optionA,
@@ -272,120 +270,50 @@ PredictRgstrList.Content = ({ item }: { item: IPredictResult }) => {
     sumPointA,
     sumPointB,
     sumPointC,
+    predictId,
   } = item;
-  const total = countA + countB + countC;
-
-  const calculatePercentage = (count: number) => {
-    if (total == 0) {
-      return 0; // 전체 합이 0일 경우, 비율은 0%
-    }
-    return (count / total) * 100; // 비율 계산
-  };
 
   return (
-    <Flex direction={"column"}>
-      <Box>
-        <Text fw={900} ta={"left"} flex={1} lineClamp={1}>
-          {optionA}
-        </Text>
-
-        <Flex direction={"row"} align={"center"}>
-          <Progress
-            value={calculatePercentage(countA)}
-            animated
-            h={"lg"}
-            flex={1}
-          />
-          <Stack gap={0} miw={100}>
-            <Text ml={"sm"} fw={700} c={"blue"} ta={"right"}>
-              {countA}명
-            </Text>
-            <Text ml={"sm"} fw={700} ta={"right"}>
-              {sumPointA.toLocaleString()}P
-            </Text>
-          </Stack>
-        </Flex>
-      </Box>
-      <Box>
-        <Text fw={900} ta={"left"} flex={1} lineClamp={1}>
-          {optionB}
-        </Text>
-
-        <Flex direction={"row"} align={"center"}>
-          <Progress
-            value={calculatePercentage(countB)}
-            animated
-            h={"lg"}
-            flex={1}
-          />
-          <Stack gap={0} miw={100}>
-            <Text ml={"sm"} fw={700} c={"blue"} ta={"right"}>
-              {countB}명
-            </Text>
-            <Text ml={"sm"} fw={700} ta={"right"}>
-              {sumPointB.toLocaleString()}P
-            </Text>
-          </Stack>
-        </Flex>
-      </Box>
+    <Flex direction={"column"} my={"auto"} gap={3}>
+      <OptionProgress
+        key={`${predictId}_A`}
+        label={optionA}
+        count={countA}
+        sumPoint={sumPointA}
+        percentage={calculatePercentage(item, countA)}
+      />
+      <OptionProgress
+        key={`${predictId}_B`}
+        label={optionB}
+        count={countB}
+        sumPoint={sumPointB}
+        percentage={calculatePercentage(item, countB)}
+      />
       {optionC && (
-        <Box>
-          <Text fw={900} ta={"left"} flex={1} lineClamp={1}>
-            {optionC}
-          </Text>
-
-          <Flex direction={"row"} align={"center"}>
-            <Progress
-              value={calculatePercentage(countC)}
-              animated
-              h={"lg"}
-              flex={1}
-            />
-            <Stack gap={0} miw={100}>
-              <Text ml={"sm"} fw={700} ta={"right"}>
-                {countC}명
-              </Text>
-              <Text ml={"sm"} fw={700} ta={"right"} c={"blue"}>
-                {sumPointC.toLocaleString()}P
-              </Text>
-            </Stack>
-          </Flex>
-        </Box>
+        <OptionProgress
+          key={`${predictId}_C`}
+          label={optionC}
+          count={countC}
+          sumPoint={sumPointC}
+          percentage={calculatePercentage(item, countC)}
+        />
       )}
     </Flex>
   );
 };
 
-PredictRgstrList.Footer = ({
-  item,
-  children,
-}: {
-  item: IPredictResult;
-  children: ReactNode;
-}) => {
+PredictRgstrList.TimeForamt = ({ item }: { item: IPredictResult }) => {
   const timeFomrat = `${dayjs(item.strDtm).format(
     "YYYY-MM-DD HH:mm"
   )} ~ ${dayjs(item.endDtm).format("YYYY-MM-DD HH:mm")}`;
 
   return (
-    <Flex justify="space-between" align="center" mt={"lg"}>
+    <Flex direction={"column"}>
+      <Text size="sm">예측기간</Text>
       <Text size="xs" c="dimmed">
         {timeFomrat}
       </Text>
-
-      <Group>{children}</Group>
     </Flex>
-  );
-};
-PredictRgstrList.NoData = () => {
-  const text = "생성한 예측 게임이 없습니다.";
-
-  return (
-    <Box p="md">
-      <Title ta="center" fw={500} mt="xl" c="dimmed" order={3}>
-        {text}
-      </Title>
-    </Box>
   );
 };
 

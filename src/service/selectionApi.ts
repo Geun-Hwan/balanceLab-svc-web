@@ -6,8 +6,10 @@ export type SelectionCreateType = {
   rewardPoint?: number;
 };
 
-export type SelectionReqeustType = {
-  choiceType: "A" | "B" | null;
+export type BettingCreateType = {
+  predictId: string;
+  choiceType: "A" | "B" | "C";
+  betPoint?: number;
 };
 
 // export interface ISelectResult {}
@@ -18,10 +20,8 @@ export const createSelection = async (
   return instance.post<any>(`/selection`, param).then((res) => res.data.data);
 };
 
-export const getSelectionList = async (
-  param: SelectionReqeustType
-): Promise<Array<any>> => {
+export const createBetting = async (param: BettingCreateType): Promise<any> => {
   return instance
-    .get<Array<any>>(`/selection`, param)
+    .post<any>(`/selection/betting`, param)
     .then((res) => res.data.data);
 };

@@ -22,23 +22,18 @@ export const useAlertStore = create<AlertStore>((set) => ({
   hideAlert: () => set({ alertVisible: false }),
 }));
 
-type themeType = "light" | "dark";
 interface UserState {
   userData: ILoginResult | null;
   idSaveCheck: boolean;
   isLogin: boolean;
-  themeColor: themeType;
-  animationEnable: boolean;
   rememberId: string | null;
 }
 interface UserSetState {
-  setThemeColor: (themeColor: "light" | "dark") => void; // themeColor를 설정하는 메서드
   setIsLogin: (isLogin: boolean) => void;
   setUserPoint: (totalPoint: number) => void;
   setIdSaveCheck: (idSaveCheck: boolean) => void;
   setUserData: (data: any) => void;
   resetStore: () => void;
-  toggleAnimation: () => void;
   setRememberId: (rememberId: string | null) => void;
 }
 
@@ -47,10 +42,7 @@ interface UserStore extends UserState, UserSetState {}
 const initialState: UserState = {
   userData: null,
   isLogin: false,
-  themeColor: window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light",
-  animationEnable: true,
+
   idSaveCheck: false,
   rememberId: null,
 };
@@ -63,10 +55,7 @@ export const useUserStore = create<UserStore>()(
 
       setIsLogin: (isLogin: boolean) => set({ isLogin }),
       setUserData: (data: any) => set({ userData: data, isLogin: true }),
-      setThemeColor: (themeColor: "light" | "dark") => set({ themeColor }),
-      toggleAnimation: () => {
-        set((state) => ({ animationEnable: !state.animationEnable }));
-      },
+
       setUserPoint: (totalPoint: number) => {
         set((state) => {
           if (state.userData) {
@@ -133,6 +122,40 @@ export const useGuestStore = create<GuestStore>()(
     }),
     {
       name: "guest-votes-storage", // localStorage key
+    }
+  )
+);
+
+type themeType = "light" | "dark";
+type langType = "ko" | "en";
+
+interface WebSettingState {
+  animationEnable: boolean;
+  toggleAnimation: () => void;
+  themeColor: themeType;
+  setThemeColor: (themeColor: "light" | "dark") => void; // themeColor를 설정하는 메서드
+  language: langType;
+  setLanguage: (language: langType | string | null) => void; // language를 설정하는 메서드
+}
+
+export const useSettingStore = create<WebSettingState>()(
+  persist(
+    (set) => ({
+      animationEnable: true,
+      toggleAnimation: () => {
+        set((state) => ({ animationEnable: !state.animationEnable }));
+      },
+      setThemeColor: (themeColor: "light" | "dark") => set({ themeColor }),
+
+      themeColor: window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light",
+      language: navigator.language.startsWith("ko") ? "ko" : "en",
+      setLanguage: (language: langType | string | null) =>
+        set({ language: language as langType }),
+    }),
+    {
+      name: "web-setting-storage", // localStorage key
     }
   )
 );

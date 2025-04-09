@@ -38,6 +38,10 @@ export interface IQuestionResult {
   choiceA: string; //선택지
   choiceB: string; //선택지
   point: number; //참여시 지급 포인트
+  enTitle?: string;
+  enChoiceA?: string;
+
+  enChoiceB?: string;
 
   strDate: any; //시작시간
   endDate: any; //종료시간

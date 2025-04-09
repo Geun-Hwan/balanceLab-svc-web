@@ -1,53 +1,65 @@
-import { Title } from "@mantine/core";
-import { motion } from "framer-motion";
-import React, { useEffect, useState } from "react";
 import { IconArrowLeft, IconArrowRight } from "@tabler/icons-react";
-const DragHint = () => {
-  const [visible, setVisible] = useState(true);
+import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useState } from "react";
+
+const FadeHint = ({ position }: { position: "left" | "right" }) => {
+  const isLeft = position === "left";
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: isLeft ? -10 : 10 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: isLeft ? -10 : 10 }}
+      transition={{ duration: 0.5, ease: "easeInOut" }}
+      style={{
+        position: "absolute",
+        bottom: "50%",
+        [position]: 10,
+        transform: "translateY(-50%)",
+        userSelect: "none",
+        pointerEvents: "none",
+      }}
+    >
+      {isLeft ? <IconArrowLeft size={36} /> : <IconArrowRight size={36} />}
+    </motion.div>
+  );
+};
+
+const DragHint = ({
+  atLeftEnd,
+  atRightEnd,
+}: {
+  atLeftEnd: boolean;
+  atRightEnd: boolean;
+}) => {
+  const [showLeftHint, setShowLeftHint] = useState(false);
+  const [showRightHint, setShowRightHint] = useState(false);
+
+  // 공통 함수: 일정 시간 후 힌트 사라지게
+  const triggerHint = (direction: "left" | "right") => {
+    if (direction === "left") {
+      setShowLeftHint(true);
+      setTimeout(() => setShowLeftHint(false), 1000);
+    } else {
+      setShowRightHint(true);
+      setTimeout(() => setShowRightHint(false), 1000);
+    }
+  };
+  useEffect(() => {
+    if (atLeftEnd) triggerHint("right"); // 왼쪽 끝이면 → 힌트
+  }, [atLeftEnd]);
 
   useEffect(() => {
-    const timer = setTimeout(() => setVisible(false), 1000); // 3초 후 사라짐
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (!visible) return null;
+    if (atRightEnd) triggerHint("left"); // 오른쪽 끝이면 ← 힌트
+  }, [atRightEnd]);
 
   return (
     <>
-      {/* 좌측 드래그 힌트 */}
-      <motion.div
-        initial={{ opacity: 1, x: 0 }}
-        animate={{ opacity: 0, x: -10 }}
-        transition={{ duration: 1.5, ease: "easeInOut" }}
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: 10,
-          transform: "translateY(-50%)",
-          userSelect: "none",
-          pointerEvents: "none",
-        }}
-      >
-        <IconArrowLeft size={50} />
-      </motion.div>
-
-      {/* 우측 드래그 힌트 */}
-      <motion.div
-        initial={{ opacity: 1, x: 0 }}
-        animate={{ opacity: 0, x: 10 }}
-        transition={{ duration: 1.5, ease: "easeInOut" }}
-        style={{
-          position: "absolute",
-          top: "50%",
-          right: 10,
-          transform: "translateY(-50%)",
-
-          userSelect: "none",
-          pointerEvents: "none",
-        }}
-      >
-        <IconArrowRight size={50} />
-      </motion.div>
+      <AnimatePresence>
+        {showLeftHint && <FadeHint position="left" />}
+      </AnimatePresence>
+      <AnimatePresence>
+        {showRightHint && <FadeHint position="right" />}
+      </AnimatePresence>
     </>
   );
 };

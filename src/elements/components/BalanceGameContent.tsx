@@ -138,14 +138,14 @@ const BalanceGameContent = () => {
 
       {data?.pages[0].totalElements === 0 && (
         <Title ta={"center"} order={2} mt="xl">
-          검색 결과가 없습니다.
+          데이터가 존재하지 않습니다.
         </Title>
       )}
       <Box mt={"xl"}>
         {isInitialLoading ? (
           <DummyComponent cols={colSize} isLoading={true} />
         ) : (
-          <SimpleGrid cols={colSize} spacing={50}>
+          <SimpleGrid cols={colSize} spacing={"xl"}>
             {data?.pages?.map((page) =>
               page.content.map((item) => (
                 <BalanceCard key={item.questionId} data={item} />

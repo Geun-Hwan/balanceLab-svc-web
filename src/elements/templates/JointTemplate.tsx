@@ -1,7 +1,7 @@
 import { idDuplicationCheck, join, JoinRequest } from "@/service/authApi";
 import { verifyCheck, verifyMailSend } from "@/service/mailApi";
 import Content from "@/layout/Content";
-import { useAlertStore } from "@/store/store";
+import { useAlertStore, useUserStore } from "@/store/store";
 import { handleLoginSuccess } from "@/utils/loginUtil";
 import {
   Button,
@@ -20,6 +20,8 @@ import { Form } from "react-router-dom";
 
 const JointTemplate = () => {
   const { showAlert } = useAlertStore();
+  const { isLogin } = useUserStore();
+
   const { mutate: idCheckMutate, isPending: idPending } = useMutation({
     mutationFn: (params: string) => idDuplicationCheck(params),
     onSuccess: () => {
@@ -101,7 +103,9 @@ const JointTemplate = () => {
     mutationFn: (params: JoinRequest) => join(params),
 
     onSuccess: (data) => {
-      handleLoginSuccess(data);
+      if (!isLogin) {
+        handleLoginSuccess(data);
+      }
       showAlert("가입이 완료되었습니다.", "success");
     },
     onError: (res: AxiosResponse) => {

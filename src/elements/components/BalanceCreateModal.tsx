@@ -6,7 +6,7 @@ import {
   modifyQuestion,
 } from "@/service/questionApi";
 import { getUserKey } from "@/service/userApi";
-import { CATEGORIES } from "@/constants/ServiceConstants";
+import { CATEGORIES, QuestionStatusCd } from "@/constants/ServiceConstants";
 import { useAlertStore, useUserStore } from "@/store/store";
 import { Button, Modal, Select, Text, TextInput } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
@@ -52,6 +52,11 @@ const BalanceCreateModal = ({
     categoryCd: categoryCd ?? "",
     questionStatusCd: questionStatusCd ?? "20000003",
   });
+
+  const disable =
+    data?.questionStatusCd === QuestionStatusCd.END ||
+    data?.questionStatusCd === QuestionStatusCd.PROGRESS ||
+    data?.delYn;
 
   const [date, setDate] = useState<{ strDate: Dayjs; endDate: Dayjs }>({
     strDate: strDate
@@ -136,7 +141,6 @@ const BalanceCreateModal = ({
   };
   const handleCreate = () => {
     // close();
-    const currentTime = dayjs();
 
     const startRestrictedTime = dayjs().hour(23).minute(50).second(0);
     const endRestrictedTime = dayjs()
@@ -146,8 +150,8 @@ const BalanceCreateModal = ({
       .add(1, "day");
 
     if (
-      currentTime.isAfter(startRestrictedTime) &&
-      currentTime.isBefore(endRestrictedTime)
+      today.isAfter(startRestrictedTime) &&
+      today.isBefore(endRestrictedTime)
     ) {
       showAlert("23:50 ~ 00:10 사이에는 등록할 수 없습니다.");
       return;
@@ -179,7 +183,6 @@ const BalanceCreateModal = ({
 
     const isToday = today.isSame(date.strDate, "day");
 
-    console.log(date.strDate);
     modals.openConfirmModal({
       modalId: "create_confirm",
       lockScroll: false,
@@ -275,6 +278,7 @@ const BalanceCreateModal = ({
         mt="md"
         inputWrapperOrder={["label", "input", "description", "error"]}
         description="최대 40자까지 입력 가능합니다." // 설명 추가
+        readOnly={disable}
       />
       <TextInput
         label="선택지 A"
@@ -286,6 +290,7 @@ const BalanceCreateModal = ({
         mt="md"
         description="최대 40자까지 입력 가능합니다." // 설명 추가
         inputWrapperOrder={["label", "input", "description", "error"]}
+        readOnly={disable}
       />
       <TextInput
         label="선택지 B"
@@ -297,12 +302,17 @@ const BalanceCreateModal = ({
         mt="md" // Adds margin-top for spacing
         description="최대 40자까지 입력 가능합니다." // 설명 추가
         inputWrapperOrder={["label", "input", "description", "error"]}
+        readOnly={disable}
       />
       <DatePickerInput
         label="시작일"
         locale="ko"
-        valueFormat="YYYY-MM-DD"
+        valueFormat={`YYYY-MM-DD ${
+          date.strDate.isSame(today, "day") ? "" : "HH:mm"
+        }`}
         value={date.strDate.toDate()}
+        minDate={today.toDate()}
+        readOnly={disable}
         onChange={(value) => {
           const strDate = dayjs(value).startOf("day");
           if (strDate.isBefore(today, "day")) {
@@ -332,7 +342,8 @@ const BalanceCreateModal = ({
       <DatePickerInput
         label="종료일"
         locale="ko"
-        valueFormat="YYYY-MM-DD"
+        readOnly={disable}
+        valueFormat="YYYY-MM-DD HH:mm"
         value={date.endDate.toDate()}
         onChange={(value) => {
           const endDate = dayjs(value).endOf("day");
@@ -359,6 +370,7 @@ const BalanceCreateModal = ({
       <Select
         label="카테고리"
         name="categoryCd"
+        readOnly={disable}
         data={CATEGORIES}
         value={formData.categoryCd}
         onChange={(value) =>
@@ -371,6 +383,7 @@ const BalanceCreateModal = ({
       <Button
         fullWidth
         mt="md"
+        disabled={disable}
         onClick={handleCreate}
         loading={createPending || modifyPending}
       >

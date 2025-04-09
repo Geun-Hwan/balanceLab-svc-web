@@ -1,62 +1,68 @@
+import {
+  CATEGORIES,
+  CategoryValue,
+  QuestionStatusCd,
+} from "@/constants/ServiceConstants";
 import Content from "@/layout/Content";
+import { useUserStore } from "@/store/store";
 import BalancePointAcumList from "@cmp/BalancePointAcumList";
 import PredictCreateModal from "@cmp/PredictCreateModal";
-import { Badge, Button, Group, Modal, Stack, Tabs, Text } from "@mantine/core";
+import PredictRgstrList from "@cmp/PredictRgstrList";
+import {
+  ActionIcon,
+  Badge,
+  Box,
+  Button,
+  Card,
+  Flex,
+  Group,
+  Modal,
+  Stack,
+  Tabs,
+  Text,
+  Title,
+} from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import {
   IconDeviceGamepad,
+  IconEdit,
+  IconEye,
   IconGoGame,
   IconListCheck,
   IconListDetails,
   IconPlus,
+  IconTrash,
 } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import BalanceCreateModal from "../components/BalanceCreateModal";
 import BalanceRgstrList from "../components/BalanceRgstrList";
-import PredictRgstrList from "@cmp/PredictRgstrList";
+import PredictParticipationList from "@cmp/PredictParticipationList";
 
-const validTabs = [
-  "#my-rgstr-balance",
-  "#my-rgstr-predict",
-  "#my-participations",
-  "#my-predict-history",
-] as const;
+const validTabs = {
+  myRgstrBalance: "#my-rgstr-balance",
+  myBalanceHistory: "#my-balance-hisotry",
+  myRgstrPredict: "#my-rgstr-predict",
+  myPredictHistory: "#my-predict-history",
+} as const;
+
+type TabHash = (typeof validTabs)[keyof typeof validTabs];
 
 const MyGamesTemplate = () => {
   const location = useLocation();
-  const getValidHash = () =>
-    (location.hash || "#my-rgstr-balance") as (typeof validTabs)[number];
+  const getValidHash = () => (location.hash || "#my-rgstr-balance") as TabHash;
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState<(typeof validTabs)[number]>(
-    getValidHash()
-  );
+  const [activeTab, setActiveTab] = useState<TabHash>(getValidHash());
 
   useEffect(() => {
     setActiveTab(getValidHash()); // location.hash 변경 감지 후 상태 업데이트
   }, [location.hash]);
 
   const handleTapChange = (value: string | null) => {
-    setActiveTab(value as (typeof validTabs)[number]);
+    setActiveTab(value as (typeof validTabs)[keyof typeof validTabs]);
 
     navigate(`${value}`, { replace: true });
-  };
-
-  const getStatusBadge = (statusCd: string, predict?: boolean) => {
-    switch (statusCd) {
-      case "20000001":
-        return <Badge color="green">진행중</Badge>;
-      case "20000002":
-        return <Badge color="blue">{predict ? "결산중" : "마감됨"}</Badge>;
-      case "20000003":
-        return <Badge color="yellow">대기중</Badge>;
-
-      case "20000004":
-        return <Badge color="yellow">결산완료</Badge>;
-      default:
-        return <Badge color="gray">알수없음</Badge>;
-    }
   };
 
   return (
@@ -70,12 +76,14 @@ const MyGamesTemplate = () => {
         wrap="nowrap"
         align="flex-start"
       >
-        {(activeTab === validTabs[0] || activeTab === validTabs[1]) &&
+        {(activeTab === validTabs.myRgstrBalance ||
+          activeTab === validTabs.myRgstrPredict) &&
           MyGamesTemplate.ManagementHeader}
 
-        {activeTab === validTabs[2] && MyGamesTemplate.ParticipationHeader}
-        {activeTab === validTabs[3] &&
-          MyGamesTemplate.ParticipationPredictHeader}
+        {activeTab === validTabs.myBalanceHistory &&
+          MyGamesTemplate.BalanceHistoryHeader}
+        {activeTab === validTabs.myPredictHistory &&
+          MyGamesTemplate.PredictHistoryHeader}
 
         <GameTypeModal />
       </Group>
@@ -94,42 +102,46 @@ const MyGamesTemplate = () => {
             flexWrap: "nowrap",
           }}
         >
-          <Tabs.Tab value={validTabs[0]} leftSection={<IconGoGame size={14} />}>
+          <Tabs.Tab
+            value={validTabs.myRgstrBalance}
+            leftSection={<IconGoGame size={14} />}
+          >
             밸런스 게임
           </Tabs.Tab>
           <Tabs.Tab
-            value={validTabs[1]}
+            value={validTabs.myBalanceHistory}
+            leftSection={<IconListDetails size={14} />}
+          >
+            참여 내역
+          </Tabs.Tab>
+          <Tabs.Tab
+            value={validTabs.myRgstrPredict}
             leftSection={<IconDeviceGamepad size={14} />}
           >
             예측 게임
           </Tabs.Tab>
+
           <Tabs.Tab
-            value={validTabs[2]}
-            leftSection={<IconListDetails size={14} />}
-          >
-            포인트 내역
-          </Tabs.Tab>
-          <Tabs.Tab
-            disabled
-            value={validTabs[3]}
+            value={validTabs.myPredictHistory}
             leftSection={<IconListCheck size={14} />}
           >
             예측 내역
           </Tabs.Tab>
         </Tabs.List>
 
-        <Tabs.Panel value={validTabs[0]}>
-          <BalanceRgstrList getStatusBadge={getStatusBadge} />
-        </Tabs.Panel>
-        <Tabs.Panel value={validTabs[1]}>
-          <PredictRgstrList getStatusBadge={getStatusBadge} />
+        <Tabs.Panel value={validTabs.myRgstrBalance}>
+          <BalanceRgstrList />
         </Tabs.Panel>
 
-        <Tabs.Panel value={validTabs[2]}>
-          <BalancePointAcumList getStatusBadge={getStatusBadge} />
+        <Tabs.Panel value={validTabs.myBalanceHistory}>
+          <BalancePointAcumList />
         </Tabs.Panel>
-        <Tabs.Panel value={validTabs[3]}>
-          <></>
+        <Tabs.Panel value={validTabs.myRgstrPredict}>
+          <PredictRgstrList />
+        </Tabs.Panel>
+
+        <Tabs.Panel value={validTabs.myPredictHistory}>
+          <PredictParticipationList />
         </Tabs.Panel>
       </Tabs>
     </Content>
@@ -174,23 +186,135 @@ const GameTypeModal = () => {
   );
 };
 
+type CardHeaderSectionProps = {
+  statusCd: QuestionStatusCd;
+  delYn?: boolean; // optional
+  categoryCd?: string; // optional
+  children?: ReactNode;
+};
+
+MyGamesTemplate.CardHeaderSection = ({
+  statusCd,
+  delYn = false,
+
+  children,
+}: CardHeaderSectionProps) => {
+  const statusMap: Record<QuestionStatusCd, React.ReactNode> = {
+    [QuestionStatusCd.PROGRESS]: <Badge color="green">진행중</Badge>,
+    [QuestionStatusCd.END]: <Badge color="blue">마감됨</Badge>,
+    [QuestionStatusCd.WAITING]: <Badge color="yellow">대기중</Badge>,
+    [QuestionStatusCd.COMPLETE]: <Badge color="yellow">지급완료</Badge>,
+  };
+
+  return (
+    <Card.Section p="md" withBorder>
+      <Group justify="space-between">
+        <Group>
+          {delYn && <Badge color="red">삭제됨</Badge>}
+          {statusMap[statusCd]}
+        </Group>
+        {children}
+      </Group>
+    </Card.Section>
+  );
+};
+
+type CardFooterProps<T> = {
+  id: string;
+  data: T;
+  onView?: (data: T) => void;
+  onEdit?: (data: T) => void;
+  onDelete?: (data: T) => void;
+  leftSlot?: React.ReactNode; // 좌측에 렌더링할 요소 (ex: 날짜)
+};
+
+MyGamesTemplate.CardFooter = <T,>({
+  id,
+  data,
+  onView,
+  onEdit,
+  onDelete,
+  leftSlot,
+}: CardFooterProps<T>) => {
+  const buttons: JSX.Element[] = [];
+
+  if (onView) {
+    buttons.push(
+      <ActionIcon
+        variant="light"
+        onClick={() => onView(data)}
+        key={`view-${id}`}
+      >
+        <IconEye size={16} />
+      </ActionIcon>
+    );
+  }
+
+  if (onEdit) {
+    buttons.push(
+      <ActionIcon
+        variant="light"
+        color="blue"
+        onClick={() => onEdit(data)}
+        key={`edit-${id}`}
+      >
+        <IconEdit size={16} />
+      </ActionIcon>
+    );
+  }
+
+  if (onDelete) {
+    buttons.push(
+      <ActionIcon
+        variant="light"
+        color="red"
+        onClick={() => onDelete(data)}
+        key={`delete-${id}`}
+      >
+        <IconTrash size={16} />
+      </ActionIcon>
+    );
+  }
+
+  return (
+    <Flex
+      justify={leftSlot ? "space-between" : "flex-end"}
+      align="flex-end"
+      mt={"lg"}
+    >
+      {leftSlot}
+      <Group>{buttons}</Group>
+    </Flex>
+  );
+};
+
 MyGamesTemplate.ManagementHeader = (
   <Text size="sm" c="dimmed">
     대기 중인 게임만 수정·삭제할 수 있으며, 매일 자정에 시작 상태로 변경됩니다.
   </Text>
 );
 
-MyGamesTemplate.ParticipationHeader = (
+MyGamesTemplate.BalanceHistoryHeader = (
   <Text size="sm" c="dimmed">
-    게임 참여로 획득한 포인트는 최초 1회만 지급되며, 최근 내역이 최상단에
+    밸런스게임 참여로 획득한 포인트는 최초 1회만 지급되며, 최근 내역이 상단에
     표시됩니다.
   </Text>
 );
-MyGamesTemplate.ParticipationPredictHeader = (
+MyGamesTemplate.PredictHistoryHeader = (
   <Text size="sm" c="dimmed">
     최근 참여한 예측 게임 내역이 상단에 표시되며, 예측 성공 시 포인트는
     순차적으로 지급됩니다.
   </Text>
 );
+
+MyGamesTemplate.Nodata = ({ text }: { text: string }) => {
+  return (
+    <Box p="md">
+      <Title ta="center" fw={500} mt="xl" c="dimmed" order={3}>
+        {text}
+      </Title>
+    </Box>
+  );
+};
 
 export default MyGamesTemplate;

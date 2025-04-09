@@ -2,11 +2,13 @@ import useContentType from "@/hooks/useContentType";
 import { getRankList, getTodayQuestion } from "@/service/publicApi";
 import { IQuestionResult } from "@/service/questionApi";
 import { Carousel } from "@mantine/carousel";
-import { Box, Card, Flex, SimpleGrid, Skeleton, Text } from "@mantine/core";
+import { Box, Card, Flex, Skeleton, Text } from "@mantine/core";
 import { useQueries } from "@tanstack/react-query";
 import BalanceCard from "./BalanceCard";
 import DragHint from "./DragHint";
-import { getBalanceDummyData } from "./dummy";
+import { getBalanceDummyData } from "../../utils/dummy";
+import { EmblaCarouselType } from "embla-carousel-react";
+import { useEffect, useState } from "react";
 
 const MainContents = () => {
   const queries = useQueries({
@@ -82,38 +84,63 @@ const BalanceCardSlider = ({
   sliderKey: string;
   noDataText?: string;
 }) => {
-  // const [emblaApi, setEmblaApi] = useState<Embla | null>(null); // Embla API 인스턴스를 저장할 상태
-
   const { isExtra, isMidium, isSmall } = useContentType();
+  const [emblaApi, setEmblaApi] = useState<EmblaCarouselType | null>(null);
+  const [canScrollPrev, setCanScrollPrev] = useState(false);
+  const [canScrollNext, setCanScrollNext] = useState(false);
   const getSlideSize = () => {
     if (isExtra) {
-      return "33.33333333%";
+      return 33.33333333;
     }
 
     if (isMidium) {
-      return "50%";
+      return 50;
     }
     if (isSmall) {
-      return "100%";
+      return 100;
     }
+
+    return 100;
   };
 
-  // useEffect(() => {
-  //   // 컴포넌트가 마운트된 후 실행
-  //   if (emblaApi) {
-  //     const slideNodes = emblaApi.slideNodes();
-  //     if (slideNodes.length > 0) {
-  //       const container = emblaApi.containerNode();
+  useEffect(() => {
+    if (!emblaApi) return;
 
-  //       const slideWidth = slideNodes[0].getBoundingClientRect().width; // 첫 번째 슬라이드의 너비를 가져옵니다.
-  //       const moveAmount = slideWidth / 5; // 슬라이드 너비의 1/5 만큼 이동
+    const updateScroll = () => {
+      const selected = emblaApi.selectedScrollSnap();
+      const total = emblaApi.scrollSnapList().length;
 
-  //       // 초기에 슬라이드를 1/5만큼 밀어주기
-  //       container.style.transform = `translate3d(-${moveAmount}px, 0, 0)`;
-  //     }
-  //   }
-  // }, [emblaApi]);
+      const slideSizePercent = getSlideSize(); // "33.3333%" → 33.3333
+      const visibleCount = Math.floor(100 / slideSizePercent);
 
+      // 👉 전체 길이가 한 화면에 다 들어오면 화살표 전부 숨김
+      if (total <= visibleCount) {
+        setCanScrollPrev(false);
+        setCanScrollNext(false);
+        return;
+      }
+
+      const isAtStart = selected <= 0;
+      const isAtEnd = selected >= total - visibleCount;
+
+      setCanScrollPrev(isAtStart);
+
+      setCanScrollNext(isAtEnd);
+    };
+    const startScroll = () => {
+      setCanScrollPrev(false);
+      setCanScrollNext(false);
+    };
+
+    updateScroll();
+    emblaApi.on("pointerDown", startScroll);
+    emblaApi.on("pointerUp", updateScroll);
+
+    return () => {
+      emblaApi.off("pointerDown", startScroll);
+      emblaApi.off("pointerUp", updateScroll);
+    };
+  }, [emblaApi]);
   if (isLoading) {
     return (
       <Box pos={"relative"}>
@@ -127,6 +154,7 @@ const BalanceCardSlider = ({
       </Box>
     );
   }
+
   if (!data || (data.length === 0 && !isLoading)) {
     return (
       <Box pos={"relative"}>
@@ -159,37 +187,27 @@ const BalanceCardSlider = ({
         {title}
       </Text>
 
-      {isExtra ? (
-        <SimpleGrid cols={3} w={"100%"}>
+      <Box pos={"relative"}>
+        <Carousel
+          align="start"
+          slideGap={{ base: "md" }}
+          dragFree
+          withControls={false}
+          slideSize={`${getSlideSize()}%`}
+          containScroll="keepSnaps"
+          getEmblaApi={setEmblaApi}
+        >
           {data?.map((question, i) => (
-            <BalanceCard
-              key={`${sliderKey}-${i}`}
-              data={question} // 추가 props 전달
-            />
+            <Carousel.Slide key={`${sliderKey}-${i}`}>
+              <BalanceCard
+                data={question}
+                // 추가 props 전달
+              />
+            </Carousel.Slide>
           ))}
-        </SimpleGrid>
-      ) : (
-        <Box pos={"relative"}>
-          <Carousel
-            align="start"
-            slideGap={{ base: "md" }}
-            dragFree
-            withControls={false}
-            slideSize={getSlideSize()}
-            containScroll="keepSnaps"
-          >
-            {data?.map((question, i) => (
-              <Carousel.Slide key={`${sliderKey}-${i}`}>
-                <BalanceCard
-                  data={question}
-                  // 추가 props 전달
-                />
-              </Carousel.Slide>
-            ))}
-          </Carousel>
-          {data.length > 1 && <DragHint />}
-        </Box>
-      )}
+        </Carousel>
+        {<DragHint atLeftEnd={canScrollPrev} atRightEnd={canScrollNext} />}
+      </Box>
     </Box>
   );
 };

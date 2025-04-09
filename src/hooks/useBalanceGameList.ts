@@ -100,7 +100,6 @@ export const useBalanceGameList = (
     initialPageParam: 0,
 
     getNextPageParam: (lastPage, _allPages) => {
-      console.log("lastPage", lastPage);
       if (!lastPage.last) {
         const nextPage = lastPage.number + 1;
         if (!isLogin && nextPage >= MAX_PAGE_FOR_GUEST) {

@@ -1,10 +1,11 @@
 import Content from "@/layout/Content";
-import { useGuestStore, useUserStore } from "@/store/store";
+import { useGuestStore, useSettingStore, useUserStore } from "@/store/store";
 import {
   Button,
   Flex,
   Group,
   Paper,
+  Select,
   Switch,
   Text,
   Title,
@@ -16,11 +17,13 @@ const SettingTemplate = () => {
   const {
     animationEnable,
     toggleAnimation,
-    isLogin,
     setThemeColor,
     themeColor,
-  } = useUserStore();
+    language,
+    setLanguage,
+  } = useSettingStore();
   const { resetVotes } = useGuestStore();
+  const { isLogin } = useUserStore();
   const { toggleColorScheme } = useMantineColorScheme();
 
   const handleToggleTheme = () => {
@@ -73,6 +76,23 @@ const SettingTemplate = () => {
               size="md"
               checked={themeColor === "dark"}
               onChange={handleToggleTheme}
+            />
+          </Group>
+          <Group justify="space-between" align="center">
+            <Text>언어</Text>
+            <Select
+              value={language}
+              onChange={setLanguage}
+              allowDeselect={false}
+              data={[
+                { value: "ko", label: "한국어" },
+                { value: "en", label: "English" },
+              ]}
+              styles={{
+                dropdown: { zIndex: 9999 },
+                input: { cursor: "pointer" },
+              }}
+              w={120}
             />
           </Group>
           {!isLogin && (

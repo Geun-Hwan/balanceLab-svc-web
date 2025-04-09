@@ -2,7 +2,12 @@ import { QuestionStatusCd } from "@/constants/ServiceConstants";
 import { getQuestionKey, IQuestionResult } from "@/service/questionApi";
 import { createSelection, SelectionCreateType } from "@/service/selectionApi";
 
-import { useAlertStore, useGuestStore, useUserStore } from "@/store/store";
+import {
+  useAlertStore,
+  useGuestStore,
+  useSettingStore,
+  useUserStore,
+} from "@/store/store";
 import {
   Box,
   Card,
@@ -38,6 +43,7 @@ const BalanceDetailTemplate = () => {
   const { showAlert } = useAlertStore();
   const { isLogin } = useUserStore();
   const { getVoteChoice, addVote } = useGuestStore();
+  const { language } = useSettingStore();
   const { questionId } = useParams();
 
   const [ended, setIsEnded] = useState(false);
@@ -237,7 +243,7 @@ const BalanceDetailTemplate = () => {
           }}
           lineClamp={3}
         >
-          {data?.title}
+          {language === "ko" ? data?.title : data?.enTitle ?? data?.title}
         </Text>
         {isDesktopView ? (
           isLoading ? (
@@ -310,6 +316,7 @@ const BalanceDetailTemplate = () => {
               style={{ zIndex: 3 }}
               fw={"bolder"}
               mb={"auto"}
+              mx={"auto"}
             >
               A
             </Text>
@@ -324,23 +331,27 @@ const BalanceDetailTemplate = () => {
               }}
               lineClamp={2}
             >
-              {data?.choiceA}
+              {language === "ko"
+                ? data?.choiceA
+                : data?.enChoiceA ?? data?.choiceA}
             </Text>
-            <Text
-              size="md"
-              pos={"absolute"}
-              ta="center"
-              top={"50%"}
-              left={"50%"}
-              fw={"bolder"}
-              fz={"h3"}
-              c={"black"}
-              style={{
-                transform: "translate(-50%, -50%)", // 정확히 중앙에 위치시키기 위한 트릭
-              }}
-            >
-              {count.a}명이 선택했습니다.
-            </Text>
+            {(ended || isSelect.current) && (
+              <Text
+                size="md"
+                pos={"absolute"}
+                ta="center"
+                top={"50%"}
+                left={"50%"}
+                fw={"bolder"}
+                fz={"h3"}
+                c={"black"}
+                style={{
+                  transform: "translate(-50%, -50%)", // 정확히 중앙에 위치시키기 위한 트릭
+                }}
+              >
+                {count.a}명이 선택했습니다.
+              </Text>
+            )}
           </Card>
 
           <Card
@@ -372,6 +383,7 @@ const BalanceDetailTemplate = () => {
               style={{ zIndex: 3 }}
               fw={"bolder"}
               mb={"auto"}
+              mx={"auto"}
             >
               B
             </Text>
@@ -387,7 +399,9 @@ const BalanceDetailTemplate = () => {
               }}
               lineClamp={2}
             >
-              {data?.choiceB}
+              {language === "ko"
+                ? data?.choiceB
+                : data?.enChoiceB ?? data?.choiceB}
             </Text>
             {(ended || isSelect.current) && (
               <Text

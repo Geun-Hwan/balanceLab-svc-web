@@ -22,8 +22,8 @@ export type PredictCreateType = {
   strDtm?: string;
   endDtm?: string;
   questionStatusCd: string;
-
   predictId?: string;
+  usedPoint?: number;
 };
 
 export interface IPredictResult {
@@ -42,8 +42,8 @@ export interface IPredictResult {
   questionStatusCd: QuestionStatusCd; // 선택지상태
   participation: boolean;
 
-  choiceType: "A" | "B" | "C" | null; // 내 선택
-
+  choiceType: "A" | "B" | "C"; // 내 선택
+  winner: "A" | "B" | "C" | null; // 예측 결과
   countA: number; // A 총 선택인원
   countB: number; // B 총 선택인원
   countC: number; // C 총 선택인원
@@ -51,6 +51,8 @@ export interface IPredictResult {
   sumPointA: number;
   sumPointB: number;
   sumPointC: number;
+
+  totalPoints: number;
 
   payoutA?: number;
   payoutB?: number;
@@ -78,7 +80,7 @@ export const getMyPredictionList = async (
     .then((res) => res.data.data);
 };
 
-export const getParticipationList = async (
+export const getPredictParticipationList = async (
   param: PredictRequestType
 ): Promise<PageResponse<IPredictResult>> => {
   return instance

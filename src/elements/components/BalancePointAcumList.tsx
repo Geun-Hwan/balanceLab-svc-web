@@ -1,4 +1,3 @@
-import { CATEGORIES } from "@/constants/ServiceConstants";
 import {
   getParticipationList,
   getQuestionKey,
@@ -6,7 +5,6 @@ import {
 } from "@/service/questionApi";
 import { useUserStore } from "@/store/store";
 import {
-  ActionIcon,
   Badge,
   Box,
   Card,
@@ -15,20 +13,16 @@ import {
   Loader,
   Stack,
   Text,
-  Title,
 } from "@mantine/core";
-import { IconEye } from "@tabler/icons-react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
-import React, { ReactNode, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { JSX } from "react/jsx-runtime";
+import MyGamesTemplate from "../templates/MyGamesTemplate";
+import { CategoryValue } from "@/constants/ServiceConstants";
+import { getCategoryName } from "@/utils/balance";
 
-const BalancePointAcumList = ({
-  getStatusBadge,
-}: {
-  getStatusBadge: (stusCd: string) => any;
-}) => {
+const BalancePointAcumList = () => {
   const { isLogin } = useUserStore();
 
   const navigate = useNavigate();
@@ -71,36 +65,13 @@ const BalancePointAcumList = ({
     };
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
-  const getCategoryName = (categoryCd: string) => {
-    const category = CATEGORIES.find((cat) => cat.value === categoryCd);
-    return category ? category.label : "기타";
-  };
-
-  const handleView = (questionId: string) => {
+  const handleView = (data: IQuestionResult) => {
     // 상세보기
-    navigate(`/balance/${questionId}`);
-  };
-
-  const renderActionIcons = (question: IQuestionResult) => {
-    const buttons: JSX.Element[] = [];
-
-    const { questionId } = question;
-
-    buttons.push(
-      <ActionIcon
-        variant="light"
-        onClick={() => handleView(question.questionId)}
-        key={`view-${questionId}`}
-      >
-        <IconEye size={16} />
-      </ActionIcon>
-    );
-
-    return buttons;
+    navigate(`/balance/${data.questionId}`);
   };
 
   if (data?.pages[0].totalElements === 0) {
-    return <BalancePointAcumList.NoData />;
+    return <MyGamesTemplate.Nodata text="포인트를 획득한 기록이 없습니다." />;
   }
 
   return (
@@ -116,18 +87,13 @@ const BalancePointAcumList = ({
               withBorder
               w={"100%"}
             >
-              <Card.Section p="md" withBorder>
-                <Group justify="space-between">
-                  <Group>
-                    {question.delYn && <Badge color="red">삭제됨</Badge>}
-
-                    {getStatusBadge(question.questionStatusCd)}
-                  </Group>
-                  <Text fz="sm" c="dimmed">
-                    {getCategoryName(question.categoryCd)}
-                  </Text>
-                </Group>
-              </Card.Section>
+              <MyGamesTemplate.CardHeaderSection
+                statusCd={question.questionStatusCd}
+              >
+                <Text fz="sm" c="dimmed">
+                  {getCategoryName(question.categoryCd as CategoryValue)}
+                </Text>
+              </MyGamesTemplate.CardHeaderSection>
 
               <Group justify="flex-start" mt="md" flex={1}>
                 <Text
@@ -145,9 +111,12 @@ const BalancePointAcumList = ({
 
               <Flex mt={"lg"} gap={"sm"}></Flex>
 
-              <BalancePointAcumList.Footer item={question}>
-                {renderActionIcons(question)}
-              </BalancePointAcumList.Footer>
+              <MyGamesTemplate.CardFooter
+                id={question.questionId}
+                data={question}
+                onView={handleView}
+                leftSlot={<BalancePointAcumList.TimeFormat item={question} />}
+              />
             </Card>
           ))}
         </React.Fragment>
@@ -163,36 +132,19 @@ const BalancePointAcumList = ({
   );
 };
 
-BalancePointAcumList.Footer = ({
-  item,
-  children,
-}: {
-  item: IQuestionResult;
-  children: ReactNode;
-}) => {
-  const timeFomrat = `획득일: ${dayjs(item.participationDtm).format(
+BalancePointAcumList.TimeFormat = ({ item }: { item: IQuestionResult }) => {
+  const timeFomrat = `${dayjs(item.participationDtm).format(
     "YYYY-MM-DD hh:mm"
   )}`;
 
   return (
-    <Flex justify="space-between" align="center" mt={"lg"}>
+    <Flex direction={"column"}>
+      <Text size="sm">획득일</Text>
+
       <Text size="xs" c="dimmed">
         {timeFomrat}
       </Text>
-
-      <Group>{children}</Group>
     </Flex>
-  );
-};
-BalancePointAcumList.NoData = () => {
-  const text = "포인트를 획득한 기록이 없습니다.";
-
-  return (
-    <Box p="md">
-      <Title ta="center" fw={500} mt="xl" c="dimmed" order={3}>
-        {text}
-      </Title>
-    </Box>
   );
 };
 

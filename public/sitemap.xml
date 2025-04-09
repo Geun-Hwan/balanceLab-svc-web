@@ -48,8 +48,24 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://gugunan.ddns.net/my-games#my-participations</loc>
+    <loc>https://gugunan.ddns.net/my-games#my-rgstr-balance</loc>
     <lastmod>2025-04-04</lastmod> <!-- 마지막 수정일 추가 -->
-    <priority>0.8</priority>
+    <priority>0.6</priority>
   </url>
+  <url>
+    <loc>https://gugunan.ddns.net/my-games#my-balance-hisotry</loc>
+    <lastmod>2025-04-04</lastmod> <!-- 마지막 수정일 추가 -->
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://gugunan.ddns.net/my-games#my-rgstr-predict</loc>
+    <lastmod>2025-04-04</lastmod> <!-- 마지막 수정일 추가 -->
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://gugunan.ddns.net/my-games#my-predict-history</loc>
+    <lastmod>2025-04-04</lastmod> <!-- 마지막 수정일 추가 -->
+    <priority>0.6</priority>
+  </url>
+
 </urlset>

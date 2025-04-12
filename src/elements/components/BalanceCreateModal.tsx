@@ -54,9 +54,10 @@ const BalanceCreateModal = ({
   });
 
   const disable =
-    data?.questionStatusCd === QuestionStatusCd.END ||
-    data?.questionStatusCd === QuestionStatusCd.PROGRESS ||
-    data?.delYn;
+    (data?.questionStatusCd === QuestionStatusCd.END ||
+      data?.questionStatusCd === QuestionStatusCd.PROGRESS ||
+      data?.delYn) &&
+    userData?.userId !== "SYSTEM";
 
   const [date, setDate] = useState<{ strDate: Dayjs; endDate: Dayjs }>({
     strDate: strDate

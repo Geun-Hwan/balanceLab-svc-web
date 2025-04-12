@@ -34,7 +34,7 @@ import PredictCreateModal from "./PredictCreateModal";
 import PredictResultSelectModal from "./PredictResultSelectModal";
 import PredictBetMadal from "./PredictBetMadal";
 const PredictRgstrList = () => {
-  const { isLogin } = useUserStore();
+  const { isLogin, userData } = useUserStore();
   const { showAlert } = useAlertStore();
   const [modalData, setModalData] = useState<IPredictResult | undefined>(
     undefined
@@ -44,7 +44,6 @@ const PredictRgstrList = () => {
     IPredictResult | undefined
   >(undefined);
   const qc = useQueryClient();
-  const navigate = useNavigate();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteQuery({
@@ -122,16 +121,18 @@ const PredictRgstrList = () => {
     // 수정 기능 구현
     const { questionStatusCd, delYn } = predict;
 
-    if (
-      questionStatusCd === QuestionStatusCd.PROGRESS ||
-      questionStatusCd === QuestionStatusCd.END
-    ) {
-      showAlert("수정 가능한 기간이 아닙니다.", "warning");
-      return;
-    }
-    if (delYn) {
-      showAlert("이미 삭제된 항목입니다.", "warning");
-      return;
+    if (userData?.userId !== "SYSTEM") {
+      if (
+        questionStatusCd === QuestionStatusCd.PROGRESS ||
+        questionStatusCd === QuestionStatusCd.END
+      ) {
+        showAlert("수정 가능한 기간이 아닙니다.", "warning");
+        return;
+      }
+      if (delYn) {
+        showAlert("이미 삭제된 항목입니다.", "warning");
+        return;
+      }
     }
 
     flushSync(() => {

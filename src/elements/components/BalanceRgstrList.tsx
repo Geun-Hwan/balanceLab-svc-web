@@ -104,13 +104,15 @@ const BalanceRgstrList = () => {
     // 수정 기능 구현
     const { questionStatusCd, delYn } = question;
 
-    if (questionStatusCd === QuestionStatusCd.PROGRESS) {
-      showAlert("수정 가능한 기간이 아닙니다.", "warning");
-      return;
-    }
-    if (delYn) {
-      showAlert("이미 삭제된 항목입니다.", "warning");
-      return;
+    if (userData?.userId !== "SYSTEM") {
+      if (questionStatusCd === QuestionStatusCd.PROGRESS) {
+        showAlert("수정 가능한 기간이 아닙니다.", "warning");
+        return;
+      }
+      if (delYn) {
+        showAlert("이미 삭제된 항목입니다.", "warning");
+        return;
+      }
     }
 
     flushSync(() => {

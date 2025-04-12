@@ -88,6 +88,7 @@ const PredictContents = () => {
           if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage)
             if (fetchNextPage) {
               fetchNextPage();
+              observer.unobserve(entries[0].target);
             }
         },
         { threshold: 0.5 }
@@ -95,7 +96,7 @@ const PredictContents = () => {
 
       observer.observe(node);
     },
-    [hasNextPage, isFetchingNextPage, fetchNextPage]
+    [hasNextPage, isFetchingNextPage, fetchNextPage, isLoading]
   );
 
   useEffect(() => {

@@ -13,6 +13,7 @@ import RouterFactory from "./routes/RouterFactory";
 
 import "dayjs/locale/ko"; // 한국어 로케일 가져오기
 import "./App.css";
+import { HelmetProvider } from "react-helmet-async";
 
 dayjs.locale("ko");
 
@@ -24,22 +25,24 @@ function App() {
   }, [animationEnable]);
 
   return (
-    <DesktopViewProvider>
-      <QueryClientProvider client={queryClient}>
-        <MantineProvider
-          withCssVariables
-          withGlobalClasses
-          withStaticClasses
-          defaultColorScheme={themeColor}
-        >
-          <ModalsProvider labels={{ confirm: "확인", cancel: "취소" }}>
-            <AlertComponent />
-            <RouterFactory />
-            {/* <AdsenseAd /> */}
-          </ModalsProvider>
-        </MantineProvider>
-      </QueryClientProvider>
-    </DesktopViewProvider>
+    <HelmetProvider>
+      <DesktopViewProvider>
+        <QueryClientProvider client={queryClient}>
+          <MantineProvider
+            withCssVariables
+            withGlobalClasses
+            withStaticClasses
+            defaultColorScheme={themeColor}
+          >
+            <ModalsProvider labels={{ confirm: "확인", cancel: "취소" }}>
+              <AlertComponent />
+              <RouterFactory />
+              {/* <AdsenseAd /> */}
+            </ModalsProvider>
+          </MantineProvider>
+        </QueryClientProvider>
+      </DesktopViewProvider>
+    </HelmetProvider>
   );
 }
 export default App;

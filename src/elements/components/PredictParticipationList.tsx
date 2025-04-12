@@ -52,6 +52,9 @@ const PredictParticipationList = () => {
         qc.invalidateQueries({
           queryKey: getPredictionKey({ isParticipation: true }),
         });
+        qc.invalidateQueries({
+          queryKey: getPredictionKey({ isMine: true }),
+        });
         showAlert("성공적으로 삭제되었습니다.", "success");
       } else {
         showAlert("삭제 가능한 기간이 아닙니다.", "warning");

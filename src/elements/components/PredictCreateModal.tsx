@@ -192,6 +192,12 @@ const PredictCreateModal = ({
         formData.strDtm = dateTime.strDtm.format("YYYY-MM-DDTHH:mm:ss");
         formData.endDtm = dateTime.endDtm.format("YYYY-MM-DDTHH:mm:ss");
         formData.usedPoint = calculatePoints;
+
+        if (formData.optionC && formData.optionC.length > 0) {
+          if (formData.optionC?.trim().length === 0) {
+            formData.optionC = undefined;
+          }
+        }
         if (isModify) {
           formData.predictId = predictId;
           modifyMutate(formData);

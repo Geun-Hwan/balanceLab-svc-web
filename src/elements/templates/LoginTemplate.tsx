@@ -19,6 +19,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosResponse } from "axios";
 import { ChangeEvent, useEffect, useState } from "react";
 import { Form, useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 const LoginTemplate = () => {
   const { showAlert, alertVisible } = useAlertStore();
@@ -93,6 +94,21 @@ const LoginTemplate = () => {
 
   return (
     <Content headerProps={{ name: "Login" }}>
+      <Helmet>
+        <title>로그인 | Balance Factory</title>
+        <meta
+          name="description"
+          content="Balance Factory에 로그인하여 다양한 게임을 즐기고, 친구들과 함께 도전해보세요!"
+        />
+        <meta property="og:title" content="로그인 | Balance Factory" />
+        <meta
+          property="og:description"
+          content="Balance Factory에 로그인하고, 밸런스 게임과 예측 게임을 즐기세요."
+        />
+        <meta property="og:url" content="https://gugunan.ddns.net/login" />
+        <meta property="og:type" content="website" />
+      </Helmet>
+
       <Paper
         p="lg"
         radius="md"

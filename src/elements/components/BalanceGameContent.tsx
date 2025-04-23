@@ -18,6 +18,7 @@ import BalanceCard from "./BalanceCard";
 import DummyComponent from "./DummyComponent";
 import MobileBalanceGameSearchButton from "./mobile/MobileBalanceGameSearchButton";
 import PcBalanceGameSearchArea from "./pc/PcBalanceGameSearchArea";
+import { Helmet } from "react-helmet-async";
 
 const BalanceGameContent = () => {
   const { isLogin } = useUserStore();
@@ -108,54 +109,71 @@ const BalanceGameContent = () => {
   }
 
   return (
-    <Flex w={"100%"} direction={"column"}>
-      {/* 필터 섹션 */}
-
-      {isSmall ? (
-        <MobileBalanceGameSearchButton
-          filters={filters}
-          handleDateChange={handleDateChange}
-          handleFilterChange={handleFilterChange}
-          applySearch={handleSearch}
-          handleCategoryChange={handleCategoryChange}
-          setFilters={setFilters}
+    <>
+      <Helmet>
+        <title>밸런스 게임 | Balance Factory</title>
+        <meta
+          name="description"
+          content="실시간 인기 밸런스 게임을 즐기고, 다양한 선택의 결과를 확인해보세요. 친구들과 공유할 수 있는 재미있는 질문들이 가득!"
         />
-      ) : (
-        <PcBalanceGameSearchArea
-          filters={filters}
-          handleDateChange={handleDateChange}
-          handleFilterChange={handleFilterChange}
-          applySearch={handleSearch}
-          handleCategoryChange={handleCategoryChange}
-          setFilters={setFilters}
-          isLoading={isLoading}
+        <meta property="og:title" content="밸런스 게임 | Balance Factory" />
+        <meta
+          property="og:description"
+          content="지금 가장 인기 있는 밸런스 게임을 즐기고, 선택의 순간을 친구들과 공유해보세요!"
         />
-      )}
+        <meta property="og:url" content="https://gugunan.ddns.net/balance" />
+        <meta property="og:type" content="website" />
+      </Helmet>
 
-      {data?.pages[0].totalElements === 0 && (
-        <Title ta={"center"} order={2} mt="xl">
-          데이터가 존재하지 않습니다.
-        </Title>
-      )}
-      <Box mt={"xl"}>
-        {isInitialLoading ? (
-          <DummyComponent cols={colSize} isLoading={true} />
+      <Flex w={"100%"} direction={"column"}>
+        {/* 필터 섹션 */}
+
+        {isSmall ? (
+          <MobileBalanceGameSearchButton
+            filters={filters}
+            handleDateChange={handleDateChange}
+            handleFilterChange={handleFilterChange}
+            applySearch={handleSearch}
+            handleCategoryChange={handleCategoryChange}
+            setFilters={setFilters}
+          />
         ) : (
-          <SimpleGrid cols={colSize} spacing={"xl"}>
-            {data?.pages?.map((page) =>
-              page.content.map((item) => (
-                <BalanceCard key={item.questionId} data={item} />
-              ))
-            )}
-          </SimpleGrid>
+          <PcBalanceGameSearchArea
+            filters={filters}
+            handleDateChange={handleDateChange}
+            handleFilterChange={handleFilterChange}
+            applySearch={handleSearch}
+            handleCategoryChange={handleCategoryChange}
+            setFilters={setFilters}
+            isLoading={isLoading}
+          />
         )}
-      </Box>
-      <Box ref={setObserverRef} bg={"transparent"} h={30} />
 
-      <Flex justify={"center"}>
-        {isFetchingNextPage && <Loader size={"xl"} />}
+        {data?.pages[0].totalElements === 0 && (
+          <Title ta={"center"} order={2} mt="xl">
+            데이터가 존재하지 않습니다.
+          </Title>
+        )}
+        <Box mt={"xl"}>
+          {isInitialLoading ? (
+            <DummyComponent cols={colSize} isLoading={true} />
+          ) : (
+            <SimpleGrid cols={colSize} spacing={"xl"}>
+              {data?.pages?.map((page) =>
+                page.content.map((item) => (
+                  <BalanceCard key={item.questionId} data={item} />
+                ))
+              )}
+            </SimpleGrid>
+          )}
+        </Box>
+        <Box ref={setObserverRef} bg={"transparent"} h={30} />
+
+        <Flex justify={"center"}>
+          {isFetchingNextPage && <Loader size={"xl"} />}
+        </Flex>
       </Flex>
-    </Flex>
+    </>
   );
 };
 

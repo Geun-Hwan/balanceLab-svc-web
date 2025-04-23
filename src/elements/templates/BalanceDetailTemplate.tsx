@@ -35,6 +35,7 @@ import { getQuestionDetail, updateQuestionTotal } from "@/service/publicApi";
 import etcA from "@asset/images/etcA.png";
 import etcB from "@asset/images/etcB.png";
 import { modals } from "@mantine/modals";
+import { Helmet } from "react-helmet-async";
 
 const BalanceDetailTemplate = () => {
   const qc = useQueryClient();
@@ -231,6 +232,27 @@ const BalanceDetailTemplate = () => {
   // 비율 계산
   return (
     <Content>
+      <Helmet>
+        <title>밸런스 게임 상세 | Balance Factory</title>
+        <meta
+          name="description"
+          content="이 페이지에서는 특정 밸런스 게임에 대한 상세 정보를 확인하고, 선택을 할 수 있습니다."
+        />
+        <meta
+          property="og:title"
+          content="밸런스 게임 상세 | Balance Factory"
+        />
+        <meta
+          property="og:description"
+          content="밸런스 게임의 각 질문에 대한 상세 정보와 선택지를 제공합니다."
+        />
+        <meta
+          property="og:url"
+          content="https://gugunan.ddns.net/balance/:questionId"
+        />
+        <meta property="og:type" content="website" />
+      </Helmet>
+
       <Skeleton visible={isLoading} mt={"lg"} h={"100%"}>
         <Text
           mt={"xl"}

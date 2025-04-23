@@ -12,6 +12,7 @@ import {
   useMantineColorScheme,
 } from "@mantine/core";
 import { modals } from "@mantine/modals";
+import { Helmet } from "react-helmet-async";
 
 const SettingTemplate = () => {
   const {
@@ -44,6 +45,20 @@ const SettingTemplate = () => {
 
   return (
     <Content>
+      <Helmet>
+        <title>홈페이지 설정 | Balance Factory</title>
+        <meta
+          name="description"
+          content="Balance Factory에서 애니메이션, 다크 모드, 언어 설정 등을 조정하여 나만의 맞춤형 환경을 만들어보세요!"
+        />
+        <meta property="og:title" content="홈페이지 설정 | Balance Factory" />
+        <meta
+          property="og:description"
+          content="애니메이션 효과, 다크 모드, 언어 설정 등 다양한 개인화 옵션을 통해 사이트를 더 편리하게 사용할 수 있습니다."
+        />
+        <meta property="og:url" content="https://gugunan.ddns.net/setting" />
+        <meta property="og:type" content="website" />
+      </Helmet>
       <Paper
         p="lg"
         radius="md"

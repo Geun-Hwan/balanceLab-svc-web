@@ -9,6 +9,7 @@ import DragHint from "./DragHint";
 import { getBalanceDummyData } from "../../utils/dummy";
 import { EmblaCarouselType } from "embla-carousel-react";
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 
 const MainContents = () => {
   const queries = useQueries({
@@ -35,37 +36,52 @@ const MainContents = () => {
   });
 
   return (
-    <Flex direction="column" gap={"lg"} py={"lg"}>
-      <BalanceCardSlider
-        sliderKey={"today"}
-        title="오늘의 밸런스 게임"
-        data={queries[0].data}
-        isLoading={queries[0].isLoading}
-        noDataText="오늘의 밸런스게임 생성전입니다."
-      />
-      <BalanceCardSlider
-        sliderKey={"daily"}
-        title="실시간 인기 TOP3"
-        data={queries[1].data}
-        isLoading={queries[0].isLoading}
-        noDataText="실시간 랭킹 집계중"
-      />
+    <>
+      <Helmet>
+        <meta
+          name="description"
+          content="오늘의 추천 게임부터 실시간 인기, 주간·월간 랭킹까지! 지금 가장 핫한 밸런스 질문들을 만나보세요."
+        />
 
-      <BalanceCardSlider
-        sliderKey={"weekly"}
-        title="주간 인기 TOP3"
-        data={queries[2].data}
-        isLoading={queries[2].isLoading}
-        noDataText="주간 랭킹 집계중"
-      />
-      <BalanceCardSlider
-        sliderKey={"monthly"}
-        title="월간 인기 TOP3"
-        data={queries[3].data}
-        isLoading={queries[3].isLoading}
-        noDataText="월간 랭킹 집계중"
-      />
-    </Flex>
+        <meta
+          property="og:description"
+          content="재미있는 선택이 넘치는 공간! 실시간 인기 게임으로 친구들과 고민을 나눠보세요."
+        />
+        <meta property="og:url" content="https://gugunan.ddns.net" />
+        <meta property="og:type" content="website" />
+      </Helmet>
+      <Flex direction="column" gap={"lg"} py={"lg"}>
+        <BalanceCardSlider
+          sliderKey={"today"}
+          title="오늘의 밸런스 게임"
+          data={queries[0].data}
+          isLoading={queries[0].isLoading}
+          noDataText="오늘의 밸런스게임 생성전입니다."
+        />
+        <BalanceCardSlider
+          sliderKey={"daily"}
+          title="실시간 인기 TOP3"
+          data={queries[1].data}
+          isLoading={queries[0].isLoading}
+          noDataText="실시간 랭킹 집계중"
+        />
+
+        <BalanceCardSlider
+          sliderKey={"weekly"}
+          title="주간 인기 TOP3"
+          data={queries[2].data}
+          isLoading={queries[2].isLoading}
+          noDataText="주간 랭킹 집계중"
+        />
+        <BalanceCardSlider
+          sliderKey={"monthly"}
+          title="월간 인기 TOP3"
+          data={queries[3].data}
+          isLoading={queries[3].isLoading}
+          noDataText="월간 랭킹 집계중"
+        />
+      </Flex>
+    </>
   );
 };
 

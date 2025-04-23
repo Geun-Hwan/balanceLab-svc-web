@@ -17,6 +17,7 @@ import { useMutation } from "@tanstack/react-query";
 import { AxiosResponse } from "axios";
 import { ChangeEvent, useEffect, useState } from "react";
 import { Form, useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 const JointTemplate = () => {
   const { showAlert } = useAlertStore();
@@ -386,6 +387,21 @@ const JointTemplate = () => {
 
   return (
     <Content headerProps={{ name: "Join" }}>
+      <Helmet>
+        <title>회원가입 | Balance Factory</title>
+        <meta
+          name="description"
+          content="Balance Factory에 회원가입하여 다양한 게임을 즐기고, 나만의 게임 경험을 시작하세요!"
+        />
+        <meta property="og:title" content="회원가입 | Balance Factory" />
+        <meta
+          property="og:description"
+          content="지금 가입하고 다양한 밸런스 게임과 예측 게임에 참여하세요!"
+        />
+        <meta property="og:url" content="https://gugunan.ddns.net/join" />
+        <meta property="og:type" content="website" />
+      </Helmet>
+
       <Paper
         p="lg"
         radius="md"

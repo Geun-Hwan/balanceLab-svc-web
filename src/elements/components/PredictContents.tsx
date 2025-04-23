@@ -11,6 +11,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import PredictBetMadal from "./PredictBetMadal";
 import PredictCard from "./PredictCard";
+import { Helmet } from "react-helmet-async";
 
 const PredictContents = () => {
   const { isLogin } = useUserStore();
@@ -113,41 +114,57 @@ const PredictContents = () => {
   }, [isSmall, isMidium, isExtra]);
 
   return (
-    <Flex w={"100%"} direction={"column"}>
-      {data?.pages[0].totalElements === 0 && (
-        <Title ta={"center"} order={2} mt="xl">
-          데이터가 존재하지 않습니다.
-        </Title>
-      )}
-      <Box mt={"xl"}>
-        {isInitialLoading ? (
-          <DummyComponent cols={colSize} type="predict" isLoading={true} />
-        ) : (
-          <SimpleGrid cols={colSize} spacing={"xl"}>
-            {data?.pages?.map((page) =>
-              page.content.map((item) => (
-                <PredictCard
-                  key={item.predictId}
-                  data={item}
-                  handleClick={handleClick}
-                />
-              ))
-            )}
-          </SimpleGrid>
+    <>
+      <Helmet>
+        <title>결과 예측 게임 | Balance Factory</title>
+        <meta
+          name="description"
+          content="특정 주제에 대한 결과를 예측하고, 그 예측이 맞았는지 확인해보세요! 다양한 주제에 대해 재미있는 예측을 즐기세요."
+        />
+        <meta property="og:title" content="결과 예측 게임 | Balance Factory" />
+        <meta
+          property="og:description"
+          content="주어진 주제에 대해 예측을 하고, 그 결과를 확인해보세요. 여러분의 예측이 얼마나 정확한지 도전해보세요!"
+        />
+        <meta property="og:url" content="https://gugunan.ddns.net/predict" />
+        <meta property="og:type" content="website" />
+      </Helmet>
+      <Flex w={"100%"} direction={"column"}>
+        {data?.pages[0].totalElements === 0 && (
+          <Title ta={"center"} order={2} mt="xl">
+            데이터가 존재하지 않습니다.
+          </Title>
         )}
-      </Box>
-      <Box ref={setObserverRef} bg={"transparent"} h={30} />
+        <Box mt={"xl"}>
+          {isInitialLoading ? (
+            <DummyComponent cols={colSize} type="predict" isLoading={true} />
+          ) : (
+            <SimpleGrid cols={colSize} spacing={"xl"}>
+              {data?.pages?.map((page) =>
+                page.content.map((item) => (
+                  <PredictCard
+                    key={item.predictId}
+                    data={item}
+                    handleClick={handleClick}
+                  />
+                ))
+              )}
+            </SimpleGrid>
+          )}
+        </Box>
+        <Box ref={setObserverRef} bg={"transparent"} h={30} />
 
-      <Flex justify={"center"}>
-        {isFetchingNextPage && <Loader size={"xl"} />}
+        <Flex justify={"center"}>
+          {isFetchingNextPage && <Loader size={"xl"} />}
+        </Flex>
+
+        <PredictBetMadal
+          data={modalData as IPredictResult}
+          opened={detailOpend}
+          close={handleClose}
+        />
       </Flex>
-
-      <PredictBetMadal
-        data={modalData as IPredictResult}
-        opened={detailOpend}
-        close={handleClose}
-      />
-    </Flex>
+    </>
   );
 };
 

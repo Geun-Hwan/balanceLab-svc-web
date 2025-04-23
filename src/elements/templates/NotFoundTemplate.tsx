@@ -1,7 +1,12 @@
-import React from "react";
+import NotFoundImage from "@asset/images/notfound.png";
+import { Flex, Image } from "@mantine/core";
 
 const NotFoundTemplate = () => {
-  return <div>NotFoundTemplate</div>;
+  return (
+    <Flex justify={"center"} p={"xl"}>
+      <Image src={NotFoundImage} alt="Not Found" />
+    </Flex>
+  );
 };
 
 export default NotFoundTemplate;

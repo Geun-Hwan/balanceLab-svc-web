@@ -4,7 +4,7 @@ import { getPredictionKey, IPredictResult } from "@/service/predictApi";
 import { getPublicPredictList } from "@/service/publicApi";
 import { useAlertStore, useUserStore } from "@/store/store";
 import DummyComponent from "@cmp/DummyComponent";
-import { Box, Flex, Loader, SimpleGrid, Title } from "@mantine/core";
+import { Box, Button, Flex, Loader, SimpleGrid, Title } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -22,6 +22,9 @@ const PredictContents = () => {
   const {
     data,
     isLoading,
+    isError,
+    error,
+    refetch,
     isFetchingNextPage,
     fetchNextPage,
     hasNextPage,
@@ -52,7 +55,7 @@ const PredictContents = () => {
 
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-  const [colSize, setColsize] = useState(0);
+  const [colSize, setColsize] = useState(3);
   const [modalData, setModalData] = useState<IPredictResult | null>(null);
 
   const handleClick = (prediction: IPredictResult) => {
@@ -111,6 +114,7 @@ const PredictContents = () => {
       setColsize(1);
       return;
     }
+    setColsize(3);
   }, [isSmall, isMidium, isExtra]);
 
   return (
@@ -130,13 +134,29 @@ const PredictContents = () => {
         <meta property="og:type" content="website" />
       </Helmet>
       <Flex w={"100%"} direction={"column"}>
-        {data?.pages[0].totalElements === 0 && (
+        {isError && (
+          <Flex direction="column" align="center" mt="xl" gap="sm">
+            <Title ta={"center"} order={3}>
+              데이터를 불러오지 못했습니다.
+            </Title>
+            <Button variant="light" onClick={() => refetch()}>
+              다시 시도
+            </Button>
+            {error && (
+              <Box c="dimmed" fz="sm">
+                {(error as any)?.message ?? ""}
+              </Box>
+            )}
+          </Flex>
+        )}
+
+        {!isLoading && !isError && data?.pages?.[0]?.totalElements === 0 && (
           <Title ta={"center"} order={2} mt="xl">
             데이터가 존재하지 않습니다.
           </Title>
         )}
         <Box mt={"xl"}>
-          {isInitialLoading ? (
+          {isInitialLoading || (!isLoading && !isError && !data) ? (
             <DummyComponent cols={colSize} type="predict" isLoading={true} />
           ) : (
             <SimpleGrid cols={colSize} spacing={"xl"}>

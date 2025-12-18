@@ -40,7 +40,7 @@ const BalanceGameContent = () => {
   } = useBalanceGameList(isLogin, 18);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-  const [colSize, setColsize] = useState(0);
+  const [colSize, setColsize] = useState(3);
 
   // ✅ IntersectionObserver를 사용한 자동 로딩
 
@@ -81,6 +81,7 @@ const BalanceGameContent = () => {
       setColsize(1);
       return;
     }
+    setColsize(3);
   }, [isSmall, isMidium, isExtra]);
 
   const handleSearch = () => {
@@ -103,10 +104,6 @@ const BalanceGameContent = () => {
 
     applySearch();
   };
-
-  if (colSize === 0) {
-    return;
-  }
 
   return (
     <>

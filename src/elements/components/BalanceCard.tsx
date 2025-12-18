@@ -41,13 +41,11 @@ const BalanceCard = React.memo(
         endDate ? dayjs(endDate).format("YYYY-MM-DD") : null,
       ];
 
-      if (!formattedStartDate && !formattedEndDate) {
+      if (!formattedEndDate) {
         return "기간 제한 없음";
       } else if (!formattedStartDate && formattedEndDate) {
-        return `종료일: ${formattedEndDate}`;
-      } else if (formattedStartDate && !formattedEndDate) {
-        return `시작일: ${formattedStartDate}`;
-      } else {
+        return `마감일: ${formattedEndDate}`;
+      }  else {
         return `${formattedStartDate} ~ ${formattedEndDate}`;
       }
     }, [strDate, endDate]);

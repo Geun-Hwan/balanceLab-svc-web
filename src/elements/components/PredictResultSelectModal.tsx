@@ -18,6 +18,7 @@ const PredictResultSelectModal = ({ data }: { data: IPredictResult }) => {
 
   const { optionA, optionB, optionC, predictId, questionStatusCd, winner } =
     data; // 예측 데이터
+  const da: any[] = [];
 
   const [selectedOption, setSelectedOption] = useState<string | null>(null); // 선택된 결과 옵션
 
